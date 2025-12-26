@@ -1,0 +1,8 @@
+{
+  "name": "MetaAgent Framework UI",
+  "description": "A minimalist, intuitive frontend for a Meta-Agentic orchestration framework, featuring real-time visualization of multi-agent reasoning and task delegation powered by Gemini 3.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}

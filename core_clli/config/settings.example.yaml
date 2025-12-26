@@ -1,0 +1,27 @@
+llm:
+  fallback_provider: null
+  gemini:
+    api_key: ""  # Set via environment variable: GEMINI_API_KEY
+    max_tokens: 4096
+    model: models/gemini-2.5-flash
+    temperature: 0.7
+  groq:
+    api_key: ""  # Set via environment variable: GROQ_API_KEY
+    max_tokens: 4096
+    model: llama-3.3-70b-versatile
+    temperature: 0.7
+  ollama:
+    max_tokens: 2048
+    model: phi3:latest
+    temperature: 0.3
+  openrouter:
+    api_key: ""  # Set via environment variable: OPENROUTER_API_KEY
+    max_tokens: 2048
+    model: meta-llama/llama-3.1-70b-instruct
+    temperature: 0.7
+  primary_provider: ollama
+
+system:
+  debug: false
+  max_retries: 3
+  timeout: 30

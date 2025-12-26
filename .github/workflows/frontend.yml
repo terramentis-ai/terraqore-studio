@@ -1,0 +1,73 @@
+name: Frontend Build & Deploy
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'gui/**'
+      - '.github/workflows/frontend.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'gui/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 16.x, 18.x, 20.x ]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: gui/package-lock.json
+
+    - name: Install dependencies
+      working-directory: gui
+      run: npm ci
+
+    - name: Run linter
+      working-directory: gui
+      run: npm run lint || true
+
+    - name: Build frontend
+      working-directory: gui
+      run: npm run build
+      env:
+        VITE_API_URL: http://localhost:8000
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      if: matrix.node-version == '20.x'
+      with:
+        name: frontend-build
+        path: gui/dist/
+        retention-days: 30
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: frontend-build
+        path: gui/dist/
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./gui/dist
+        cname: flyntcore.ai
+      continue-on-error: true
