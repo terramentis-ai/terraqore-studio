@@ -142,7 +142,7 @@ For someone deploying to GitHub:
 
 ## 🔐 Security Checklist Completed
 
-- ✓ No Groq API keys in code (removed: `REDACTED_API_KEY`)
+- ✓ No Groq API keys in code
 - ✓ No Gemini API keys in code
 - ✓ No OpenRouter API keys in code
 - ✓ `.env` files excluded from git
