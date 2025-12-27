@@ -1,0 +1,4 @@
+UX/UI DESIGN OPTION!
+
+user imputs a query, Orchestrator engine processes required preliminaries and populates the palyground with the needed workforce as independent tiles, each containing imformation about the agent(role in the project, status, tasks needed to perform, and it's decisions mechanism, user should bebable to refine task roles interactively, maybe pause the workflow and edit roles, modify tools, etc).
+on the left pane there is a live preview panel showing a step by step visual output of what is been built(animated simulation) the preview pane simultes an animated 3D rendering of the building progress of the given project and the code stream in another toggle(can toggle between raw/code).

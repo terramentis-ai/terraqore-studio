@@ -1,0 +1,152 @@
+{
+    "appName": "Flynt Studio UI - Non-Technical Variant",
+    "description": "Wireframe spec optimized for non-technical users (e.g., small business owners like honey sellers). Focuses on guided wizards, simplified language, visual previews, one-click approvals, and minimal steps to reduce overwhelm. Stays within a single workspace builder panel for all actions, with templates for common tasks like website building.",
+    "techStack": {
+        "framework": "Streamlit or Gradio (Python-based for seamless CLI integration, with voice input support)",
+        "deployment": "Docker or cloud-hosted with simple authentication (e.g., email magic links)"
+    },
+    "globalTheme": {
+        "colors": {
+            "primary": "#FFD700",
+            "secondary": "#000000",
+            "accent": "#FF4500"
+        },
+        "typography": "Sans-serif, large and readable",
+        "layout": "Single-panel workspace with guided steps (no sidebar overload)",
+        "accessibility": {
+            "highContrastMode": "Default on for simplicity",
+            "keyboardNav": "Minimal; favor mouse/touch/voice",
+            "screenReader": "ARIA labels with plain English",
+            "voiceCommands": "Integrated for hands-free approvals (e.g., 'Approve task')"
+        },
+        "customization": {
+            "simplicityMode": "Enabled by default: Hides advanced options, uses big buttons"
+        }
+    },
+    "pages": [
+        {
+            "name": "Welcome/Onboarding",
+            "path": "/",
+            "components": [
+                {
+                    "type": "header",
+                    "text": "Welcome! Let's Build Your Website Easily",
+                    "position": "top-center",
+                    "description": "Friendly illustration of a simple workflow (e.g., cartoon steps)"
+                },
+                {
+                    "type": "wizard",
+                    "steps": [
+                        {
+                            "label": "Tell Us About Your Business",
+                            "content": "Simple input: 'I sell natural honey' (with voice input option)"
+                        },
+                        {
+                            "label": "Pick a Template",
+                            "content": "Visual cards: 'Online Store', 'Basic Website' (big previews, one-click select)"
+                        },
+                        {
+                            "label": "Start Building",
+                            "content": "Auto-transition to Workspace Builder"
+                        }
+                    ],
+                    "button": {
+                        "label": "Get Started (Big, orange button)"
+                    }
+                },
+                {
+                    "type": "toggle",
+                    "label": "Offline Mode",
+                    "description": "Work without internet (simple explanation tooltip)"
+                }
+            ]
+        },
+        {
+            "name": "Workspace Builder",
+            "path": "/builder",
+            "components": [
+                {
+                    "type": "header",
+                    "text": "Your Website Builder",
+                    "position": "top",
+                    "description": "Single panel: No tabs/sidebars; vertical step-by-step flow"
+                },
+                {
+                    "type": "stepper",
+                    "steps": [
+                        {
+                            "label": "Step 1: Ideate Your Site",
+                            "content": "AI suggests ideas (e.g., 'Honey shop homepage with product photos'); big 'Approve' button, 'Edit' for simple changes"
+                        },
+                        {
+                            "label": "Step 2: Plan Layout",
+                            "content": "Visual drag-drop preview (big blocks like header, products, contact); 'Looks Good' button"
+                        },
+                        {
+                            "label": "Step 3: Generate Content",
+                            "content": "AI fills text/images; preview pane with 'Regenerate' or 'Approve' buttons"
+                        },
+                        {
+                            "label": "Step 4: Review & Deploy",
+                            "content": "Full site preview; 'Deploy Now' button (one-click hosting); 'Back' for tweaks"
+                        }
+                    ],
+                    "progress": "Visual bar showing completion (e.g., 2/4 steps done)"
+                },
+                {
+                    "type": "preview",
+                    "description": "Live site mockup on right (updates in real-time); zoom/pan for details"
+                },
+                {
+                    "type": "help",
+                    "description": "Floating chat bubble: 'Ask for help' (AI explains in plain language)"
+                },
+                {
+                    "type": "voice",
+                    "description": "Mic button for commands (e.g., 'Approve this step')"
+                }
+            ]
+        },
+        {
+            "name": "Settings",
+            "path": "/settings",
+            "components": [
+                {
+                    "type": "section",
+                    "title": "Easy Settings",
+                    "content": "Big toggles: Offline Mode, Voice Help, Simple View (hides tech jargon)"
+                },
+                {
+                    "type": "section",
+                    "title": "Account",
+                    "content": "Subscription info, logout (with 'Need Help?' button)"
+                }
+            ]
+        }
+    ],
+    "modals": [
+        {
+            "name": "Quick Tip Modal",
+            "components": [
+                {
+                    "type": "text",
+                    "content": "Pop-up tips at each step (e.g., 'Click Approve to move on!')"
+                }
+            ]
+        }
+    ],
+    "additionalFeatures": {
+        "authentication": "Simple email link for non-tech users",
+        "onboarding": "Wizard-driven from start; auto-suggest based on business description",
+        "interactivity": "Big buttons, real-time previews, voice/click approvals only",
+        "simplification": "No jargon; plain English (e.g., 'Make Website' instead of 'Deploy')",
+        "feedback": "Thumbs up/down after each step for quick improvements"
+    },
+    "diagrams": [
+        {
+            "name": "Simplified Flow",
+            "type": "flowchart",
+            "mermaidCode": "graph TD\n    A[Welcome Wizard] --> B[Workspace Builder]\n    B --> C[Step 1: Ideate]\n    C --> D[Approve/Edit]\n    D --> E[Step 2: Plan]\n    E --> F[Step 3: Generate]\n    F --> G[Step 4: Deploy]\n    G --> H[Done! Your Site is Live]\n    style A fill:#FFD700,stroke:#FF4500\n    style B fill:#FF4500,stroke:#000000"
+        }
+    ]
+}

@@ -1,0 +1,23 @@
+llm:
+  fallback_provider: groq
+  gemini:
+    max_tokens: 4096
+    model: gemini-1.5-flash
+    temperature: 0.7
+  groq:
+    max_tokens: 4096
+    model: llama-3.1-70b-versatile
+    temperature: 0.7
+  openrouter:
+    max_tokens: 4096
+    model: mistralai/mistral-small-creative
+    temperature: 0.7
+  primary_provider: ollama
+  ollama:
+    max_tokens: 4096
+    model: phi3.5
+    temperature: 0.7
+system:
+  debug: false
+  max_retries: 3
+  timeout: 30

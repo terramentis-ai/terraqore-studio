@@ -9,6 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 
+from flynt_api.routers import self_marketing_agent
+
 logger = logging.getLogger(__name__)
 
 
@@ -76,7 +78,7 @@ def create_app() -> FastAPI:
         )
     
     # Include routers
-    from flynt_api.routers import projects, tasks, workflows, task6_marketing
+    from flynt_api.routers import projects, tasks, workflows
     
     app.include_router(
         projects.router,
@@ -97,7 +99,7 @@ def create_app() -> FastAPI:
     )
     
     app.include_router(
-        task6_marketing.router,
+        self_marketing_agent.router,
         tags=["task6-marketing"]
     )
     

@@ -1,0 +1,25 @@
+v1.1 · Production Security (Weeks 1‑4)
+
+Prompt injection defense: Add PromptInjectionDefense plus SecurityViolation to core_cli/core/security_validator.py; hook validation into every agent entry point (e.g., coder_agent.py, planner_agent.py) via a lightweight decorator so all user/system prompts are scanned before execution.
+Sandboxed execution upgrade: Extend the existing Docker-backed runner in code_executor.py with CPU/memory/time quotas, execution transcripts, and rollback metadata so executor.py can halt workflows on dangerous output.
+Hallucination detection: Introduce HallucinationDetector under core_cli/agents/ (or core_cli/agents/hallucination_detector.py) and integrate with code_validator_agent.py to run AST validation, spec matching, and security scans before approving code.
+Security regression tests: Stand up tests/security/ with ≥20 prompt-injection fixtures, malicious shell/code samples for the executor, and cross-agent validation tests; wire them into build.ps1 so the “Security First” marketing claim is test-backed.
+Docs & collateral: Update FASTAPI_IMPLEMENTATION.md and DOCUMENTATION_INDEX.md with a Security section; draft whitepaper outline + comparison page copy for the planned Hacker News launch.
+v1.2 · Enterprise Reliability (Weeks 5‑8)
+
+PSMP hardening: Finish dependency conflict handling in agent_specialization_router.py and conflict_resolver_agent.py; emit automatic BLOCKED states plus conflict reports persisted through collaboration_state.py.
+Cost transparency: Create core_cli/core/cost_estimator.py to track per-agent/model token spend, budget caps, and provider selection hints; surface summaries through main.py flags and log streams.
+Monitoring & health: Add metrics collectors (uptime, latency, token usage, error rates) under core and expose them via CLI dashboards or JSON endpoints so ops teams can script alerts.
+Interactive CLI mode: Implement core_cli/cli/interactive_mode.py with approval gates, inline edits, regenerate/skip actions, and approval history persisted to the event log—this ties directly to the human-in-the-loop promise.
+v2.0 · Commercial Launch (Weeks 9‑12)
+
+UI prototype: Layer a FastAPI shim in app.py to expose orchestrations; build a React/Vite dashboard in gui/ with project visualization, workflow builder, and approval UI synced to the CLI state machine.
+Template system: Add templates/ plus CLI scaffolding commands for the five flagship templates (RAG chatbot, ML pipeline, microservices, FastAPI service, data analysis), ensuring each template bundles PSMP metadata and cost presets.
+Documentation & marketing: Refresh comparison pages, security docs, and non-technical onboarding in DOCUMENTATION_INDEX.md; script 3‑5 demo videos and draft Product Hunt + blog launch assets aligned with the guide’s talking points.
+Launch prep: Build case studies, landing page, and campaign tracking so KPIs (stars, MAUs, conversions, MRR) can be measured immediately after release.
+Immediate next steps
+
+Spin up core_cli/core/security_validator.py + injection tests to unblock Week 1.
+Scope Docker runtime limits for code_executor.py and gather malicious fixtures.
+Flesh out HallucinationDetector interface so validation hooks can land in parallel with security work.
+Once these are underway we can groom tickets per week, line up owners, and start tackling the v1.1 backlog.

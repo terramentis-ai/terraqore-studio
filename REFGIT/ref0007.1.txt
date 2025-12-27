@@ -1,0 +1,301 @@
+{
+    "appName": "Flynt Studio UI - Enhanced Version",
+    "description": "Updated wireframe spec incorporating user-friendly enhancements: simplicity via progressive disclosure, interactivity with real-time feedback, accessibility features, modular components, and improved onboarding/collaboration. This variant builds on the original for A/B testing.",
+    "techStack": {
+        "framework": "Streamlit or Gradio (Python-based for seamless CLI integration)",
+        "deployment": "Docker or cloud-hosted with authentication for commercial access"
+    },
+    "globalTheme": {
+        "colors": {
+            "primary": "#FFD700",
+            "secondary": "#000000",
+            "accent": "#FF4500"
+        },
+        "typography": "Sans-serif, modern",
+        "layout": "Responsive, sidebar navigation with progressive disclosure",
+        "accessibility": {
+            "highContrastMode": "Toggle for color-blind users (invert colors)",
+            "keyboardNav": "Full support for tab navigation and shortcuts",
+            "screenReader": "ARIA labels on all interactive elements",
+            "multilingual": "Auto-detect and translate UI (e.g., via browser API)"
+        },
+        "customization": {
+            "themes": ["Dark (default)", "Light"],
+            "fontSize": "Adjustable (small/medium/large)"
+        }
+    },
+    "pages": [
+        {
+            "name": "Login/Signup",
+            "path": "/login",
+            "components": [
+                {
+                    "type": "header",
+                    "text": "Welcome to Flynt Studio Pro",
+                    "position": "top-center"
+                },
+                {
+                    "type": "form",
+                    "fields": [
+                        {
+                            "type": "input",
+                            "label": "Email"
+                        },
+                        {
+                            "type": "input",
+                            "label": "Password",
+                            "secure": true
+                        }
+                    ],
+                    "button": {
+                        "label": "Login"
+                    },
+                    "alternative": {
+                        "label": "Signup",
+                        "link": "/signup"
+                    }
+                },
+                {
+                    "type": "toggle",
+                    "label": "Offline Mode",
+                    "description": "Use local Ollama for no-internet access"
+                },
+                {
+                    "type": "wizard",
+                    "description": "On first login: Guided tour modal explaining key features"
+                }
+            ]
+        },
+        {
+            "name": "Dashboard",
+            "path": "/dashboard",
+            "components": [
+                {
+                    "type": "sidebar",
+                    "items": [
+                        {
+                            "label": "Projects",
+                            "icon": "folder",
+                            "link": "/projects"
+                        },
+                        {
+                            "label": "Agents",
+                            "icon": "robot",
+                            "link": "/agents"
+                        },
+                        {
+                            "label": "Workflows",
+                            "icon": "flowchart",
+                            "link": "/workflows"
+                        },
+                        {
+                            "label": "Settings",
+                            "icon": "gear",
+                            "link": "/settings"
+                        },
+                        {
+                            "label": "Help Center",
+                            "icon": "question",
+                            "link": "/help",
+                            "description": "Tutorials, FAQs, AI-assisted chat"
+                        }
+                    ]
+                },
+                {
+                    "type": "header",
+                    "text": "Your Projects",
+                    "position": "top"
+                },
+                {
+                    "type": "list",
+                    "items": "Dynamic project cards with name, status, last updated (pinnable for customization)",
+                    "actions": [
+                        "Open",
+                        "Delete",
+                        "Share (invite link with roles)"
+                    ]
+                },
+                {
+                    "type": "button",
+                    "label": "Create New Project",
+                    "action": "Open modal for project setup"
+                },
+                {
+                    "type": "toggle",
+                    "label": "Focus Mode",
+                    "description": "Minimize sidebar and non-essential elements"
+                },
+                {
+                    "type": "feedback",
+                    "description": "Subtle prompt: 'Rate this dashboard' after interactions"
+                }
+            ]
+        },
+        {
+            "name": "Project Detail",
+            "path": "/project/:id",
+            "components": [
+                {
+                    "type": "tabs",
+                    "tabs": [
+                        {
+                            "label": "Ideation",
+                            "content": "Brainstorming input/output area (with tooltips for help)"
+                        },
+                        {
+                            "label": "Planning",
+                            "content": "Task tree view (drag-and-drop editable, with animations)"
+                        },
+                        {
+                            "label": "Coding",
+                            "content": "Code editor/preview with generate button (real-time previews)"
+                        },
+                        {
+                            "label": "Notebooks",
+                            "content": "Jupyter-like viewer with run/export"
+                        },
+                        {
+                            "label": "Execution",
+                            "content": "Run button, logs, rollback slider (with undo/redo stack)"
+                        }
+                    ]
+                },
+                {
+                    "type": "graph",
+                    "description": "Visual workflow graph (collapsed by default, expands on hover; nodes with contextual help)"
+                },
+                {
+                    "type": "console",
+                    "description": "Real-time logs and status updates (with error banners for handling)"
+                },
+                {
+                    "type": "share",
+                    "description": "Button for real-time co-editing invites"
+                }
+            ]
+        },
+        {
+            "name": "Workflow Builder",
+            "path": "/workflows",
+            "components": [
+                {
+                    "type": "canvas",
+                    "description": "Drag-and-drop builder for chaining agents (with live previews and animations on connect)"
+                },
+                {
+                    "type": "toolbar",
+                    "items": [
+                        "Add Agent",
+                        "Connect Nodes",
+                        "Test Run",
+                        "Save Workflow",
+                        "Export/Import (JSON file support)"
+                    ]
+                },
+                {
+                    "type": "preview",
+                    "description": "Side panel for workflow simulation in test-mode (real-time feedback)"
+                },
+                {
+                    "type": "library",
+                    "description": "Searchable agent palette with filters (e.g., offline-compatible)"
+                }
+            ]
+        },
+        {
+            "name": "Settings",
+            "path": "/settings",
+            "components": [
+                {
+                    "type": "section",
+                    "title": "LLM Providers",
+                    "content": "Dropdowns for primary/secondary LLMs (Gemini, Groq, Ollama; AI-suggested defaults)"
+                },
+                {
+                    "type": "section",
+                    "title": "Offline Config",
+                    "content": "Toggles for local models, cache management"
+                },
+                {
+                    "type": "section",
+                    "title": "Account",
+                    "content": "Subscription status, API keys, logout"
+                },
+                {
+                    "type": "section",
+                    "title": "Accessibility",
+                    "content": "Toggles for high-contrast, larger fonts, voice commands"
+                },
+                {
+                    "type": "section",
+                    "title": "Personalization",
+                    "content": "Theme selector, language dropdown"
+                }
+            ]
+        }
+    ],
+    "modals": [
+        {
+            "name": "New Project Modal",
+            "components": [
+                {
+                    "type": "input",
+                    "label": "Project Name"
+                },
+                {
+                    "type": "select",
+                    "label": "Template",
+                    "options": [
+                        "RAG Chatbot",
+                        "ML Pipeline",
+                        "Historical Translator",
+                        "Diffusion Media Gen"
+                    ]
+                },
+                {
+                    "type": "button",
+                    "label": "Create"
+                }
+            ]
+        },
+        {
+            "name": "Guided Tour Modal",
+            "components": [
+                {
+                    "type": "steps",
+                    "description": "Wizard steps: Demo project creation, workflow chaining, execution"
+                }
+            ]
+        }
+    ],
+    "additionalFeatures": {
+        "authentication": "Required for commercial access",
+        "analytics": "LLM cost tracking dashboard",
+        "collaboration": "Real-time co-editing, shareable links with roles",
+        "interactivity": "Animations, real-time previews, undo/redo",
+        "onboarding": "Welcome wizard on first use",
+        "feedback": "In-app rating prompts for iteration"
+    },
+    "diagrams": [
+        {
+            "name": "Overall Navigation Flow",
+            "type": "flowchart",
+            "mermaidCode": "graph TD\n    A[Login/Signup] --> B[Dashboard]\n    B --> C[Project Detail]\n    B --> D[Workflow Builder]\n    B --> E[Settings]\n    C --> F[Ideation Tab]\n    C --> G[Planning Tab]\n    C --> H[Coding Tab]\n    C --> I[Notebooks Tab]\n    C --> J[Execution Tab]\n    D --> K[Canvas for Agent Chaining]\n    E --> L[LLM Providers]\n    E --> M[Offline Config]\n    E --> N[Account]\n    style A fill:#FFD700,stroke:#000000\n    style B fill:#FF4500,stroke:#000000"
+        },
+        {
+            "name": "Dashboard Layout",
+            "type": "flowchart",
+            "mermaidCode": "graph LR\n    Sidebar[Sidebar with Links] -->|Right| Main[Main Content]\n    Main --> Header[Header: Your Projects]\n    Main --> List[Project List Cards]\n    Main --> Button[Create New Project Button]\n    style Sidebar fill:#000000,stroke:#FFD700,color:#FFFFFF\n    style Main fill:#FFFFFF,stroke:#000000"
+        },
+        {
+            "name": "Project Detail Hierarchy",
+            "type": "classDiagram",
+            "mermaidCode": "classDiagram\n    ProjectDetail --> Tabs\n    Tabs --> Ideation\n    Tabs --> Planning\n    Tabs --> Coding\n    Tabs --> Notebooks\n    Tabs --> Execution\n    ProjectDetail --> WorkflowGraph\n    ProjectDetail --> ConsoleLogs\n    class ProjectDetail {\n        +id: string\n        +loadProject()\n    }\n    class Tabs {\n        +switchTab()\n    }\n    class WorkflowGraph {\n        +renderAgents()\n    }"
+        },
+        {
+            "name": "Workflow Builder Sketch",
+            "type": "flowchart",
+            "mermaidCode": "graph TD\n    Toolbar[Toolbar: Add/Connect/Test/Save] --> Canvas[Drag-Drop Canvas]\n    Canvas --> Preview[Side Preview Panel]\n    Canvas --> AgentNode[Agent Nodes e.g., IdeaAgent]\n    AgentNode --> Connection[Edges for Data Flow]\n    style Toolbar fill:#FF4500,stroke:#000000\n    style Canvas fill:#FFD700,stroke:#000000"
+        }
+    ]
+}

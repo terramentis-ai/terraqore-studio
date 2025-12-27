@@ -1,0 +1,155 @@
+Integrate a custom built-in Ollama server as a preinstalled feature in Flynt-Studio
+Transform Flynt Studio into a fully offline AI SDK. Currently, Flynt-Studio relies on cloud-based LLMs (e.g., Gemini, Groq). By embedding a custome Ollama—server a lightweight tool for local LLM inference—you can replace these with offline models, enabling self-hosted, air-gapped operation. This fits Flynt-Studio's enterprise-grade, production-ready design, enhancing resilience for offline scenarios like secure environments or low-connectivity setups.
+
+The integration will:
+- Use Ollama's OpenAI-compatible API to seamlessly swap in local LLMs for your agents (e.g., Idea Agent for conceptualization, Coder Agent for code gen).
+- Bundle a custom Ollama binary and models into your repo/distribution.
+- Automate server startup in your orchestration layer or FastAPI backend.
+- Support custom models tuned for Flynt-Studio's workflows (e.g., agent-specific prompts for planning, coding, security).
+- Maintain offline "Perplexity-like" querying: Agents can handle natural language inputs, reasoning, and outputs using local RAG (Retrieval-Augmented Generation) over pre-indexed docs (e.g., via vector storage in your core services).
+
+This keeps Flynt-Studio's multi-agent architecture intact while making it truly offline. Assume you're working in Python; extend your `requirements.txt` and config accordingly.
+
+### Step 1: Set Up Your Development Environment for Flynt-Studio
+- Clone and set up Flynt-Studio as per your README: `git clone https://github.com/Liberty-io/Flynt-Studio.git`, create venv, `pip install -r requirements.txt`.
+- Install Ollama dependencies: Add `ollama` to `requirements.txt` (`pip install ollama` for the Python client).
+- Hardware: Ensure 16GB+ RAM (for 7B+ models); GPU (NVIDIA/AMD) for acceleration via CUDA/ROCm. Flynt-Studio's 2GB min RAM works for small models like Gemma:2b.
+- Add Ollama binary: Download from ollama.com/download and place in a new `bin/` folder in your repo (e.g., `bin/ollama`). For cross-platform, include OS-specific variants and detect in code.
+
+### Step 2: Build Ollama from Source (for Custom Integration with Flynt-Studio)
+Customize Ollama to align with Flynt-Studio's resilience features (e.g., add error handling hooks, integrate with your monitoring endpoints).
+
+- Clone Ollama: In a separate dir, `git clone https://github.com/ollama/ollama`.
+- Install Go 1.21+ and build tools (per `docs/development.md`).
+- Customize:
+  - In `server/routes.go`, add middleware for API key auth (matching Flynt-Studio's security; e.g., validate against your `config/settings.yaml`).
+  - Hook into Flynt-Studio's error recovery: Modify `server/server.go` to use exponential backoff on inference failures, mirroring your circuit breakers.
+  - Expose metrics: Add endpoints (e.g., `/metrics`) for agent health integration—report LLM latency/load to Flynt-Studio's `/health` API.
+  - Build: `go generate ./... && go build -o bin/flynt-ollama .`.
+- Bundle the custom binary: Move `flynt-ollama` to Flynt-Studio's `bin/` folder. Update `.gitignore` to exclude it if needed, but include in Docker images for distribution.
+
+This creates a tailored Ollama server that is native to Flynt-Studio's architecture.
+
+### Step 3: Create Custom Models for Flynt-Studio Agents
+Tailor models to your eight agents using Ollama's Modelfile. Pre-download base models offline (e.g., `ollama pull llama3:8b`) and create variants for specialized tasks.
+
+- In a new `models/` folder in Flynt-Studio, create Modelfiles:
+  - For Coder Agent (code gen):  
+    ```
+    FROM llama3:8b
+    SYSTEM "You are a expert coder agent in Flynt-Studio. Generate secure, tested code in Python/JS/etc. based on plans. Follow best practices and include tests."
+    PARAMETER temperature 0.5  # Low for precise code
+    PARAMETER num_ctx 16384  # Large context for full workflows
+    ```
+    Build: `ollama create flynt-coder -f models/coder.Modelfile`.
+  - For Planner Agent (task decomposition):  
+    ```
+    FROM mistral:7b
+    SYSTEM "You are a planner agent in Flynt-Studio. Break down user inputs into sequential tasks for multi-agent execution. Output in YAML format for orchestration."
+    PARAMETER temperature 0.7
+    ```
+    Build: `ollama create flynt-planner -f models/planner.Modelfile`.
+  - Similarly for others (e.g., Security Agent: Add prompts for vulnerability scanning; Data Science Agent: Focus on ML pipelines).
+- Offline RAG: Enhance models with local knowledge. Use `ADD` in Modelfile to embed files (e.g., `ADD docs/best_practices.txt`). Integrate with your vector storage: In agents, use local embeddings (add `sentence-transformers` and `faiss` to `requirements.txt`) to query pre-indexed docs before LLM calls.
+- Bundle: Commit Modelfiles to repo. In setup scripts, automate `ollama create` if models are missing. For distribution, provide a script to pull/preload small quantized models (e.g., `llama3:8b-q4` for ~5GB).
+
+### Step 4: Run Ollama as a Built-In Server in Flynt-Studio
+Embed the server startup in your orchestration/core layers for seamless, preinstalled operation. It starts automatically on app init, providing a local API (http://localhost:11434) for all agents.
+
+- Update `core/llm_client.py` (or equivalent): Replace Gemini/Groq clients with Ollama. Use fallback to cloud if offline mode is disabled.
+  ```python
+  import os
+  import subprocess
+  import time
+  import requests
+  import ollama
+
+  class FlyntLLMClient:
+      def __init__(self):
+          self.offline_mode = os.getenv('FLYNT_OFFLINE', 'true') == 'true'
+          if self.offline_mode:
+              self.start_ollama_server()
+          # ... (cloud fallback logic)
+
+      def start_ollama_server(self):
+          ollama_path = os.path.join(os.path.dirname(__file__), '../bin/flynt-ollama')
+          self.process = subprocess.Popen([ollama_path, 'serve'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+          # Wait for readiness
+          for _ in range(60):
+              try:
+                  requests.get('http://localhost:11434')
+                  return
+              except:
+                  time.sleep(1)
+          raise RuntimeError("Ollama startup failed.")
+
+      def query(self, model: str, prompt: str, agent_type: str):
+          if self.offline_mode:
+              # Map to custom model
+              custom_model = f"flynt-{agent_type.lower()}"
+              response = ollama.chat(model=custom_model, messages=[{'role': 'user', 'content': prompt}])
+              return response['message']['content']
+          # Else: Cloud LLM call
+
+  # Integrate in orchestrator
+  from orchestration.orchestrator import AgentOrchestrator
+  class FlyntOrchestrator(AgentOrchestrator):
+      def __init__(self):
+          super().__init__()
+          self.llm_client = FlyntLLMClient()
+  ```
+- In `backend_main.py` (FastAPI entry): Initialize the client on startup. Add health checks: Extend `/health/agents` to include Ollama status (e.g., via `ollama ps`).
+- CLI Integration: In `cli/main.py`, init the client before runs.
+- Shutdown: Add cleanup in orchestrator's `__del__` or FastAPI shutdown event: `self.process.terminate()`.
+- Config: Add to `config/settings.yaml`:
+  ```
+  offline:
+    enabled: true
+    ollama_port: 11434
+    default_model: flynt-planner
+  ```
+- Resilience Tie-In: Use your error recovery manager—e.g., retry Ollama calls with backoff if inference fails due to load.
+
+This makes Ollama a "built-in" feature: It auto-starts, serves all agents offline, and integrates with your monitoring.
+
+### Step 5: Integrate into Flynt-Studio for Offline Perplexity-Like Functionality
+Adapt agents to use the local LLM for query handling, mimicking Perplexity's reasoning/search but offline.
+
+- Agent Enhancements:
+  - In `agents/planner_agent.py` (etc.): Swap LLM calls to `self.llm_client.query(model='flynt-planner', prompt=user_input, agent_type='planner')`.
+  - Add Offline "Search": For research-heavy agents (e.g., Idea Agent), use local RAG. Index docs in `tools/` with FAISS:
+    ```python
+    from sentence_transformers import SentenceTransformer
+    import faiss
+
+    # In core/services.py: Build index once
+    embedder = SentenceTransformer('all-MiniLM-L6-v2')
+    # Embed your docs/wiki dumps
+    index = faiss.IndexFlatL2(384)  # Assuming 384-dim embeddings
+    # Add vectors...
+
+    def rag_query(query: str):
+        query_vec = embedder.encode(query)
+        _, indices = index.search(query_vec, k=5)
+        return [docs[i] for i in indices]  # Retrieve snippets
+    ```
+    Prepend RAG results to prompts: `prompt = f"Context: {rag_results}\nQuery: {user_input}"`.
+- Full Workflow Example (Offline Perplexity Clone):
+  - User: "Build an analytics dashboard."
+  - Orchestrator: Planner decomposes → Coder generates code → Validator tests—all via local Ollama.
+  - Output: Structured response with code, explanations (use bullet points/YAML as in your system).
+- Preinstallation in Distribution:
+  - Update `setup.py` or Dockerfiles: Include `bin/flynt-ollama` and models folder. In install scripts, check/run `ollama create` for models.
+  - Docker: Add Ollama layer in `Dockerfile`:
+    ```
+    COPY bin/flynt-ollama /app/bin/
+    RUN /app/bin/flynt-ollama pull llama3:8b  # Preload base
+    ```
+  - Testing: Extend `tests/` with offline mocks: `pytest tests/test_llm_client.py`.
+
+### Additional Tips
+- **Performance**: Use quantized models for speed (e.g., q4_0). Monitor via your health endpoints—add Ollama metrics (memory usage).
+- **Scalability**: For multi-user, run Ollama in a container; use Kubernetes as in your setup.
+- 
+This guide makes Flynt-Studio a fully offline, Perplexity-inspired agent framework with built-in local LLM capabilities.
+to offset the real-time data barrier due to offline nature? we could incorporate a seperate internet search function that connects to a seperate database, pulling amd dumping relevant information from the web securely into the offline db, which serves as a custom datalake for Flynt Studio to keep upto dat with relevant trends

@@ -1,0 +1,166 @@
+I understand that pain completely. Dependency conflicts are a universal frustration in development. Making conflict resolution a default, non-optional integration is the right goal. It transforms the PSMP from a ledger into an active guardian of project consistency.
+
+Here is the implementation guide to embed an automatic dependency resolver at the core of the PROJEFCT STATE MANAGEMENT PROTOCOL(PSMP).
+
+🎯 Phase 1: Make It Mandatory & Transparent
+
+The key is to design the system so agents cannot generate artifacts without declaring dependencies, and conflicts are surfaced immediately.
+
+1.1 Core Design Principle: Fail Fast, Report Clearly
+The resolver must run automatically after any agent declares a new dependency.If a conflict is found, it should immediately halt the workflow in a graceful BLOCKED state and generate a clear, actionable report for the user or a resolver agent.
+
+1.2 Architectural Integration Point
+The resolver isn't a separate tool;it's a core function of the PSMP_Service. Think of it as the "immune system" of the project state. It triggers automatically on every state change.
+
+⚙️ Phase 2: Designing the Central Conflict Resolver
+
+Place this logic in appshell/psmp/dependency_resolver.py.
+
+2.1 The Data Model: Dependency Declaration
+First,define a precise model for how agents declare requirements. This standardizes all input for the resolver.
+
+```python
+# In appshell/psmp/models.py
+from pydantic import BaseModel, Field
+from typing import Literal, Optional
+
+class DependencySpec(BaseModel):
+    """Standard model for an agent to declare a dependency."""
+    name: str
+    version_constraint: str  # e.g., ">=2.0,<3.0", "==1.5.*"
+    scope: Literal["RUNTIME", "DEV", "BUILD"]  # When is it needed?
+    declared_by_agent: str  # Which agent added it?
+    purpose: Optional[str]  # Why is it needed? (For conflict reports)
+```
+
+2.2 The Resolver Logic: Aggregate, Detect, Solve
+The resolver's job is in three clear steps.This function should be called by the PSMP_Service after saving any artifact event.
+
+```python
+# In appshell/psmp/dependency_resolver.py
+import semantic_version  # Use a lib like `packaging` for real projects
+
+class DependencyConflictResolver:
+    def __init__(self):
+        self.all_dependencies: Dict[str, List[DependencySpec]] = {}
+
+    def register_dependencies(self, project_id: str, agent_id: str, deps: List[DependencySpec]):
+        """Called by PSMP_Service when an agent declares new deps."""
+        for dep in deps:
+            self.all_dependencies.setdefault(dep.name, []).append(dep)
+
+        # IMMEDIATELY CHECK FOR CONFLICTS
+        conflicts = self._detect_conflicts()
+        if conflicts:
+            # This state halts the workflow until resolved
+            self._create_blocked_state_report(project_id, conflicts)
+            raise ProjectBlockedError("Dependency conflict detected", details=conflicts)
+
+    def _detect_conflicts(self) -> List[Dict]:
+        """The core logic. Checks for incompatible version constraints."""
+        conflicts = []
+        for lib_name, specs in self.all_dependencies.items():
+            if len(specs) <= 1:
+                continue
+
+            # Try to find a common version that satisfies ALL constraints
+            try:
+                # Pseudo-logic: You would use a library like `packaging` or `semantic_version`
+                # to parse constraints and find intersections.
+                feasible_version = self._find_common_version(specs)
+                if not feasible_version:
+                    conflicts.append({
+                        "library": lib_name,
+                        "requirements": [{"agent": s.declared_by_agent, "needs": s.version_constraint} for s in specs],
+                        "error": "No single version satisfies all agents."
+                    })
+            except Exception as e:
+                conflicts.append({
+                    "library": lib_name,
+                    "requirements": [{"agent": s.declared_by_agent, "needs": s.version_constraint} for s in specs],
+                    "error": f"Invalid version spec: {e}"
+                })
+        return conflicts
+
+    def get_resolved_manifest(self) -> Dict:
+        """Generates the final conflict-free requirements.txt/pyproject.toml dict."""
+        manifest = {}
+        for lib_name, specs in self.all_dependencies.items():
+            # After conflict resolution, pick the agreed-upon version
+            # This could be the latest compatible version or a user-chosen one.
+            manifest[lib_name] = self._select_best_version(specs)
+        return manifest
+```
+
+🔗 Phase 3: The Non-Optional Agent Workflow
+
+Agents must be forced to use this. Modify the base agent class or the orchestration layer that calls them.
+
+3.1 Integrate into the Agent Execution Contract
+When an agent'sexecute() method is called, the PSMP service should be a required parameter. The agent's success is tied to correctly declaring its outputs.
+
+```python
+# In the Orchestrator that calls agents (e.g., appshell/orchestration/executor.py)
+class TaskExecutor:
+    def __init__(self, psmp_service):
+        self.psmp = psmp_service
+
+    def execute_agent_task(self, agent, task):
+        # 1. Get current project state via PSMP (fails if in BLOCKED)
+        current_state = self.psmp.get_project_state(task.project_id)
+
+        # 2. Execute the agent's core logic
+        artifact, dependencies = agent.do_work(task)
+
+        # 3. MANDATORY: Agent must declare artifact AND its dependencies
+        #    This call will automatically trigger the conflict resolver.
+        try:
+            self.psmp.declare_artifact(
+                project_id=task.project_id,
+                agent_id=agent.id,
+                artifact=artifact,
+                dependencies=dependencies  # List[DependencySpec]
+            )
+        except ProjectBlockedError as e:
+            # The workflow stops here. The conflict report is already saved.
+            log.error(f"Project blocked: {e.details}")
+            # Optionally, auto-create a ticket for a "Resolver Agent"
+            self.create_resolution_task(e.details)
+            return
+```
+
+3.2 User Experience: No "Enable" Button
+Because the check happens insidedeclare_artifact(), which is mandatory for any agent that produces code, there is no switch to flip. The moment the Coder Agent says it needs pandas>=2.0 and the Data Science Agent later says it needs pandas<2.0 for legacy code, the system blocks.
+
+The user sees:
+
+```
+🚨 Project "Customer-Analyzer" is BLOCKED.
+Reason: Dependency Conflict in library 'pandas'
+
+Conflicting Requirements:
+- Coder_Agent (building pipeline): requires pandas>=2.0
+- DataScience_Agent (legacy model): requires pandas<2.0
+
+Suggested Actions:
+1.  Ask 'DataScience_Agent' to update its model for pandas 2.0.
+2.  Or, ask 'Coder_Agent' to isolate its code and use a compatibility layer.
+```
+
+This turns a cryptic, hours-later pip install failure into an immediate, contextual, and actionable project management issue.
+
+🛠️ Phase 4: The Rollback & Resolution Strategy
+
+For truly unresolvable conflicts, you need a clean rollback plan.
+
+4.1 The BLOCKED State
+AddBLOCKED to your ProjectState enum. A project in this state cannot proceed to CODING or DEPLOYMENT. The only allowed transitions are to RESOLVING (if an automated fix is attempted) or back to PLANNING (to re-scope the work).
+
+4.2 The Resolution Path
+
+1. Auto-Generate Ticket: The PSMP can create a task for a dedicated ConflictResolverAgent with the conflict report as context.
+2. Human-in-the-Loop: The CLI can show the conflict and prompt the user: "Force accept Coder_Agent's version (may break DataScience_Agent)?" This deliberate choice is then logged as a new UserOverrideEvent.
+
+💎 Summary: From Bitter Experience to Core Feature
+
+By baking the resolver into the mandatory declare_artifact() step, you make dependency management a first-class citizen of the project's lifecycle. The system's integrity now depends on it, just as a building's safety depends on its foundation.
