@@ -111,8 +111,8 @@ const Playground: React.FC<PlaygroundProps> = ({
   }, []);
 
   const openAgentsHub = useCallback(() => {
-    // Placeholder: replace with actual Flynt AgentsHub deployment URL when available
-    window.open('https://flynt.ai', '_blank');
+    // Placeholder: replace with actual TerraQore AgentsHub deployment URL when available
+    window.open('https://terraqore.com', '_blank');
   }, []);
 
   return (
@@ -133,7 +133,7 @@ const Playground: React.FC<PlaygroundProps> = ({
           <button
             onClick={openAgentsHub}
             className="px-3 py-2 text-xs rounded-lg border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 transition"
-            title="Deploy to Flynt AgentsHub"
+            title="Deploy to TerraQore AgentsHub"
           >
             🚀 Deploy to AgentsHub
           </button>

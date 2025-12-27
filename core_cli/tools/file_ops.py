@@ -394,7 +394,7 @@ Thumbs.db
 
 # Project specific
 .backups/
-data/flynt.db
+data/terraqore.db
 logs/
 *.log
 """

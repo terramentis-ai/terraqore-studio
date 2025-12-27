@@ -1,8 +1,8 @@
-# 🚀 FLYNT STUDIO - Enterprise Agentic AI Development Platform
+# 🚀 TerraQore Studio - Enterprise Agentic AI Development Platform
 
 > Orchestrate specialized AI agents to build, validate, and deploy complete agentic AI projects from conception to production.
 
-**Flynt Studio** is a comprehensive meta-agentic system that automates the entire AI project lifecycle. It combines multi-agent orchestration, intelligent code generation, ML Ops automation, security validation, and production deployment capabilities to accelerate AI development workflows.
+**TerraQore Studio** is a comprehensive meta-agentic system that automates the entire AI project lifecycle. It combines multi-agent orchestration, intelligent code generation, ML Ops automation, security validation, and production deployment capabilities to accelerate AI development workflows.
 
 ## ✨ Core Features
 
@@ -54,7 +54,7 @@
 - ✅ **CLI Interface** - Full-featured command-line operations
 - ✅ **Integrated Testing Framework** - E2E, integration, and unit test scaffolding
 
-## 🎯 What Flynt Solves
+## 🎯 What TerraQore Solves
 
 **The AI Development Challenge:**
 - Building agentic systems requires coordination across multiple specialized domains (ideation, coding, ML, DevOps, security)
@@ -62,7 +62,7 @@
 - Maintaining consistency from prototype to production deployment
 - Managing complexity of multi-agent orchestration without losing context
 
-**The Flynt Solution:**
+**The TerraQore Solution:**
 - **Specialized Agents** - 10+ domain-expert agents handle their specific expertise
 - **Integrated Workflow** - Single CLI interface orchestrates the entire lifecycle
 - **Production-Ready** - Generates deployment-ready code with monitoring and governance
@@ -154,8 +154,8 @@
 ### 1. Setup Environment
 
 ```bash
-# Clone/navigate to Flynt
-cd flynt-studio
+# Clone/navigate to TerraQore
+cd terraqore-studio
 
 # Create Python virtual environment
 python -m venv venv
@@ -194,7 +194,7 @@ GROQ_API_KEY=your_key
 ### 4. Initialize Flynt
 
 ```bash
-flynt init
+TerraQore init
 ```
 
 Expected output:
@@ -203,30 +203,30 @@ Expected output:
 ✓ Database initialized
 ✓ Primary LLM: gemini-1.5-flash
 ✓ Fallback LLM: llama-3.1-70b-versatile
-✨ Flynt is ready!
+✨ TerraQore is ready!
 ```
 
 ### 5. Create Your First Project
 
 ```bash
 # New project
-flynt new "RAG Chatbot for Job Search" -d "Intelligent job search assistant"
+TerraQore new "RAG Chatbot for Job Search" -d "Intelligent job search assistant"
 
 # View all projects
-flynt list
+TerraQore list
 
 # Show project details
-flynt show "RAG Chatbot for Job Search"
+TerraQore show "RAG Chatbot for Job Search"
 
 # Check system status
-flynt status
+TerraQore status
 ```
 
 ## 📖 Complete Project Workflow
 
 ### Phase 1: Ideation
 ```bash
-flynt ideate "My Project"
+TerraQore ideate "My Project"
 ```
 - Research latest trends in your domain
 - Generate 5 project variations
@@ -235,7 +235,7 @@ flynt ideate "My Project"
 
 ### Phase 2: Planning
 ```bash
-flynt plan "My Project"
+TerraQore plan "My Project"
 ```
 - Decompose project into actionable tasks
 - Generate task dependency graph
@@ -244,7 +244,7 @@ flynt plan "My Project"
 
 ### Phase 3: Code Generation
 ```bash
-flynt generate "My Project" --type full-stack
+TerraQore generate "My Project" --type full-stack
 ```
 - Generate production-ready code
 - Include unit/integration tests
@@ -253,7 +253,7 @@ flynt generate "My Project" --type full-stack
 
 ### Phase 4: Validation & Security
 ```bash
-flynt validate "My Project"
+TerraQore validate "My Project"
 ```
 - Run code quality checks
 - Security vulnerability scan
@@ -262,7 +262,7 @@ flynt validate "My Project"
 
 ### Phase 5: ML/Data Science (if applicable)
 ```bash
-flynt train "My Project"
+TerraQore train "My Project"
 ```
 - Generate data pipeline
 - Hyperparameter optimization
@@ -271,7 +271,7 @@ flynt train "My Project"
 
 ### Phase 6: Deployment
 ```bash
-flynt deploy "My Project" --target production
+TerraQore deploy "My Project" --target production
 ```
 - Generate CI/CD pipelines
 - Create Docker containers
@@ -281,7 +281,7 @@ flynt deploy "My Project" --target production
 ## 📂 Project Structure
 
 ```
-flynt-studio/
+terraqore-studio/
 ├── appshell/                          # Main application
 │   ├── cli/
 │   │   └── main.py                    # CLI commands and interface
@@ -394,7 +394,7 @@ agents:
   
 database:
   type: "sqlite"
-  path: "./data/flynt.db"
+  path: "./data/terraqore.db"
   
 output:
   backup_existing: true
@@ -405,26 +405,26 @@ output:
 
 ```bash
 # Project management
-flynt new <name>                       # Create new project
-flynt list                             # List all projects
-flynt show <name>                      # View project details
-flynt delete <name>                    # Delete project
+TerraQore new <name>                       # Create new project
+TerraQore list                             # List all projects
+TerraQore show <name>                      # View project details
+TerraQore delete <name>                    # Delete project
 
 # Workflow commands
-flynt ideate <name>                    # Run ideation phase
-flynt plan <name>                      # Run planning phase
-flynt generate <name> [--type TYPE]    # Generate code
-flynt validate <name>                  # Validate/audit code
-flynt train <name>                     # Train models (if applicable)
-flynt deploy <name> --target TARGET    # Deploy to production
+TerraQore ideate <name>                    # Run ideation phase
+TerraQore plan <name>                      # Run planning phase
+TerraQore generate <name> [--type TYPE]    # Generate code
+TerraQore validate <name>                  # Validate/audit code
+TerraQore train <name>                     # Train models (if applicable)
+TerraQore deploy <name> --target TARGET    # Deploy to production
 
 # System
-flynt status                           # Show system status
-flynt config                           # View configuration
-flynt logs [--project NAME]            # View logs
-flynt init                             # Initialize system
-flynt --version                        # Show version
-flynt --help                           # Show help
+TerraQore status                           # Show system status
+TerraQore config                           # View configuration
+TerraQore logs [--project NAME]            # View logs
+TerraQore init                             # Initialize system
+TerraQore --version                        # Show version
+TerraQore --help                           # Show help
 ```
 
 ## 💰 Cost & Rate Limits
@@ -448,7 +448,7 @@ flynt --help                           # Show help
 
 ## 🔒 Security & Compliance
 
-Flynt includes comprehensive security features:
+TerraQore includes comprehensive security features:
 
 - **Code Security**: Static analysis, dependency scanning, vulnerability detection
 - **API Security**: Encrypted key storage, environment variable isolation
@@ -482,36 +482,36 @@ Test coverage includes:
 
 ### 1. RAG Chatbot with Production Deployment
 ```bash
-flynt new "RAG Chatbot"
-flynt ideate "RAG Chatbot"           # Research RAG architectures
-flynt plan "RAG Chatbot"              # Create task plan
-flynt generate "RAG Chatbot"          # Generate FastAPI backend
-flynt validate "RAG Chatbot"          # Security/quality checks
-flynt deploy "RAG Chatbot" --target aws-lambda  # Deploy
+TerraQore new "RAG Chatbot"
+TerraQore ideate "RAG Chatbot"           # Research RAG architectures
+TerraQore plan "RAG Chatbot"              # Create task plan
+TerraQore generate "RAG Chatbot"          # Generate FastAPI backend
+TerraQore validate "RAG Chatbot"          # Security/quality checks
+TerraQore deploy "RAG Chatbot" --target aws-lambda  # Deploy
 ```
 
 ### 2. MLOps Pipeline with Model Serving
 ```bash
-flynt new "Demand Forecasting"
-flynt generate "Demand Forecasting" --type ml-pipeline
-flynt train "Demand Forecasting"      # Train & track experiments
-flynt serve "Demand Forecasting"      # Setup KServe + monitoring
-flynt deploy "Demand Forecasting" --target k8s
+TerraQore new "Demand Forecasting"
+TerraQore generate "Demand Forecasting" --type ml-pipeline
+TerraQore train "Demand Forecasting"      # Train & track experiments
+TerraQore serve "Demand Forecasting"      # Setup KServe + monitoring
+TerraQore deploy "Demand Forecasting" --target k8s
 ```
 
 ### 3. FastAPI Microservices Architecture
 ```bash
-flynt new "Microservices Platform"
-flynt plan "Microservices Platform"   # Design architecture
-flynt generate "Microservices Platform" --type microservices
-flynt validate "Microservices Platform"  # Security audit
-flynt deploy "Microservices Platform" --target docker-compose
+TerraQore new "Microservices Platform"
+TerraQore plan "Microservices Platform"   # Design architecture
+TerraQore generate "Microservices Platform" --type microservices
+TerraQore validate "Microservices Platform"  # Security audit
+TerraQore deploy "Microservices Platform" --target docker-compose
 ```
 
 ### 4. Data Science Research Project
 ```bash
-flynt new "Time Series Anomaly Detection"
-flynt generate "Time Series Anomaly Detection" --type notebook
+TerraQore new "Time Series Anomaly Detection"
+TerraQore generate "Time Series Anomaly Detection" --type notebook
 # Generates Jupyter notebooks for exploration
 # Auto-generates documentation and results
 ```
@@ -560,23 +560,23 @@ pip install -e .
 ```
 
 ### "Database Locked"
-- Close all other Flynt instances
-- Verify `data/flynt.db` isn't open in another program
-- Delete `data/flynt.db` to reset (will lose project history)
+- Close all other TerraQore instances
+- Verify `data/terraqore.db` isn't open in another program
+- Delete `data/terraqore.db` to reset (will lose project history)
 
 ### "Rate Limit Hit"
-- Flynt automatically falls back to secondary provider
+- TerraQore automatically falls back to secondary provider
 - Check `config/settings.yaml` for provider configuration
 - Consider adding more API keys for additional fallbacks
 
 ### "Code Execution Failed"
-- Check logs: `flynt logs --project <name>`
+- Check logs: `TerraQore logs --project <name>`
 - Verify dependencies in generated code
-- Run validation: `flynt validate <name>`
+- Run validation: `TerraQore validate <name>`
 
 ## 🤝 Contributing
 
-Flynt is under active development. We welcome:
+TerraQore is under active development. We welcome:
 - Bug reports and feature requests
 - Pull requests for enhancements
 - Documentation improvements
@@ -606,6 +606,6 @@ MIT License - Open source and free to use
 
 ---
 
-**🎯 Ready to build agentic AI systems?** Start with `flynt init` and create your first project! 🚀
+**🎯 Ready to build agentic AI systems?** Start with `TerraQore init` and create your first project! 🚀
 
-**Questions?** Check the [detailed documentation](Marketing/Doclogs/FLYNT_STUDIO_COMPLETE_DOCUMENTATION.md) or run `flynt --help`
+**Questions?** Check the [detailed documentation](Marketing/Doclogs/FLYNT_STUDIO_COMPLETE_DOCUMENTATION.md) or run `TerraQore --help`

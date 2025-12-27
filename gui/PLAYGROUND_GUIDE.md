@@ -6,7 +6,7 @@ The **Workflow Playground** is an interactive environment for designing and visu
 
 ## Accessing the Playground
 
-1. Launch the Flynt Studio application
+1. Launch the TerraQore Studio application
 2. Click the **P** icon in the left navigation sidebar
 3. The Playground panel will load with three main sections: Input, Visualization, and Details
 

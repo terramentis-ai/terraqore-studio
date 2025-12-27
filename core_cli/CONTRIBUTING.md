@@ -1,6 +1,6 @@
-# Contributing to Flynt Studio
+# Contributing to TerraQore Studio
 
-First off, thank you for considering a contribution to Flynt Studio! It's people like you that make Flynt such a great platform.
+First off, thank you for considering a contribution to TerraQore Studio! It's people like you that make TerraQore such a great platform.
 
 ## Code of Conduct
 
@@ -53,8 +53,8 @@ Enhancement suggestions are tracked as [GitHub issues](../../issues). When creat
 
 1. **Fork and clone the repository**
    ```bash
-   git clone https://github.com/YOUR-USERNAME/Flynt-Studio.git
-   cd Flynt-Studio
+   git clone https://github.com/YOUR-USERNAME/terraqore-studio.git
+   cd terraqore-studio
    ```
 
 2. **Create a virtual environment**
@@ -258,7 +258,7 @@ backoff_delay = retry_delay * (2 ** attempt)
 ## Project Structure
 
 ```
-Flynt-Studio/
+terraqore-studio/
 ├── agents/                 # AI agent implementations
 │   ├── base.py            # Base agent class
 │   ├── *_agent.py         # Specialized agents
@@ -318,7 +318,7 @@ Flynt-Studio/
 
 - 📖 Check the [documentation](../docs/)
 - 💬 Ask in [GitHub Discussions](../../discussions)
-- 📧 Email: dev@flyntstudio.dev
+- 📧 Email: dev@terraqore.com
 - 🐛 Report bugs in [Issues](../../issues)
 
 ---
@@ -332,4 +332,4 @@ Contributors will be recognized in:
 
 ---
 
-**Thank you for contributing to Flynt Studio! 🎉**
+**Thank you for contributing to TerraQore Studio! 🎉**

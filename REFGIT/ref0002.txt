@@ -1,4 +1,4 @@
-design an autonomous Test Critique Agent for Flynt Studio. This is not a simple batch script but a sophisticated Python system that intelligently analyzes your codebase, understands its architecture, and generates a targeted test suite.
+design an autonomous Test Critique Agent for TerraQore Studio. This is not a simple batch script but a sophisticated Python system that intelligently analyzes your codebase, understands its architecture, and generates a targeted test suite.
 
 (in late releases, when the Core CLI is foundationally stable enough, we could integrate this feature into system health analysis to keep track of the platform's evolution)
 
@@ -14,12 +14,12 @@ Below is the core implementation for the main agent script.
 
 test_critique_agent.py
 
-Create this file in your flynt-studio root directory.
+Create this file in your terraqore-studio root directory.
 
 ```python
 #!/usr/bin/env python3
 """
-Flynt Studio - Autonomous Test Critique Agent
+TerraQore Studio - Autonomous Test Critique Agent
 Intelligently analyzes the codebase, generates a comprehensive test suite,
 executes it, and produces a visual robustness report.
 """
@@ -59,7 +59,7 @@ class CodebaseAnalyzer:
         for py_file in self.appshell_path.rglob("*.py"):
             self._analyze_python_file(py_file)
             
-        # 3. Specialized analysis for Flynt's architecture
+        # 3. Specialized analysis for TerraQore's architecture
         self._identify_agent_capabilities()
         self._map_psmp_integration_points()
         self._detect_dependency_patterns()
@@ -511,7 +511,7 @@ class TestSmoke:
         
         runner_content = '''#!/usr/bin/env python3
 """
-Generated test runner for Flynt Studio.
+Generated test runner for TerraQore Studio.
 Executes all generated tests and produces reports.
 """
 import os
@@ -550,7 +550,7 @@ def run_tests():
     return result.returncode, result.stdout, result.stderr
 
 if __name__ == "__main__":
-    print("Flynt Studio - Generated Test Runner")
+    print("TerraQore Studio - Generated Test Runner")
     print("=" * 50)
     
     retcode, stdout, stderr = run_tests()
@@ -601,7 +601,7 @@ class ReportGenerator:
         report_file = self.report_dir / "critique_report.md"
         
         with open(report_file, 'w') as f:
-            f.write("# Flynt Studio - Test Critique Report\n\n")
+            f.write("# TerraQore Studio - Test Critique Report\n\n")
             f.write(f"Generated: {pd.Timestamp.now()}\n\n")
             
             # Architecture Analysis
@@ -718,7 +718,7 @@ class ReportGenerator:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flynt Studio - Test Critique Dashboard</title>
+    <title>TerraQore Studio - Test Critique Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {{ font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }}
@@ -732,7 +732,7 @@ class ReportGenerator:
     </style>
 </head>
 <body>
-    <h1>Flynt Studio Test Critique Dashboard</h1>
+    <h1>TerraQore Studio Test Critique Dashboard</h1>
     <p>Generated: {pd.Timestamp.now()}</p>
     
     <div class="dashboard">
@@ -837,7 +837,7 @@ class TestCritiqueAgent:
     def run(self):
         """Execute the complete critique pipeline."""
         print("=" * 70)
-        print("FLYNT STUDIO - AUTONOMOUS TEST CRITIQUE AGENT")
+        print("TerraQore Studio - AUTONOMOUS TEST CRITIQUE AGENT")
         print("=" * 70)
         
         try:
@@ -945,7 +945,7 @@ if __name__ == "__main__":
 
 1. Installation & Setup:
    ```bash
-   # In your flynt-studio directory
+   # In your terraqore-studio directory
    pip install pandas matplotlib seaborn pytest pytest-html pytest-cov
    ```
 2. Run the Agent:
@@ -965,7 +965,7 @@ if __name__ == "__main__":
      · An interactive HTML dashboard
 4. Output Files:
    ```
-   flynt-studio/
+   terraqore-studio/
    ├── generated_tests/          # Complete test suite
    ├── test_critique_report/    # Visual reports and dashboard
    │   ├── critique_report.md   # Detailed analysis
@@ -1001,4 +1001,4 @@ The agent acts as an independent auditor that assesses:
 3. Integrate with CI/CD: Add the critique agent to your GitHub Actions or other CI pipelines.
 4. Iterate: Run the agent periodically to track architectural drift and test coverage changes.
 
-This system transforms testing from a manual chore to an intelligent, automated critique of your entire platform's robustness. It's designed to grow with Flynt Studio, providing increasingly sophisticated analysis as the codebase grows
+This system transforms testing from a manual chore to an intelligent, automated critique of your entire platform's robustness. It's designed to grow with TerraQore Studio, providing increasingly sophisticated analysis as the codebase grows

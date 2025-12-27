@@ -1,4 +1,4 @@
-That's a visionary upgrade path for Flynt Studio—dedicating specialized LLMs to each agent (e.g., an IdeaAgent tuned for creative brainstorming, a CoderAgent for precise code gen) could make the framework more efficient and tailored, while self-optimization via perceived user choices (like button clicks or edits) introduces adaptive intelligence. 
+That's a visionary upgrade path for TerraQore Studio—dedicating specialized LLMs to each agent (e.g., an IdeaAgent tuned for creative brainstorming, a CoderAgent for precise code gen) could make the framework more efficient and tailored, while self-optimization via perceived user choices (like button clicks or edits) introduces adaptive intelligence. 
 
 ### 1. **Dedicated LLMs for Each Agent: Specialized Fine-Tuning**
 Start by assigning a base LLM (e.g., Llama-3 or Gemma) to each child agent and fine-tuning it for its domain. This creates a "swarm" of experts, where the orchestrator (your meta-agent) routes tasks intelligently.
@@ -22,7 +22,7 @@ Start by assigning a base LLM (e.g., Llama-3 or Gemma) to each child agent and f
 </grok:render><grok:render card_id="8ca568" card_type="citation_card" type="render_inline_citation">
 <argument name="citation_id">14</argument>
 </grok:render>
-  - Add a new CLI command: `flynt fine-tune-agent <agent_name> --dataset path/to/data.json` using Unsloth for 2x faster training.<grok:render card_id="95d065" card_type="citation_card" type="render_inline_citation">
+  - Add a new CLI command: `TerraQore fine-tune-agent <agent_name> --dataset path/to/data.json` using Unsloth for 2x faster training.<grok:render card_id="95d065" card_type="citation_card" type="render_inline_citation">
 <argument name="citation_id">15</argument>
 </grok:render> Store tuned adapters in a local models/ dir for easy swapping.
   - Initial Specialization: Start with 4-6 agents (your core quartet plus new ones like SecurityAgent), fine-tuning on curated data (e.g., via Hugging Face Datasets hub).
@@ -30,7 +30,7 @@ Start by assigning a base LLM (e.g., Llama-3 or Gemma) to each child agent and f
 - **Integration with UI**: In the Workflow Builder canvas, show agent nodes with "Tuned LLM" badges; allow users to select/override specializations in a dropdown for flexibility.
 
 ### 2. **Self-Optimization via User Feedback**
-Enable Flynt to "perceive" user interactions (e.g., approving/rejecting tasks, editing outputs) as implicit feedback, then orchestrate its own fine-tuning updates. This creates a self-evolving system, similar to RLHF but automated.<grok:render card_id="e1fe54" card_type="citation_card" type="render_inline_citation">
+Enable TerraQore to "perceive" user interactions (e.g., approving/rejecting tasks, editing outputs) as implicit feedback, then orchestrate its own fine-tuning updates. This creates a self-evolving system, similar to RLHF but automated.<grok:render card_id="e1fe54" card_type="citation_card" type="render_inline_citation">
 <argument name="citation_id">0</argument>
 </grok:render><grok:render card_id="c0b864" card_type="citation_card" type="render_inline_citation">
 <argument name="citation_id">2</argument>
@@ -39,7 +39,7 @@ Enable Flynt to "perceive" user interactions (e.g., approving/rejecting tasks, e
 </grok:render>
 
 - **Step 1: Feedback Collection**
-  - Log interactions in Flynt.db: Track choices like "user edited code output" or "approved plan with changes." Use in-app prompts (e.g., thumbs up/down after tasks) for explicit feedback, integrated via your UI's feedback component.<grok:render card_id="8f7972" card_type="citation_card" type="render_inline_citation">
+  - Log interactions in terraqore.db: Track choices like "user edited code output" or "approved plan with changes." Use in-app prompts (e.g., thumbs up/down after tasks) for explicit feedback, integrated via your UI's feedback component.<grok:render card_id="8f7972" card_type="citation_card" type="render_inline_citation">
 <argument name="citation_id">2</argument>
 </grok:render><grok:render card_id="e3c9f2" card_type="citation_card" type="render_inline_citation">
 <argument name="citation_id">3</argument>
@@ -54,7 +54,7 @@ Enable Flynt to "perceive" user interactions (e.g., approving/rejecting tasks, e
 </grok:render> Use evolution strategies for parameter tweaks without full retraining.<grok:render card_id="d2e06b" card_type="citation_card" type="render_inline_citation">
 <argument name="citation_id">9</argument>
 </grok:render>
-  - CLI Command: `flynt self-optimize --threshold 50` to trigger updates, with safeguards (e.g., validate improvements via evals before applying).
+  - CLI Command: `TerraQore self-optimize --threshold 50` to trigger updates, with safeguards (e.g., validate improvements via evals before applying).
   - UI Tie-In: In Dashboard, add a "System Insights" card showing "Recent Optimizations" (e.g., "CoderAgent improved based on your edits"), with an "Approve Update" button for user control.
 
 - **Edge Cases**: Cap feedback loops to prevent drift (e.g., use human evals via OpenAI Evals integration for quality checks).<grok:render card_id="cd2ed3" card_type="citation_card" type="render_inline_citation">
@@ -62,7 +62,7 @@ Enable Flynt to "perceive" user interactions (e.g., approving/rejecting tasks, e
 </grok:render> For privacy, process all locally without cloud uploads.
 
 ### 3. **Decentralized Upgrades for Local Infrastructures**
-Shift from central releases to user-led, local updates, where Flynt pulls community-shared tunings or self-generates them, fitting your offline ethos.<grok:render card_id="ad738c" card_type="citation_card" type="render_inline_citation">
+Shift from central releases to user-led, local updates, where TerraQore pulls community-shared tunings or self-generates them, fitting your offline ethos.<grok:render card_id="ad738c" card_type="citation_card" type="render_inline_citation">
 <argument name="citation_id">10</argument>
 </grok:render><grok:render card_id="89cc09" card_type="citation_card" type="render_inline_citation">
 <argument name="citation_id">11</argument>
@@ -84,7 +84,7 @@ Shift from central releases to user-led, local updates, where Flynt pulls commun
 
 - **Step 2: Self-Orchestrated Updates**
   - In core/state_manager.py, add an update checker: Periodically scan for shared tunings (e.g., from a decentralized repo like IPFS) or generate local ones from feedback.
-  - CLI/UI: `flynt upgrade --decentralized` pulls/merges community adapters; UI shows a "Community Updates" modal with previews (e.g., "New tuning for PlannerAgent from 10 users").
+  - CLI/UI: `TerraQore upgrade --decentralized` pulls/merges community adapters; UI shows a "Community Updates" modal with previews (e.g., "New tuning for PlannerAgent from 10 users").
   - Local Fit: Ensure all runs on-device (e.g., via swarm parallelism for multi-GPU setups), with fallbacks to single-machine mode.<grok:render card_id="8bb3ee" card_type="citation_card" type="render_inline_citation">
 <argument name="citation_id">17</argument>
 </grok:render>
@@ -105,4 +105,4 @@ Shift from central releases to user-led, local updates, where Flynt pulls commun
 <argument name="citation_id">7</argument>
 </grok:render>
 
-This could make Flynt a pioneer in self-evolving, decentralized AI dev tools. If you share code snippets or specifics (e.g., datasets), I can sketch prototypes!
+This could make TerraQore a pioneer in self-evolving, decentralized AI dev tools. If you share code snippets or specifics (e.g., datasets), I can sketch prototypes!

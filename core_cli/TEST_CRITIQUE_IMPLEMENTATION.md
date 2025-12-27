@@ -63,20 +63,20 @@ Implemented a comprehensive test analysis and generation system that analyzes Py
 **Integration**:
 - Extends `BaseAgent` with standard interface
 - Registered in orchestrator during initialization
-- Triggered by `flynt test-critique` CLI command
+- Triggered by `TerraQore test-critique` CLI command
 - Produces `test_critique` artifact types
 - Can be called from orchestrator workflows
 
 ### 4. CLI Commands
-**New command**: `flynt test-critique <project> [-o output]`
+**New command**: `TerraQore test-critique <project> [-o output]`
 
 **Workflow**:
 ```bash
 # Run test critique on project
-flynt test-critique "My Project"
+TerraQore test-critique "My Project"
 
 # Save report to file
-flynt test-critique "My Project" -o tests/report.txt
+TerraQore test-critique "My Project" -o tests/report.txt
 
 # Outputs:
 # - Code structure summary
@@ -136,10 +136,10 @@ result = orchestrator.run_agent("TestCritiqueAgent", context)
 ### With CLI
 ```bash
 # Standalone command
-flynt test-critique "Project Name"
+TerraQore test-critique "Project Name"
 
 # Can be chained with other commands
-flynt plan "Project" && flynt test-critique "Project"
+TerraQore plan "Project" && TerraQore test-critique "Project"
 ```
 
 ### With PSMP
@@ -255,21 +255,21 @@ Test Files: 3 test files found
 🚀 NEXT STEPS
 ============================================================
 1. Review high-priority test areas above
-2. Run: flynt generate-tests <project>  # Generate test scaffold
+2. Run: TerraQore generate-tests <project>  # Generate test scaffold
 3. Implement specific test logic in generated files
 4. Run tests: pytest tests/
-5. Monitor coverage with: flynt test-coverage <project>
+5. Monitor coverage with: TerraQore test-coverage <project>
 ```
 
 ## Next Actions
 
 1. **Test Generation Integration**:
-   - Add `flynt generate-tests <project>` to apply scaffolds
+   - Add `TerraQore generate-tests <project>` to apply scaffolds
    - Auto-create `tests/` directory structure
    - Handle existing test files gracefully
 
 2. **Coverage Monitoring**:
-   - Add `flynt test-coverage <project>` command
+   - Add `TerraQore test-coverage <project>` command
    - Calculate actual coverage from pytest runs
    - Track coverage trends over time
 

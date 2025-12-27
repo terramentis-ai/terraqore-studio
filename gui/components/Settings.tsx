@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import flyntAPI, { LLMConfigSnapshot, LLMConfigUpdate, LLMProviderInfo } from '../services/flyntAPIService';
+import terraqoreAPI, { LLMConfigSnapshot, LLMConfigUpdate, LLMProviderInfo } from '../services/terraqoreAPIService';
 
 interface FormState {
   primary_provider: string;
@@ -74,8 +74,8 @@ const Settings: React.FC = () => {
     const bootstrap = async () => {
       try {
         const [providerList, cfg] = await Promise.all([
-          flyntAPI.listLLMProviders(),
-          flyntAPI.getLLMConfig(),
+          terraqoreAPI.listLLMProviders(),
+          terraqoreAPI.getLLMConfig(),
         ]);
         const defaults = providerList.reduce<Record<string, string>>((acc, p) => {
           acc[p.id] = p.default_model || '';
@@ -126,9 +126,9 @@ const Settings: React.FC = () => {
         fallback_max_tokens: form.fallback_max_tokens,
       };
 
-      const res = await flyntAPI.updateLLMConfig(payload);
+      const res = await terraqoreAPI.updateLLMConfig(payload);
       setHealth(res.llm_health);
-      const latest = await flyntAPI.getLLMConfig();
+      const latest = await terraqoreAPI.getLLMConfig();
       setConfigSnapshot(latest);
       setStatus('Saved and tested successfully.');
     } catch (err: any) {

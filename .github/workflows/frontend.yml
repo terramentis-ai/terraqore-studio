@@ -69,5 +69,5 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./gui/dist
-        cname: flyntcore.ai
+        cname: terraqore.com
       continue-on-error: true

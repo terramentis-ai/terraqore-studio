@@ -1,5 +1,5 @@
 """
-Unit tests for Flynt base classes and core components.
+Unit tests for TerraQore Base classes and core components.
 """
 
 import pytest

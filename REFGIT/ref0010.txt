@@ -14,11 +14,11 @@ Enhance Discoverability: Add topics like "ai-agents", "ml-workflows"; open an is
 Version Control: Use branches (e.g., develop for ongoing) to avoid monolithic pushes.
 Overall setup score: 8/10. The Dec 25 updates elevate it from stagnant to dynamic, with better docs and code—commit more frequently for sustained growth.
 Project Critique
-Flynt Studio is now more "production-ready," with the Dec 25 commit solidifying core features for E2E AI cycles (ideation to deployment). It excels in agent orchestration (10+ specialized agents), safety (sandboxing, rollbacks), and local/offline support, positioning it well for your goals like dedicated LLMs and self-optimization.
+TerraQore Studio is now more "production-ready," with the Dec 25 commit solidifying core features for E2E AI cycles (ideation to deployment). It excels in agent orchestration (10+ specialized agents), safety (sandboxing, rollbacks), and local/offline support, positioning it well for your goals like dedicated LLMs and self-optimization.
 Strengths:
 Production Enhancements: Core/ and agents/ refinements add robust error handling, optimized prompts, and MLOps integrations (e.g., KServe for serving). Tests/ expansion ensures end-to-end validation, making it reliable for real workflows (e.g., building historical translators or media gen).8b6414
 Documentation Wins: QUICK_START.md simplifies setup (e.g., free API keys, one-command init), while CONTRIBUTING.md invites extensions—great for decentralizing upgrades.
-Core Stability: Multi-LLM fallbacks (Gemini/Groq/Ollama), RAG for context, and persistence (Flynt.db) remain strong; updates polish these without breaking changes.
+Core Stability: Multi-LLM fallbacks (Gemini/Groq/Ollama), RAG for context, and persistence (terraqore.db) remain strong; updates polish these without breaking changes.
 Alignment with Vision: The push lays groundwork for future features—e.g., modular agents for dedicated LLMs, feedback analyzers for self-optimization.
 Weaknesses:
 Still CLI-Centric: No UI yet; non-tech users (e.g., the honey seller) might find it overwhelming, as CLI commands require tech savvy despite automation.
@@ -26,7 +26,7 @@ Feature Gaps: No code for dedicated LLMs, self-optimization, or decentralized up
 Scalability: While production-ready, lacks benchmarks or demos for new features; community-shared tunings aren't supported yet.
 User Feedback Integration: No built-in mechanisms for perceiving choices (e.g., edit logs), limiting self-evolution potential.
 Suggestions for Improvement:
-Implement Roadmap Items: Add dedicated LLM support (e.g., fine-tune per agent in a new models/ dir) and self-optimization (e.g., SelfOptAgent analyzing Flynt.db logs for auto-fine-tunes).
+Implement Roadmap Items: Add dedicated LLM support (e.g., fine-tune per agent in a new models/ dir) and self-optimization (e.g., SelfOptAgent analyzing terraqore.db logs for auto-fine-tunes).
 UI Acceleration: Prioritize the non-tech variant wizard for accessibility; integrate voice commands for hands-free use.
 Testing/Examples: Expand tests/ with self-optimization evals; add demos/ dir showcasing Dec 25 features (e.g., a tuned agent workflow).
 Community/Decentralization: Use CONTRIBUTING.md to solicit shared tunings; add a plugins/ system for P2P extensions.

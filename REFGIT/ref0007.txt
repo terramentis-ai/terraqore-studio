@@ -1,20 +1,20 @@
-Excellent! These files give me a complete picture of Flynt Studio's backend architecture. I can now see the full data model in state.py, how workflows are orchestrated in orchestrator.py, the CLI command structure in main.py, and how LLM calls are managed in llm_client.py. With this information, I can provide you with a complete integration blueprint.
+Excellent! These files give me a complete picture of TerraQore Studio's backend architecture. I can now see the full data model in state.py, how workflows are orchestrated in orchestrator.py, the CLI command structure in main.py, and how LLM calls are managed in llm_client.py. With this information, I can provide you with a complete integration blueprint.
 
 🏗️ Integration Architecture
 
-Your goal is to replace the UI's mock MetaAgentService with real services that call the Flynt CLI backend. The most effective approach is to build a FastAPI server that wraps the Flynt CLI's Python modules, then have your React UI call this API.
+Your goal is to replace the UI's mock MetaAgentService with real services that call the TerraQore CLI backend. The most effective approach is to build a FastAPI server that wraps the TerraQore CLI's Python modules, then have your React UI call this API.
 
 Recommended Architecture:
 
 ```
-Flynt Studio UI (React) → FastAPI Server → Flynt CLI Python Modules → Database (SQLite)
+TerraQore Studio UI (React) → FastAPI Server → TerraQore CLI Python Modules → Database (SQLite)
 ```
 
 📊 Data Model Mapping
 
 Based on the state.py file, here's how your UI's types should map to the backend models:
 
-Flynt UI (React TypeScript) Flynt CLI (Python Dataclass) Notes
+TerraQore UI (React TypeScript) TerraQore CLI (Python Dataclass) Notes
 AgentNode interface Task dataclass Map agent_name ↔ agent_type
 ExecutionLog interface From agent_logs table You'll need to fetch logs separately
 MetaState interface Combination of Project + Task[] You'll need to aggregate data
@@ -26,10 +26,10 @@ Here's the complete implementation for your API server:
 
 1. Project Structure
 
-Create a new directory flynt_api/ with this structure:
+Create a new directory terraqore_api/ with this structure:
 
 ```
-flynt_api/
+terraqore_api/
 ├── main.py              # FastAPI server
 ├── api/
 │   ├── projects.py      # Project endpoints
@@ -107,7 +107,7 @@ class AgentStatus(BaseModel):
     available: bool = True
 ```
 
-3. Flynt Service Wrapper (services/flynt_service.py)
+3. TerraQore Service Wrapper (services/flynt_service.py)
 
 ```python
 import subprocess
@@ -117,14 +117,14 @@ from typing import Optional, Dict, Any
 import sys
 import os
 
-# Add Flynt CLI to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "flynt-studio"))
+# Add TerraQore CLI to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "terraqore-studio"))
 
 from core.state import get_state_manager, Project, Task
 from orchestration.orchestrator import get_orchestrator
 
-class FlyntService:
-    """Service to interact with Flynt CLI backend."""
+class TerraQoreService:
+    """Service to interact with TerraQore CLI backend."""
     
     def __init__(self):
         self.state_mgr = get_state_manager()
@@ -221,17 +221,17 @@ import asyncio
 from typing import List, Optional
 
 from api import projects, tasks, workflows, websocket
-from services.flynt_service import FlyntService
+from services.flynt_service import TerraQoreService
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
-    print("🚀 Starting Flynt API Server")
+    print("🚀 Starting TerraQore API Server")
     yield
     # Shutdown
-    print("👋 Shutting down Flynt API Server")
+    print("👋 Shutting down TerraQore API Server")
 
-app = FastAPI(title="Flynt Studio API", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="TerraQore Studio API", version="1.0.0", lifespan=lifespan)
 
 # CORS middleware
 app.add_middleware(
@@ -250,11 +250,11 @@ app.include_router(websocket.router, prefix="/ws", tags=["websocket"])
 
 @app.get("/")
 async def root():
-    return {"message": "Flynt Studio API", "status": "running"}
+    return {"message": "TerraQore Studio API", "status": "running"}
 
 @app.get("/health")
 async def health():
-    return {"status": "healthy", "service": "flynt-api"}
+    return {"status": "healthy", "service": "terraqore-api"}
 ```
 
 5. Project Endpoints (api/projects.py)
@@ -264,10 +264,10 @@ from fastapi import APIRouter, HTTPException
 from typing import List, Optional
 
 from models import ProjectCreate, ProjectResponse
-from services.flynt_service import FlyntService
+from services.flynt_service import TerraQoreService
 
 router = APIRouter()
-service = FlyntService()
+service = TerraQoreService()
 
 @router.post("/", response_model=ProjectResponse)
 async def create_project(project: ProjectCreate):
@@ -332,10 +332,10 @@ from fastapi import APIRouter, HTTPException, BackgroundTasks
 from typing import Optional
 
 from models import ExecutionRequest
-from services.flynt_service import FlyntService
+from services.flynt_service import TerraQoreService
 
 router = APIRouter()
-service = FlyntService()
+service = TerraQoreService()
 
 @router.post("/ideate")
 async def start_ideation(request: ExecutionRequest):
@@ -384,14 +384,14 @@ async def get_agents_status():
 
 Now update your React UI to use the real API:
 
-1. New Service: src/services/flyntApiService.ts
+1. New Service: src/services/terraqoreAPIService.ts
 
 ```typescript
 import { AgentNode, ExecutionLog, MetaState, Project } from '../types';
 
 const API_BASE_URL = 'http://localhost:8000';
 
-export class FlyntApiService {
+export class terraqoreAPIService {
   // Project Management
   static async createProject(name: string, description: string = ''): Promise<Project> {
     const response = await fetch(`${API_BASE_URL}/api/projects/`, {
@@ -472,14 +472,14 @@ In your project creation component:
 // const result = await geminiService.planTask(prompt);
 
 // Use real API:
-const result = await FlyntApiService.createProject(projectName, description);
+const result = await terraqoreAPIService.createProject(projectName, description);
 ```
 
 In your workflow execution component:
 
 ```typescript
 // Start ideation
-const ideationResult = await FlyntApiService.startIdeation(projectName, userInput);
+const ideationResult = await terraqoreAPIService.startIdeation(projectName, userInput);
 // Update UI with real progress
 setNodes(ideationResult.metadata.tasks.map(task => ({
   id: task.id.toString(),
@@ -521,7 +521,7 @@ Phase 4: Polish & Deployment (Week 4)
 
 📝 Key Changes Needed in Your UI
 
-1. Remove geminiService.ts - Replace all calls with FlyntApiService
+1. Remove geminiService.ts - Replace all calls with terraqoreAPIService
 2. Update types.ts - Align interfaces with backend models
 3. Add WebSocket integration for real-time updates
 4. Update dashboard to fetch real metrics from /api/agents/status and task progress

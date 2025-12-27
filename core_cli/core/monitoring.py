@@ -1,5 +1,5 @@
 """
-Flynt Agent Monitoring System
+TerraQore Agent Monitoring System
 Tracks agent health, performance metrics, and generates insights.
 """
 

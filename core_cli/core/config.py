@@ -1,5 +1,5 @@
 """
-Flynt Core Configuration Module
+TerraQore Core Configuration Module
 Handles all configuration, API keys, and settings management.
 """
 
@@ -24,8 +24,8 @@ class LLMConfig:
     
     
 @dataclass
-class FlyntConfig:
-    """Main Flynt configuration."""
+class TerraQoreConfig:
+    """Main TerraQore configuration."""
     primary_llm: LLMConfig
     fallback_llm: Optional[LLMConfig] = None
     project_root: Path = field(default_factory=lambda: Path.cwd())
@@ -37,7 +37,7 @@ class FlyntConfig:
     
 
 class ConfigManager:
-    """Manages Flynt configuration and settings."""
+    """Manages TerraQore configuration and settings."""
     
     DEFAULT_CONFIG = {
         "llm": {
@@ -81,11 +81,11 @@ class ConfigManager:
         for d in dirs:
             d.mkdir(parents=True, exist_ok=True)
             
-    def load(self) -> FlyntConfig:
+    def load(self) -> TerraQoreConfig:
         """Load configuration from file or create default.
         
         Returns:
-            FlyntConfig object with loaded settings.
+            TerraQoreConfig object with loaded settings.
         """
         if self.config_path.exists():
             with open(self.config_path, 'r') as f:
@@ -98,8 +98,8 @@ class ConfigManager:
             
         return self._build_config()
     
-    def _build_config(self) -> FlyntConfig:
-        """Build FlyntConfig from loaded data with validation."""
+    def _build_config(self) -> TerraQoreConfig:
+        """Build TerraQoreConfig from loaded data with validation."""
         llm_config = self.config_data.get("llm", {})
         system_config = self.config_data.get("system", {})
         
@@ -164,7 +164,7 @@ class ConfigManager:
             logger.warning(f"Invalid timeout: {timeout}, using default 30")
             timeout = 30
         
-        return FlyntConfig(
+        return TerraQoreConfig(
             primary_llm=primary_llm,
             fallback_llm=fallback_llm,
             max_retries=max_retries,
@@ -204,10 +204,10 @@ class ConfigManager:
         """
         return """
 ╔══════════════════════════════════════════════════════════════╗
-║                   FLYNT API KEY SETUP                        ║
+║                   TerraQore API KEY SETUP                        ║
 ╚══════════════════════════════════════════════════════════════╝
 
-To use Flynt, you need to set up API keys as environment variables:
+To use TerraQore, you need to set up API keys as environment variables:
 
 GEMINI (Recommended - Free Tier):
   1. Visit: https://makersuite.google.com/app/apikey
@@ -228,7 +228,7 @@ To make keys persistent on Windows:
   2. Click "Environment Variables" button
   3. Add new User variables with your API keys
 
-After setting keys, restart your terminal and run: flynt init
+After setting keys, restart your terminal and run: TerraQore init
 """
 
 

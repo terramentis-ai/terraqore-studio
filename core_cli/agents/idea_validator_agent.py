@@ -1,5 +1,5 @@
 """
-Flynt Idea Validator Agent
+TerraQore Idea Validator Agent
 Validates project ideas for feasibility, complexity, and risk assessment.
 """
 

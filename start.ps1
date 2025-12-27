@@ -1,4 +1,4 @@
-# Start script for FlyntCore - Windows PowerShell
+# Start script for TERRAQORE - Windows PowerShell
 
 param(
     [ValidateSet("both", "backend", "frontend")]
@@ -10,7 +10,7 @@ $BackendDir = "$ProjectRoot\core_clli"
 $FrontendDir = "$ProjectRoot\gui"
 
 Write-Host "=========================================="
-Write-Host "FlyntCore v1.0 - Start Script (Windows)"
+Write-Host "TERRAQORE v1.0 - Start Script (Windows)"
 Write-Host "=========================================="
 Write-Host ""
 
@@ -67,7 +67,7 @@ if ($StartFrontend) {
 
 Write-Host ""
 Print-Status "=========================================="
-Print-Status "FlyntCore is running!"
+Print-Status "TERRAQORE is running!"
 Print-Status "=========================================="
 Write-Host ""
 

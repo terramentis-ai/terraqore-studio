@@ -1,5 +1,5 @@
 """
-Flynt LLM Client Module
+TerraQore LLM Client Module
 Multi-provider LLM client with automatic offline fallback support.
 Supports: over 300+ models through Openrouter and Ollama local models.
 """
@@ -235,8 +235,8 @@ class OpenRouterProvider(LLMProvider):
         try:
             headers = {
                 "Authorization": f"Bearer {self.api_key}",
-                "HTTP-Referer": "https://github.com/flyntstudio/flynt",
-                "X-Title": "Flynt Studio"
+                "HTTP-Referer": "https://github.com/terraqore-studio/terraqore",
+                "X-Title": "TerraQore Studio"
             }
             
             messages = []
@@ -621,10 +621,10 @@ class LLMClient:
 
 
 def create_llm_client_from_config(config) -> LLMClient:
-    """Create LLM client from Flynt configuration.
+    """Create LLM client from TerraQore configuration.
     
     Args:
-        config: FlyntConfig object.
+        config: TerraQoreConfig object.
         
     Returns:
         Configured LLMClient.
@@ -632,7 +632,7 @@ def create_llm_client_from_config(config) -> LLMClient:
     import os
 
     # Allow forcing Ollama primary for local testing via env var
-    force_ollama = os.getenv('FLYNT_FORCE_OLLAMA', '0') == '1'
+    force_ollama = os.getenv('TERRAQORE_FORCE_OLLAMA', '0') == '1'
 
     # Create primary provider
     primary_config = config.primary_llm

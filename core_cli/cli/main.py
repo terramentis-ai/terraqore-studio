@@ -1,6 +1,6 @@
 """
-Flynt CLI - Main Command Line Interface
-Provides intuitive commands for interacting with Flynt.
+TerraQore CLI - Main Command Line Interface
+Provides intuitive commands for interacting with TerraQore.
 """
 
 import click
@@ -19,7 +19,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(Path.cwd() / "logs" / "flynt.log"),
+        logging.FileHandler(Path.cwd() / "logs" / "terraqore.log"),
         logging.StreamHandler(sys.stdout)
     ]
 )
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 def print_banner():
-    """Print Flynt banner."""
+    """Print TerraQore banner."""
     banner = """
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
@@ -49,7 +49,7 @@ def print_banner():
 @click.group()
 @click.version_option(version='0.1.0', prog_name='Flynt')
 def cli():
-    """Flynt - Your Personal Developer Assistant for Agentic AI Projects.
+    """TerraQore - Your Personal Developer Assistant for Agentic AI Projects.
     
     Build agentic AI projects from idea to deployment with AI-powered assistance.
     """
@@ -58,9 +58,9 @@ def cli():
 
 @cli.command()
 def init():
-    """Initialize Flynt in the current directory."""
+    """Initialize TerraQore in the current directory."""
     print_banner()
-    click.echo("\n🚀 Initializing Flynt...\n")
+    click.echo("\n🚀 Initializing TerraQore...\n")
     
     # Create config manager
     config_mgr = get_config_manager()
@@ -70,7 +70,7 @@ def init():
     if not config.primary_llm.api_key:
         click.echo(click.style("⚠️  No API keys detected!", fg='yellow', bold=True))
         click.echo(config_mgr.get_api_key_instructions())
-        click.echo("\nAfter setting API keys, run 'flynt init' again.")
+        click.echo("\nAfter setting API keys, run 'TerraQore init' again.")
         return
     
     # Initialize state manager
@@ -83,11 +83,11 @@ def init():
     if config.fallback_llm and config.fallback_llm.api_key:
         click.echo(click.style("✓", fg='green') + f" Fallback LLM: {config.fallback_llm.model}")
     
-    click.echo("\n" + click.style("✨ Flynt is ready!", fg='green', bold=True))
+    click.echo("\n" + click.style("✨ TerraQore is ready!", fg='green', bold=True))
     click.echo("\nNext steps:")
-    click.echo("  1. Create a new project: flynt new 'My Project Name'")
-    click.echo("  2. List projects: flynt list")
-    click.echo("  3. Get help: flynt --help")
+    click.echo("  1. Create a new project: TerraQore new 'My Project Name'")
+    click.echo("  2. List projects: TerraQore list")
+    click.echo("  3. Get help: TerraQore --help")
 
 
 @cli.command()
@@ -96,16 +96,16 @@ def init():
 def new(name: str, description: Optional[str]):
     """Create a new project.
     
-    Example: flynt new "RAG Chatbot for Job Search"
+    Example: TerraQore new "RAG Chatbot for Job Search"
     """
     click.echo(f"\n🎯 Creating new project: {name}\n")
     
-    # Check if Flynt is initialized
+    # Check if TerraQore is initialized
     config_mgr = get_config_manager()
     config = config_mgr.load()
     
     if not config.primary_llm.api_key:
-        click.echo(click.style("⚠️  Flynt not initialized. Run 'flynt init' first.", fg='yellow'))
+        click.echo(click.style("⚠️  TerraQore not initialized. Run 'TerraQore init' first.", fg='yellow'))
         return
     
     # Create project
@@ -127,8 +127,8 @@ def new(name: str, description: Optional[str]):
     
     click.echo(click.style("✓", fg='green') + f" Project created (ID: {project_id})")
     click.echo("\nNext steps:")
-    click.echo(f"  1. Start ideation: flynt ideate '{name}'")
-    click.echo(f"  2. View project: flynt show '{name}'")
+    click.echo(f"  1. Start ideation: TerraQore ideate '{name}'")
+    click.echo(f"  2. View project: TerraQore show '{name}'")
 
 
 @cli.command()
@@ -140,7 +140,7 @@ def list(status: Optional[str]):
     
     if not projects:
         click.echo("\n📭 No projects found.")
-        click.echo("Create one with: flynt new 'Project Name'\n")
+        click.echo("Create one with: TerraQore new 'Project Name'\n")
         return
     
     click.echo(f"\n📚 Your Projects ({len(projects)}):\n")
@@ -241,7 +241,7 @@ def ideate(name: str, input: Optional[str]):
     This will use the Idea Agent to research trends, brainstorm variations,
     and create an actionable project plan.
     
-    Example: flynt ideate "My Project" -i "Focus on simplicity"
+    Example: TerraQore ideate "My Project" -i "Focus on simplicity"
     """
     click.echo(f"\n💡 Starting Ideation for: {click.style(name, bold=True)}\n")
     
@@ -250,7 +250,7 @@ def ideate(name: str, input: Optional[str]):
     
     if not project:
         click.echo(click.style(f"⚠️  Project '{name}' not found.", fg='yellow'))
-        click.echo("Create it first with: flynt new 'Project Name'")
+        click.echo("Create it first with: TerraQore new 'Project Name'")
         return
     
     # Import orchestrator
@@ -289,8 +289,8 @@ def ideate(name: str, input: Optional[str]):
         
         click.echo("\n" + click.style("Next Steps:", bold=True))
         click.echo(f"  1. Review the ideation results above")
-        click.echo(f"  2. Plan tasks: flynt plan '{name}' (Coming Soon)")
-        click.echo(f"  3. View project: flynt show '{name}'")
+        click.echo(f"  2. Plan tasks: TerraQore plan '{name}' (Coming Soon)")
+        click.echo(f"  3. View project: TerraQore show '{name}'")
 
 
 @cli.command()
@@ -302,7 +302,7 @@ def plan(name: str, input: Optional[str]):
     This will use the Planner Agent to create a detailed task breakdown
     with dependencies, milestones, and estimates.
     
-    Example: flynt plan "My Project" -i "Focus on MVP features only"
+    Example: TerraQore plan "My Project" -i "Focus on MVP features only"
     """
     click.echo(f"\n📋 Starting Planning for: {click.style(name, bold=True)}\n")
     
@@ -311,7 +311,7 @@ def plan(name: str, input: Optional[str]):
     
     if not project:
         click.echo(click.style(f"⚠️  Project '{name}' not found.", fg='yellow'))
-        click.echo("Create it first with: flynt new 'Project Name'")
+        click.echo("Create it first with: TerraQore new 'Project Name'")
         return
     
     # Import orchestrator
@@ -352,12 +352,12 @@ def plan(name: str, input: Optional[str]):
         
         click.echo("\n" + click.style("Next Steps:", bold=True))
         click.echo(f"  1. Review the task breakdown above")
-        click.echo(f"  2. View tasks: flynt tasks '{name}'")
-        click.echo(f"  3. Start execution: flynt run '{name}' (Coming Soon)")
+        click.echo(f"  2. View tasks: TerraQore tasks '{name}'")
+        click.echo(f"  3. Start execution: TerraQore run '{name}' (Coming Soon)")
     else:
         click.echo(click.style("✗ Planning Failed", fg='red', bold=True))
         click.echo(f"Error: {result.error}")
-        click.echo("\nTry again or check logs: logs/flynt.log")
+        click.echo("\nTry again or check logs: logs/terraqore.log")
 
 
 @cli.command()
@@ -367,9 +367,9 @@ def plan(name: str, input: Optional[str]):
 def tasks(name: str, milestone: Optional[str], status: Optional[str]):
     """View tasks for a project.
     
-    Example: flynt tasks "My Project"
-    Example: flynt tasks "My Project" -m "Setup"
-    Example: flynt tasks "My Project" -s "pending"
+    Example: TerraQore tasks "My Project"
+    Example: TerraQore tasks "My Project" -m "Setup"
+    Example: TerraQore tasks "My Project" -s "pending"
     """
     state_mgr = get_state_manager()
     project = state_mgr.get_project(name=name)
@@ -387,7 +387,7 @@ def tasks(name: str, milestone: Optional[str], status: Optional[str]):
     if not all_tasks:
         click.echo(f"\n📭 No tasks found for '{name}'")
         if not milestone and not status:
-            click.echo(f"\nCreate tasks with: flynt plan '{name}'")
+            click.echo(f"\nCreate tasks with: TerraQore plan '{name}'")
         return
     
     click.echo(f"\n📝 Tasks for: {click.style(name, bold=True)}")
@@ -448,7 +448,7 @@ def tasks(name: str, milestone: Optional[str], status: Optional[str]):
 def roadmap(name: str):
     """View project roadmap with milestones.
     
-    Example: flynt roadmap "My Project"
+    Example: TerraQore roadmap "My Project"
     """
     state_mgr = get_state_manager()
     project = state_mgr.get_project(name=name)
@@ -461,7 +461,7 @@ def roadmap(name: str):
     
     if not all_tasks:
         click.echo(f"\n📭 No tasks found. Create a plan first:")
-        click.echo(f"  flynt plan '{name}'")
+        click.echo(f"  TerraQore plan '{name}'")
         return
     
     click.echo(f"\n🗺️  Roadmap for: {click.style(name, bold=True)}\n")
@@ -517,7 +517,7 @@ def test_critique(project, output):
     Examines code structure, complexity, and identifies areas needing test coverage.
     Generates test scaffolds for critical functions.
     
-    Example: flynt test-critique "My Project" -o tests/
+    Example: TerraQore test-critique "My Project" -o tests/
     """
     try:
         from orchestration.orchestrator import AgentOrchestrator
@@ -580,8 +580,8 @@ def test_critique(project, output):
 
 @cli.command()
 def status():
-    """Show Flynt system status."""
-    click.echo("\n🔍 Flynt Status\n")
+    """Show TerraQore system status."""
+    click.echo("\n🔍 TerraQore Status\n")
     
     # Check configuration
     config_mgr = get_config_manager()
@@ -644,10 +644,10 @@ def execute(project, task_id, auto, approve_all, test_mode):
     """Execute tasks and generate code for a project.
     
     Examples:
-        flynt execute "Project Name"              # Execute next pending task
-        flynt execute "Project Name" --task-id 5  # Execute specific task
-        flynt execute "Project Name" --auto       # Auto-execute all tasks
-        flynt execute "Project Name" --auto --approve-all  # Full automation
+        TerraQore execute "Project Name"              # Execute next pending task
+        TerraQore execute "Project Name" --task-id 5  # Execute specific task
+        TerraQore execute "Project Name" --auto       # Auto-execute all tasks
+        TerraQore execute "Project Name" --auto --approve-all  # Full automation
     """
     try:
         from orchestration.executor import ExecutionEngine
@@ -708,7 +708,7 @@ def execute(project, task_id, auto, approve_all, test_mode):
             approvals = executor.get_pending_approvals()
             if approvals:
                 click.echo(f"\n⏳ Pending approvals: {len(approvals)}")
-                click.echo("Run 'flynt review <project>' to review and approve")
+                click.echo("Run 'TerraQore review <project>' to review and approve")
     
     except Exception as e:
         logger.error(f"Execution failed: {str(e)}", exc_info=True)
@@ -725,8 +725,8 @@ def code(project, task_id, test_mode):
     Shows generated code for review before applying to project.
     
     Examples:
-        flynt code "Project Name"            # Show generated code for next task
-        flynt code "Project Name" --task-id 3  # Show code for specific task
+        TerraQore code "Project Name"            # Show generated code for next task
+        TerraQore code "Project Name" --task-id 3  # Show code for specific task
     """
     try:
         from orchestration.executor import ExecutionEngine
@@ -770,7 +770,7 @@ def code(project, task_id, test_mode):
             click.echo(f"\nSummary: {code_gen.summary}")
             click.echo(f"\nExecution: {code_gen.execution_notes}")
             
-            click.echo(f"\n💾 Run 'flynt review {project}' to apply code")
+            click.echo(f"\n💾 Run 'TerraQore review {project}' to apply code")
         else:
             click.echo(click.style("❌ Code generation failed", fg='red'))
     
@@ -787,9 +787,9 @@ def review(project, approve, reject):
     """Review and approve generated code.
     
     Examples:
-        flynt review "Project Name"           # Show pending code
-        flynt review "Project Name" --approve # Apply all pending code
-        flynt review "Project Name" --reject  # Reject pending code
+        TerraQore review "Project Name"           # Show pending code
+        TerraQore review "Project Name" --approve # Apply all pending code
+        TerraQore review "Project Name" --reject  # Reject pending code
     """
     try:
         from orchestration.executor import ExecutionEngine
@@ -967,7 +967,7 @@ def resolve_conflicts(project):
     
     The resolver agent will analyze blocking dependency conflicts and generate
     recommendations for resolution. After running this, review suggestions and
-    use 'flynt unblock-project' to apply a resolution.
+    use 'TerraQore unblock-project' to apply a resolution.
     """
     try:
         from core.psmp_orchestrator_bridge import get_psmp_bridge
@@ -1004,12 +1004,12 @@ def resolve_conflicts(project):
 def unblock_project(project, library, version):
     """Manually resolve conflicts and unblock a project.
     
-    After running 'flynt resolve-conflicts' and reviewing recommendations,
+    After running 'TerraQore resolve-conflicts' and reviewing recommendations,
     use this command to apply a resolution and unblock the project.
     
     Examples:
-        flynt unblock-project MyProject --library pandas --version 2.0
-        flynt unblock-project MyProject  # Show interactive resolution options
+        TerraQore unblock-project MyProject --library pandas --version 2.0
+        TerraQore unblock-project MyProject  # Show interactive resolution options
     """
     try:
         from core.psmp import get_psmp_service
@@ -1061,7 +1061,7 @@ def unblock_project(project, library, version):
                     click.echo(f"     {j}. {suggestion}")
             
             click.echo(click.style("\nTo resolve, use:", fg='yellow'))
-            click.echo("  flynt unblock-project PROJECT --library LIBRARY --version VERSION")
+            click.echo("  TerraQore unblock-project PROJECT --library LIBRARY --version VERSION")
         
     except Exception as e:
         logger.error(f"Error unblocking project: {str(e)}", exc_info=True)

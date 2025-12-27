@@ -1,4 +1,4 @@
-# FlyntCore v1.1 Rollout Notes (Security Focus)
+# TERRAQORE v1.1 Rollout Notes (Security Focus)
 
 ## Readiness Snapshot
 - Security tests: 46 passed, 3 skipped (benchmark-optional) via `python -m pytest core_cli/tests/security -q`.

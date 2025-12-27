@@ -1,5 +1,5 @@
 # ============================================================================
-# Flynt Studio - Backend Requirements
+# TerraQore Studio - Backend Requirements
 # ============================================================================
 
 # Core Framework

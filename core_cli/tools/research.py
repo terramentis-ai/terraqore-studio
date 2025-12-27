@@ -1,5 +1,5 @@
 """
-Flynt Research Tool
+TerraQore Research Tool
 Provides web search capabilities for agents to research topics.
 Uses DuckDuckGo for free, no-API-key web searching.
 """

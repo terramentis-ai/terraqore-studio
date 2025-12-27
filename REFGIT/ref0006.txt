@@ -1,6 +1,6 @@
 {
-    "appName": "Flynt Studio UI",
-    "description": "Wireframe spec for the commercial frontend UI wrapping the OSS CLI of Flynt Studio. This spec outlines key pages and components for a minimalist, intuitive dashboard-style interface.",
+    "appName": "TerraQore Studio UI",
+    "description": "Wireframe spec for the commercial frontend UI wrapping the OSS CLI of TerraQore Studio. This spec outlines key pages and components for a minimalist, intuitive dashboard-style interface.",
     "techStack": {
         "framework": "Streamlit or Gradio (Python-based for seamless CLI integration)",
         "deployment": "Docker or cloud-hosted with authentication for commercial access"
@@ -21,7 +21,7 @@
             "components": [
                 {
                     "type": "header",
-                    "text": "Welcome to Flynt Studio Pro",
+                    "text": "Welcome to TerraQore Studio Pro",
                     "position": "top-center"
                 },
                 {
@@ -224,8 +224,8 @@ The Mermaid code uses simple flowchart (graph TD) and class diagram syntax for c
 
 ```json
 {
-    "appName": "Flynt Studio UI",
-    "description": "Wireframe spec for the commercial frontend UI wrapping the OSS CLI of Flynt Studio. This spec outlines key pages and components for a minimalist, intuitive dashboard-style interface. Now integrated with Mermaid diagram sketches for navigation, layouts, and hierarchies.",
+    "appName": "TerraQore Studio UI",
+    "description": "Wireframe spec for the commercial frontend UI wrapping the OSS CLI of TerraQore Studio. This spec outlines key pages and components for a minimalist, intuitive dashboard-style interface. Now integrated with Mermaid diagram sketches for navigation, layouts, and hierarchies.",
     "techStack": {
         "framework": "Streamlit or Gradio (Python-based for seamless CLI integration)",
         "deployment": "Docker or cloud-hosted with authentication for commercial access"
@@ -246,7 +246,7 @@ The Mermaid code uses simple flowchart (graph TD) and class diagram syntax for c
             "components": [
                 {
                     "type": "header",
-                    "text": "Welcome to Flynt Studio Pro",
+                    "text": "Welcome to TerraQore Studio Pro",
                     "position": "top-center"
                 },
                 {

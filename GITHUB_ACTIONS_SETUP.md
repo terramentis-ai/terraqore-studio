@@ -1,6 +1,6 @@
 # GitHub Actions Setup Guide
 
-This document provides instructions for setting up your FlyntCore repository on GitHub with CI/CD pipelines.
+This document provides instructions for setting up your TERRAQORE repository on GitHub with CI/CD pipelines.
 
 ## Prerequisites
 
@@ -11,7 +11,7 @@ This document provides instructions for setting up your FlyntCore repository on 
 ## Step 1: Create GitHub Repository
 
 1. Go to https://github.com/new
-2. Repository name: `FlyntCore`
+2. Repository name: `TERRAQORE`
 3. Description: "A production-ready multi-agent AI orchestration platform with multi-provider LLM support"
 4. Visibility: Public (recommended) or Private
 5. Click "Create repository"
@@ -19,8 +19,8 @@ This document provides instructions for setting up your FlyntCore repository on 
 ## Step 2: Connect Local Repository to GitHub
 
 ```bash
-cd FlyntCore
-git remote add origin https://github.com/YOUR_USERNAME/FlyntCore.git
+cd TERRAQORE
+git remote add origin https://github.com/YOUR_USERNAME/TERRAQORE.git
 git branch -M main
 git push -u origin main
 ```
@@ -72,7 +72,7 @@ To publish your frontend to GitHub Pages:
 4. Folder: `/ (root)`
 5. Click Save
 
-Your frontend will be available at: `https://YOUR_USERNAME.github.io/FlyntCore/`
+Your frontend will be available at: `https://YOUR_USERNAME.github.io/TERRAQORE/`
 
 ## Step 6: Branch Protection Rules (Optional)
 
@@ -179,7 +179,7 @@ git push origin v1.0.1
 - Verify `npm run build` works locally: `cd gui && npm run build`
 
 ### Deployment Issues
-- For GitHub Pages: Verify `cname: flyntcore.ai` in frontend.yml (update or remove as needed)
+- For GitHub Pages: Verify `cname: terraqore.com` in frontend.yml (update or remove as needed)
 - Check that `gh-pages` branch is enabled in repository settings
 - Review GitHub Pages section in Settings for any errors
 
@@ -208,7 +208,7 @@ The backend workflow sends coverage reports to Codecov. To enable:
 4. Coverage badges will automatically appear in your README
 
 ### Custom Domain for GitHub Pages
-If using `https://flyntcore.ai`:
+If using `https://terraqore.com`:
 
 1. Update the `cname` field in `.github/workflows/frontend.yml`
 2. Configure DNS records for your domain
@@ -242,5 +242,5 @@ For issues with GitHub Actions:
 ---
 
 **Last Updated:** December 26, 2025  
-**FlyntCore Version:** 1.0.0  
+**TERRAQORE Version:** 1.0.0  
 **Status:** Ready for GitHub Deployment

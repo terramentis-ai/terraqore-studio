@@ -1,4 +1,4 @@
-# FlyntCore v1.1 - Release Summary
+# TERRAQORE v1.1 - Release Summary
 
 **Release Date**: December 27, 2025  
 **Version**: 1.1  
@@ -10,7 +10,7 @@
 
 ## 🎉 Release Highlights
 
-FlyntCore v1.1 marks the completion of **Phase 1: Production Security Hardening**, delivering enterprise-grade security features that establish "Security First" as a core platform promise.
+TERRAQORE v1.1 marks the completion of **Phase 1: Production Security Hardening**, delivering enterprise-grade security features that establish "Security First" as a core platform promise.
 
 ### Key Achievements
 

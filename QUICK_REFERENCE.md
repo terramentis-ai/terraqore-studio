@@ -1,4 +1,4 @@
-# FlyntCore Quick Reference - Task 5 Complete ✅
+# TERRAQORE Quick Reference - Task 5 Complete ✅
 
 ## 🚀 Start Here
 
@@ -20,7 +20,7 @@ npm run dev
 # Expected: Open http://localhost:5173/
 ```
 
-### 3. Use Flynt Studio
+### 3. Use TerraQore Studio
 - Open http://localhost:5173/ in browser
 - Should see "WORKSPACE" tab selected by default
 - Create your first project!
@@ -94,7 +94,7 @@ User Action (Click "New Project")
     ↓
 App.tsx → ProjectDashboard
     ↓
-handleCreateProject() → flyntAPI.createProject()
+handleCreateProject() → terraqoreAPI.createProject()
     ↓
 HTTP POST /projects
     ↓
@@ -144,7 +144,7 @@ UI re-renders with new project
 
 ```bash
 # Backend logs
-tail -f core_clli/flynt.log
+tail -f core_clli/terraqore.log
 
 # Frontend build
 cd gui && npm run build
@@ -296,4 +296,4 @@ All components are:
 
 ---
 
-*FlyntCore v1.0 - Task 5 Complete!* 🚀
+*TERRAQORE v1.0 - Task 5 Complete!* 🚀

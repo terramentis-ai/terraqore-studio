@@ -1,11 +1,11 @@
 # FastAPI Bridge Service - Implementation Summary
 
 ## Overview
-Implemented a complete FastAPI REST API service that wraps the Flynt core orchestration and state management, enabling external applications and frontends to interact with Flynt programmatically.
+Implemented a complete FastAPI REST API service that wraps the TerraQore Core orchestration and state management, enabling external applications and frontends to interact with TerraQore programmatically.
 
 ## Components Created
 
-### 1. FastAPI Application (`flynt_api/app.py`)
+### 1. FastAPI Application (`terraqore_api/app.py`)
 **Purpose**: Application factory and configuration
 
 **Features**:
@@ -22,7 +22,7 @@ Implemented a complete FastAPI REST API service that wraps the Flynt core orches
 - `GET /api/health` - Health check
 - Router prefixes: `/api/projects`, `/api/tasks`, `/api/workflows`
 
-### 2. Pydantic Models (`flynt_api/models.py`)
+### 2. Pydantic Models (`terraqore_api/models.py`)
 **Purpose**: Type-safe request/response schemas
 
 **Model Groups**:
@@ -62,11 +62,11 @@ Implemented a complete FastAPI REST API service that wraps the Flynt core orches
 - `ErrorResponse`: Standard error
 - `ValidationErrorResponse`: Validation errors
 
-### 3. Flynt Service Wrapper (`flynt_api/service.py`)
-**Purpose**: Bridge between API and core Flynt systems
+### 3. TerraQore Service Wrapper (`terraqore_api/service.py`)
+**Purpose**: Bridge between API and core TerraQore systems
 
 **Key Classes**:
-- `FlyntService`: Service layer with methods for:
+- `TerraQoreService`: Service layer with methods for:
   - Project CRUD operations
   - Task management
   - Workflow execution
@@ -95,7 +95,7 @@ Implemented a complete FastAPI REST API service that wraps the Flynt core orches
 - `resolve_conflict()` - Manual conflict resolution
 - `get_project_manifest()` - Get unified dependencies
 
-### 4. Projects Router (`flynt_api/routers/projects.py`)
+### 4. Projects Router (`terraqore_api/routers/projects.py`)
 **Endpoints**:
 
 ```
@@ -113,7 +113,7 @@ DELETE /api/projects/{project_id}   # Delete project (not yet implemented)
 - Pagination support
 - HTTP status codes (201 for create, 404 for not found, etc)
 
-### 5. Tasks Router (`flynt_api/routers/tasks.py`)
+### 5. Tasks Router (`terraqore_api/routers/tasks.py`)
 **Endpoints**:
 
 ```
@@ -130,7 +130,7 @@ DELETE /api/tasks/{task_id}      # Delete task (not yet implemented)
 - Task progress tracking
 - Agent type assignment
 
-### 6. Workflows Router (`flynt_api/routers/workflows.py`)
+### 6. Workflows Router (`terraqore_api/routers/workflows.py`)
 **Endpoints**:
 
 ```
@@ -154,9 +154,9 @@ Client HTTP Request
     ↓
 FastAPI Router (validation via Pydantic)
     ↓
-FlyntService Layer (business logic)
+TerraQoreService Layer (business logic)
     ↓
-Core Flynt Systems:
+Core TerraQore systems:
     ├─ Orchestrator (agent execution)
     ├─ StateManager (data persistence)
     ├─ PSMPService (conflict management)
@@ -217,28 +217,28 @@ curl http://localhost:8000/api/workflows/conflicts/1
 # Manual start
 export PYTHONPATH=.
 pip install fastapi uvicorn pydantic
-uvicorn flynt_api.app:create_app --reload --port 8000
+uvicorn terraqore_api.app:create_app --reload --port 8000
 ```
 
 ### Docker
 ```bash
 # Build Docker image
-docker build -f Dockerfile.api -t flynt-api:latest .
+docker build -f Dockerfile.api -t terraqore-api:latest .
 
 # Run container
-docker run -p 8000:8000 flynt-api:latest
+docker run -p 8000:8000 terraqore-api:latest
 
 # With environment variables
 docker run -p 8000:8000 \
-  -e FLYNT_DB_PATH=/data/flynt.db \
+  -e FLYNT_DB_PATH=/data/terraqore.db \
   -v /data:/data \
-  flynt-api:latest
+  terraqore-api:latest
 ```
 
 ### Production (Gunicorn + Uvicorn)
 ```bash
 pip install gunicorn
-gunicorn flynt_api.app:create_app \
+gunicorn terraqore_api.app:create_app \
   --workers 4 \
   --worker-class uvicorn.workers.UvicornWorker \
   --bind 0.0.0.0:8000
@@ -297,7 +297,7 @@ const projectService = {
 # Restrict CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://flynt.example.com"],
+    allow_origins=["https://TerraQore.example.com"],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PATCH"],
     allow_headers=["Authorization"]

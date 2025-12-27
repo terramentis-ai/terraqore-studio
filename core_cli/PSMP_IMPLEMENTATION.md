@@ -158,16 +158,16 @@ if not success and conflicts:
 ### With CLI
 ```bash
 # Check project state
-flynt show "My Project"  # Shows if BLOCKED
+TerraQore show "My Project"  # Shows if BLOCKED
 
 # View conflicts
-flynt conflicts "My Project"
+TerraQore conflicts "My Project"
 
 # Trigger resolver agent
-flynt resolve-conflicts "My Project"
+TerraQore resolve-conflicts "My Project"
 
 # Once resolved
-flynt unblock-project "My Project"
+TerraQore unblock-project "My Project"
 ```
 
 ## Next Actions
@@ -178,9 +178,9 @@ flynt unblock-project "My Project"
    - Trigger `ConflictResolverAgent` on conflicts
 
 2. **CLI Commands**:
-   - `flynt conflicts <project>` - Show blocking conflicts
-   - `flynt resolve-conflicts <project>` - Run resolver agent
-   - `flynt manifest <project>` - Export unified dependencies
+   - `TerraQore conflicts <project>` - Show blocking conflicts
+   - `TerraQore resolve-conflicts <project>` - Run resolver agent
+   - `TerraQore manifest <project>` - Export unified dependencies
 
 3. **UI Integration** (ref0006):
    - Display BLOCKED state prominently

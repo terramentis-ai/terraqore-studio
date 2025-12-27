@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>Flynt Studio</h1>
+  <h1>TerraQore Studio</h1>
   <p>A modern UI for designing, executing, and visualizing multi‑agent AI workflows.</p>
 </div>
 
@@ -82,7 +82,7 @@ MIT
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Flynt Studio - AI Agent Framework UI
+# TerraQore Studio - AI Agent Framework UI
 
 A powerful visualization and orchestration platform for multi-agent AI workflows. Featuring real-time monitoring, workflow design, and execution playground.
 

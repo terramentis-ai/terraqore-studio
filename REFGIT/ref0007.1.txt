@@ -1,5 +1,5 @@
 {
-    "appName": "Flynt Studio UI - Enhanced Version",
+    "appName": "TerraQore Studio UI - Enhanced Version",
     "description": "Updated wireframe spec incorporating user-friendly enhancements: simplicity via progressive disclosure, interactivity with real-time feedback, accessibility features, modular components, and improved onboarding/collaboration. This variant builds on the original for A/B testing.",
     "techStack": {
         "framework": "Streamlit or Gradio (Python-based for seamless CLI integration)",
@@ -31,7 +31,7 @@
             "components": [
                 {
                     "type": "header",
-                    "text": "Welcome to Flynt Studio Pro",
+                    "text": "Welcome to TerraQore Studio Pro",
                     "position": "top-center"
                 },
                 {

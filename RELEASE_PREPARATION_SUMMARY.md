@@ -1,4 +1,4 @@
-# FlyntCore v1.0 - Release Preparation Summary
+# TERRAQORE v1.0 - Release Preparation Summary
 
 **Release Date:** December 26, 2025  
 **Status:** ✅ Ready for GitHub Deployment
@@ -16,7 +16,7 @@
 - Repository initialized with git
 - All source code tracked and ready to push
 - No sensitive data (API keys removed from config files)
-- Initial commit created: "Initial release: FlyntCore v1.0 with multi-provider LLM support"
+- Initial commit created: "Initial release: TERRAQORE v1.0 with multi-provider LLM support"
 
 ### ✅ CI/CD Pipelines
 Created three GitHub Actions workflows:
@@ -103,14 +103,14 @@ Before pushing to GitHub, verify:
 ### Step 1: Create GitHub Repository
 ```bash
 # Go to https://github.com/new
-# Create repository named "FlyntCore"
+# Create repository named "TERRAQORE"
 # Copy the HTTPS or SSH URL
 ```
 
 ### Step 2: Connect Local Repository
 ```bash
-cd FlyntCore
-git remote add origin https://github.com/YOUR_USERNAME/FlyntCore.git
+cd TERRAQORE
+git remote add origin https://github.com/YOUR_USERNAME/TERRAQORE.git
 git branch -M main
 git push -u origin main
 ```
@@ -130,7 +130,7 @@ Settings → Secrets and variables → Actions
 
 | Component | Version |
 |-----------|---------|
-| **FlyntCore** | 1.0.0 |
+| **TERRAQORE** | 1.0.0 |
 | **Python** | 3.9+ |
 | **Node.js** | 16+ |
 | **FastAPI** | 0.104.1 |
@@ -224,7 +224,7 @@ After deploying to GitHub:
 
 ## Support & Documentation Links
 
-- **GitHub Repository**: https://github.com/YOUR_USERNAME/FlyntCore
+- **GitHub Repository**: https://github.com/YOUR_USERNAME/TERRAQORE
 - **API Documentation**: `/docs` endpoint when backend is running
 - **Setup Guide**: See `SETUP_AND_RUN_GUIDE.md` in repository
 - **CI/CD Setup**: See `GITHUB_ACTIONS_SETUP.md` in repository
@@ -244,6 +244,6 @@ After deploying to GitHub:
 
 ---
 
-**Prepared by**: FlyntCore Development  
+**Prepared by**: TERRAQORE Development  
 **Date**: December 26, 2025  
 **Status**: ✅ Release Ready

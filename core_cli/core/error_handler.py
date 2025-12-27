@@ -1,5 +1,5 @@
 """
-Flynt Error Recovery System
+TerraQore Error Recovery System
 Provides strategies for handling and recovering from agent/system failures.
 """
 

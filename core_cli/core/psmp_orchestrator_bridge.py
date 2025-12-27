@@ -141,9 +141,9 @@ class PSMPOrchestrationBridge:
         
         message += "Next steps:\n"
         message += "  1. Review the conflicts above\n"
-        message += "  2. Run: flynt resolve-conflicts <project>\n"
+        message += "  2. Run: TerraQore resolve-conflicts <project>\n"
         message += "  3. Select a resolution strategy\n"
-        message += "  4. Run: flynt unblock-project <project>\n"
+        message += "  4. Run: TerraQore unblock-project <project>\n"
         
         return message
     

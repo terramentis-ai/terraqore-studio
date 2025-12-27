@@ -1,5 +1,5 @@
 """
-Flynt Project State Management Protocol (PSMP)
+TerraQore Project State Management Protocol (PSMP)
 Core module for managing project lifecycle, state transitions, and mandatory dependency resolution.
 """
 

@@ -1,5 +1,5 @@
 """
-Flynt Notebook Agent
+TerraQore Notebook Agent
 Specialized agent for generating Jupyter notebooks for data analysis,
 machine learning, and visualization tasks.
 """

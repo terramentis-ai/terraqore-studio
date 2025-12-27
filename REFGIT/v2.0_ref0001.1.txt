@@ -1,6 +1,6 @@
-### Enhancing Flynt-Studio with a Hybrid Offline-Online Data Lake for Real-Time Trend Ingestion
+### Enhancing terraqore-studio with a Hybrid Offline-Online Data Lake for Real-Time Trend Ingestion
 
-Your idea is spot-on for bridging the gap in a fully offline setup: By introducing a separate, secure ingestion module that periodically pulls web data into a local data lake, Flynt-Studio can maintain up-to-date knowledge without constant internet reliance. This creates a "hybrid" mode where the core AI agents (e.g., Planner, Coder) operate offline using the cached data lake for RAG (Retrieval-Augmented Generation), while a background process handles controlled online fetches. This aligns with 2025 best practices for data lakes, emphasizing security, governance, and AI-ready architectures like lakehouses (e.g., using open formats for structured/unstructured data).<grok:render card_id="c28a29" card_type="citation_card" type="render_inline_citation">
+Your idea is spot-on for bridging the gap in a fully offline setup: By introducing a separate, secure ingestion module that periodically pulls web data into a local data lake, terraqore-studio can maintain up-to-date knowledge without constant internet reliance. This creates a "hybrid" mode where the core AI agents (e.g., Planner, Coder) operate offline using the cached data lake for RAG (Retrieval-Augmented Generation), while a background process handles controlled online fetches. This aligns with 2025 best practices for data lakes, emphasizing security, governance, and AI-ready architectures like lakehouses (e.g., using open formats for structured/unstructured data).<grok:render card_id="c28a29" card_type="citation_card" type="render_inline_citation">
 <argument name="citation_id">0</argument>
 </grok:render><grok:render card_id="69e690" card_type="citation_card" type="render_inline_citation">
 <argument name="citation_id">3</argument>
@@ -24,7 +24,7 @@ Benefits include:
 </grok:render>
 - **Scalability**: Start simple with SQLite; scale to DuckDB or MinIO for larger datasets.
 
-This implementation integrates into Flynt-Studio's existing architecture (e.g., `core/services.py` for DB handling, `orchestration/orchestrator.py` for RAG). We'll use Python libraries for ingestion (e.g., requests, feedparser) and assume a basic setup from prior guides. Add dependencies like `duckdb`, `feedparser`, `celery` (for scheduling), and `cryptography` for security to `requirements.txt`.
+This implementation integrates into terraqore-studio's existing architecture (e.g., `core/services.py` for DB handling, `orchestration/orchestrator.py` for RAG). We'll use Python libraries for ingestion (e.g., requests, feedparser) and assume a basic setup from prior guides. Add dependencies like `duckdb`, `feedparser`, `celery` (for scheduling), and `cryptography` for security to `requirements.txt`.
 
 ### Step 1: Set Up the Local Data Lake
 Choose a lightweight, AI-friendly local database as your data lake. Use DuckDB for its support of structured data, vector embeddings, and lakehouse features (e.g., Parquet files for efficient storage).<grok:render card_id="b51dac" card_type="citation_card" type="render_inline_citation">
@@ -103,7 +103,7 @@ Create a separate module for secure web fetching, acting as a "proxy" to pull tr
           self.proxy = {'http': os.getenv('HTTP_PROXY'), 'https': os.getenv('HTTPS_PROXY')}  # For secure routing
 
       def fetch_rss(self, url, topic):
-          feed = feedparser.parse(url, request_headers={'User-Agent': 'Flynt-Studio/1.0'})
+          feed = feedparser.parse(url, request_headers={'User-Agent': 'terraqore-studio/1.0'})
           for entry in feed.entries:
               content = entry.get('summary', entry.get('description', ''))
               metadata = {'title': entry.title, 'link': entry.link, 'published': entry.published}
@@ -120,7 +120,7 @@ Create a separate module for secure web fetching, acting as a "proxy" to pull tr
                   self.lake.ingest_data(source=api_url, content=content, metadata=metadata)
 
       def ingest_trends(self):
-          # Example sources: Customize for Flynt-relevant trends (AI, coding, security)
+          # Example sources: Customize for TerraQore-relevant trends (AI, coding, security)
           self.fetch_rss('https://hn.algolia.com/api/v1/search_by_date?tags=story&numericFilters=created_at_i>last_24h', 'hackernews')  # Proxy for HN
           self.fetch_rss('https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml', 'tech_news')
           # Add API: e.g., NewsAPI (requires key in env: NEWS_API_KEY)
@@ -129,7 +129,7 @@ Create a separate module for secure web fetching, acting as a "proxy" to pull tr
   ```
 - Secure Fetching: Use proxies/VPN env vars for anonymity, HTTPS only, and rate limiting (add `time.sleep(1)`). Validate data for accuracy during cleaning (e.g., cross-check sources). For X trends, use Tweepy if you add API access.
 
-### Step 3: Integrate with Flynt-Studio Agents for Offline Querying
+### Step 3: Integrate with terraqore-studio Agents for Offline Querying
 Hook the data lake into your RAG pipeline so agents can "search" trends offline, mimicking Perplexity's real-time feel.
 
 - Update `agents/base_agent.py` (or specific agents like Research Agent):
@@ -176,4 +176,4 @@ Automate ingestion to keep the lake fresh without manual intervention.
 - **Testing**: Mock fetches with local files; run `pytest` on ingestion and queries.
 - **Scaling**: For enterprise, migrate to hybrid cloud storage like DDN for larger lakes.
 
-This turns Flynt-Studio into a robust hybrid system, staying current on trends securely and offline. If you want code diffs or focus on specific sources (e.g., X integration), let me know!
+This turns terraqore-studio into a robust hybrid system, staying current on trends securely and offline. If you want code diffs or focus on specific sources (e.g., X integration), let me know!

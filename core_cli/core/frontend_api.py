@@ -1,5 +1,5 @@
 """
-FastAPI endpoints for Flynt Studio Frontend Integration
+FastAPI endpoints for TerraQore Studio Frontend Integration
 
 Add these endpoints to your FastAPI main application to enable frontend communication.
 """

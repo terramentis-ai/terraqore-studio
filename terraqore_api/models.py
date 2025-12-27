@@ -1,5 +1,5 @@
 """
-Pydantic Models for Flynt API
+Pydantic Models for TerraQore API
 Defines all request/response schemas.
 """
 

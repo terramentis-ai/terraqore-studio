@@ -1,5 +1,5 @@
 """
-FlyntService
+TerraQoreService
 Wrapper around orchestrator and state manager for API calls.
 """
 
@@ -13,8 +13,8 @@ from agents.base import AgentContext
 logger = logging.getLogger(__name__)
 
 
-class FlyntService:
-    """Service layer for API interactions with Flynt core."""
+class TerraQoreService:
+    """Service layer for API interactions with TerraQore Core."""
     
     def __init__(self):
         """Initialize service."""
@@ -423,12 +423,12 @@ class FlyntService:
             return None
 
 
-def get_flynt_service() -> FlyntService:
-    """Get singleton Flynt service instance.
+def get_terraqore_service() -> TerraQoreService:
+    """Get singleton TerraQore service instance.
     
     Returns:
-        FlyntService instance.
+        TerraQoreService instance.
     """
-    if not hasattr(get_flynt_service, "_instance"):
-        get_flynt_service._instance = FlyntService()
-    return get_flynt_service._instance
+    if not hasattr(get_terraqore_service, "_instance"):
+        get_terraqore_service._instance = TerraQoreService()
+    return get_terraqore_service._instance

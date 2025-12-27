@@ -1,6 +1,6 @@
-# 🔑 FlyntCore Environment Setup
+# 🔑 TERRAQORE Environment Setup
 
-To enable the AI capabilities of FlyntCore, you need to configure your API keys.
+To enable the AI capabilities of TERRAQORE, you need to configure your API keys.
 
 ## 1. Create Configuration File
 
@@ -48,4 +48,4 @@ If you prefer running locally without API keys:
    ollama pull mistral
    ```
 3. Ensure Ollama is running (`ollama serve`)
-4. FlyntCore will automatically detect it if cloud providers fail, or you can force it by adding `FLYNT_FORCE_OLLAMA=1` to your `.env`.
+4. TERRAQORE will automatically detect it if cloud providers fail, or you can force it by adding `TERRAQORE_FORCE_OLLAMA=1` to your `.env`.

@@ -1,6 +1,6 @@
 """
-Flynt Base Agent Module
-Foundation for all specialized agents in Flynt Studio.
+TerraQore Base Agent Module
+Foundation for all specialized agents in TerraQore Studio.
 """
 
 import logging
@@ -44,7 +44,7 @@ class AgentResult:
 
 
 class BaseAgent(ABC):
-    """Abstract base class for all Flynt agents.
+    """Abstract base class for all TerraQore Agents.
     
     All agents inherit from this class and implement their specific logic.
     """

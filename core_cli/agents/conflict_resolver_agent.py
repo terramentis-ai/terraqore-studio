@@ -317,7 +317,7 @@ Provide a brief technical analysis (3-4 sentences) of the conflict and compatibi
 1. Review the resolution options above
 2. Choose the best option based on your project constraints
 3. Contact the relevant agents to implement the solution
-4. Once resolved, use `flynt resolve-conflict` to unblock the project
+4. Once resolved, use `TerraQore resolve-conflict` to unblock the project
 """
         
         return report

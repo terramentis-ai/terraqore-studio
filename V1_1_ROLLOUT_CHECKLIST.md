@@ -1,4 +1,4 @@
-# FlyntCore v1.1 Security Rollout Checklist
+# TERRAQORE v1.1 Security Rollout Checklist
 
 ## Pre-Deployment Verification
 - [ ] Security tests passing: `python -m pytest core_cli/tests/security -q` (46 passed minimum)

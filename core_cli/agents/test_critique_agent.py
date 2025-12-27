@@ -140,16 +140,16 @@ class TestCritiqueAgent(BaseAgent):
             
             critique += "Use these commands to apply generated tests:\n"
             for test_path in list(critical_tests.keys())[:3]:
-                critique += f"  flynt apply-tests {test_path}\n"
+                critique += f"  TerraQore apply-tests {test_path}\n"
         
         # Action items
         critique += "\n🚀 NEXT STEPS\n"
         critique += "=" * 60 + "\n"
         critique += "1. Review high-priority test areas above\n"
-        critique += "2. Run: flynt generate-tests <project>  # Generate test scaffold\n"
+        critique += "2. Run: TerraQore generate-tests <project>  # Generate test scaffold\n"
         critique += "3. Implement specific test logic in generated files\n"
         critique += "4. Run tests: pytest tests/\n"
-        critique += "5. Monitor coverage with: flynt test-coverage <project>\n"
+        critique += "5. Monitor coverage with: TerraQore test-coverage <project>\n"
         
         return critique
     

@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from typing import Optional, Any
 from appshell.core.rag_service import get_default_store
 
-app = FastAPI(title="Flynt RAG Retriever API")
+app = FastAPI(title="TerraQore RAG Retriever API")
 store = get_default_store()
 
 

@@ -7,13 +7,13 @@ import logging
 from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
 
-from flynt_api.models import (
+from terraqore_api.models import (
     ProjectCreate,
     ProjectUpdate,
     ProjectResponse,
     ProjectListResponse,
 )
-from flynt_api.service import get_flynt_service
+from terraqore_api.service import get_terraqore_service
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ async def create_project(project: ProjectCreate):
         Created project.
     """
     try:
-        service = get_flynt_service()
+        service = get_terraqore_service()
         created = service.create_project(
             name=project.name,
             description=project.description,
@@ -66,7 +66,7 @@ async def list_projects(
         Project list.
     """
     try:
-        service = get_flynt_service()
+        service = get_terraqore_service()
         result = service.list_projects(status=status, limit=limit, offset=offset)
         return result
         
@@ -86,7 +86,7 @@ async def get_project(project_id: int):
         Project data.
     """
     try:
-        service = get_flynt_service()
+        service = get_terraqore_service()
         project = service.get_project(project_id)
         
         if not project:
@@ -113,7 +113,7 @@ async def update_project(project_id: int, project_update: ProjectUpdate):
         Updated project.
     """
     try:
-        service = get_flynt_service()
+        service = get_terraqore_service()
         
         # Check if exists
         existing = service.get_project(project_id)
@@ -141,7 +141,7 @@ async def delete_project(project_id: int):
         project_id: Project ID.
     """
     try:
-        service = get_flynt_service()
+        service = get_terraqore_service()
         
         # Check if exists
         existing = service.get_project(project_id)

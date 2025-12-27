@@ -1,4 +1,4 @@
-# Quick Start Guide - Flynt-Studio Fixes
+# Quick Start Guide - terraqore-studio Fixes
 
 This guide helps you get started with the newly implemented fixes.
 

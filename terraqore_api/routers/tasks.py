@@ -7,13 +7,13 @@ import logging
 from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
 
-from flynt_api.models import (
+from terraqore_api.models import (
     TaskCreate,
     TaskUpdate,
     TaskResponse,
     TaskListResponse,
 )
-from flynt_api.service import get_flynt_service
+from terraqore_api.service import get_terraqore_service
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ async def create_task(task: TaskCreate):
     """
     try:
         # Check project exists
-        service = get_flynt_service()
+        service = get_terraqore_service()
         project = service.get_project(task.project_id)
         
         if not project:
@@ -75,7 +75,7 @@ async def list_tasks(
         Task list.
     """
     try:
-        service = get_flynt_service()
+        service = get_terraqore_service()
         
         # Check project exists
         project = service.get_project(project_id)
@@ -109,7 +109,7 @@ async def get_task(task_id: int):
         Task data.
     """
     try:
-        service = get_flynt_service()
+        service = get_terraqore_service()
         task = service.get_task(task_id)
         
         if not task:
@@ -136,7 +136,7 @@ async def update_task(task_id: int, task_update: TaskUpdate):
         Updated task.
     """
     try:
-        service = get_flynt_service()
+        service = get_terraqore_service()
         
         # Check if exists
         existing = service.get_task(task_id)
@@ -167,7 +167,7 @@ async def delete_task(task_id: int):
         task_id: Task ID.
     """
     try:
-        service = get_flynt_service()
+        service = get_terraqore_service()
         
         # Check if exists
         existing = service.get_task(task_id)

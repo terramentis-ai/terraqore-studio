@@ -1,6 +1,6 @@
-Integrating Enhanced Ingestion with Pre-Curated Dumps and Tool Calling in Flynt-Studio
+Integrating Enhanced Ingestion with Pre-Curated Dumps and Tool Calling in terraqore-studio
 
-combining enhanced periodic ingestion (batched secure fetches into your local data lake) with tool calling (on-demand, agent-initiated proxies) creates a robust hybrid system for bridging the real-time data gap. This allows Flynt-Studio's agents to operate primarily offline while intelligently accessing fresh info when needed. To boost robustness, we'll weave in pre-curated dumps (e.g., static datasets like Wikipedia snapshots or arXiv corpora) directly into the ingestion pipeline. This ensures a strong baseline of knowledge even during connectivity issues, reduces fetch frequency (lowering exposure), and enriches the data lake with high-quality, domain-specific data for better RAG performance.
+combining enhanced periodic ingestion (batched secure fetches into your local data lake) with tool calling (on-demand, agent-initiated proxies) creates a robust hybrid system for bridging the real-time data gap. This allows terraqore-studio's agents to operate primarily offline while intelligently accessing fresh info when needed. To boost robustness, we'll weave in pre-curated dumps (e.g., static datasets like Wikipedia snapshots or arXiv corpora) directly into the ingestion pipeline. This ensures a strong baseline of knowledge even during connectivity issues, reduces fetch frequency (lowering exposure), and enriches the data lake with high-quality, domain-specific data for better RAG performance.
 This hybrid approach aligns with emerging 2025 hybrid AI architectures, emphasizing data governance, minimal online dependency, and agent autonomy. We'll build on your existing setup (e.g., DataLakeService in DuckDB, Ollama for local LLM, and agent orchestration). Add dependencies like datasets (for Hugging Face dumps) and langchain (for tool calling) to requirements.txt.
 Overall Architecture
 Enhanced Ingestion Layer: Periodic scheduler pulls from web sources + pre-curated dumps, processes into bronze/silver/gold layers in the data lake. Dumps provide "seed" data for robustness.
@@ -134,4 +134,4 @@ Data Governance: In cleaning, prioritize dumps for static facts; merge with web 
 Performance: Dumps add initial size (~GBs); compress with Parquet. Test with small limits first.
 Testing: Simulate hybrid: Mock tools, run workflows like "Latest Flynt-relevant AI trend?"—ensure it uses dumps offline, tools online.
 Scalability: For large dumps, use distributed ingestion (e.g., via Dask); integrate with your Kubernetes setup.
-This hybrid setup makes Flynt-Studio exceptionally robust: Dumps provide a solid foundation, ingestion keeps it fresh, and tools handle edge cases dynamically.
+This hybrid setup makes terraqore-studio exceptionally robust: Dumps provide a solid foundation, ingestion keeps it fresh, and tools handle edge cases dynamically.

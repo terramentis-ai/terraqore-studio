@@ -3,7 +3,7 @@
 ## 🚀 Get Started in 30 Seconds
 
 ### 1. Open the Playground
-Click the **P** icon in the left sidebar of Flynt Studio
+Click the **P** icon in the left sidebar of TerraQore Studio
 
 ### 2. Enter a Workflow Prompt
 Type what you want the agents to do:
@@ -132,4 +132,4 @@ YES: "Generate a 500-word market analysis report for
 
 ---
 
-**Ready to try it? Open Flynt Studio and click the P icon!** 🎮
+**Ready to try it? Open TerraQore Studio and click the P icon!** 🎮

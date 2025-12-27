@@ -1,5 +1,5 @@
 {
-    "appName": "Flynt Studio UI - Non-Technical Variant",
+    "appName": "TerraQore Studio UI - Non-Technical Variant",
     "description": "Wireframe spec optimized for non-technical users (e.g., small business owners like honey sellers). Focuses on guided wizards, simplified language, visual previews, one-click approvals, and minimal steps to reduce overwhelm. Stays within a single workspace builder panel for all actions, with templates for common tasks like website building.",
     "techStack": {
         "framework": "Streamlit or Gradio (Python-based for seamless CLI integration, with voice input support)",

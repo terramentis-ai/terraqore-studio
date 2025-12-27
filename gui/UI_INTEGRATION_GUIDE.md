@@ -1,8 +1,8 @@
-# Flynt Studio - UI Integration Complete
+# TerraQore Studio - UI Integration Complete
 
 ## Overview
 
-Flynt Studio has been significantly enhanced with integrated project management and workflow execution capabilities. The UI now connects the React frontend directly to the FastAPI backend created in Tasks 1-4.
+TerraQore Studio has been significantly enhanced with integrated project management and workflow execution capabilities. The UI now connects the React frontend directly to the FastAPI backend created in Tasks 1-4.
 
 ## New Components Added
 
@@ -71,13 +71,13 @@ const [projectViewMode, setProjectViewMode] = useState<'dashboard' | 'detail'>('
 **New Method:**
 ```tsx
 const handleExecuteWorkflow = async (projectId: number, workflowType: string) => {
-  // Executes workflows via flyntAPI
+  // Executes workflows via terraqoreAPI
 }
 ```
 
 ## API Integration
 
-All new components use the **flyntAPIService** created in the previous phase:
+All new components use the **terraqoreAPIService** created in the previous phase:
 
 ### Projects
 - `getProjects()` - Fetch all projects with metadata
@@ -234,7 +234,7 @@ gui/
 │   ├── AgentDetails.tsx           [Existing] Agent info
 │   └── ControlPanel.tsx           [Existing] Controls
 ├── services/
-│   ├── flyntAPIService.ts         [NEW] API client
+│   ├── terraqoreAPIService.ts         [NEW] API client
 │   └── geminiService.ts           [Existing] Gemini AI
 ├── App.tsx                        [UPDATED] Main app with projects
 ├── types.ts                       [Existing] Type definitions
@@ -244,7 +244,7 @@ gui/
 
 ## Summary
 
-The Flynt Studio UI is now fully integrated with the FlyntCore backend. Users can:
+The TerraQore Studio UI is now fully integrated with the TERRAQORE Backend. Users can:
 1. ✅ Create and manage projects
 2. ✅ Organize work into tasks
 3. ✅ Execute workflows (Ideate, Plan, Execute, Review)

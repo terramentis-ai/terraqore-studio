@@ -19,7 +19,7 @@ def populate_demo_data():
     ach_tracker = get_achievement_tracker()
     
     # Create a demo project
-    project_name = "Flynt Demo Project"
+    project_name = "TerraQore Demo Project"
     existing_project = state_manager.get_project(name=project_name)
     
     if existing_project:
@@ -30,7 +30,7 @@ def populate_demo_data():
         project = Project(
             id=0, # ID will be assigned by DB
             name=project_name,
-            description="A demonstration of the FlyntCore self-marketing capabilities.",
+            description="A demonstration of the TERRAQORE self-marketing capabilities.",
             status=ProjectStatus.COMPLETED,
             created_at=datetime.datetime.now(),
             updated_at=datetime.datetime.now()

@@ -1,5 +1,5 @@
 """
-Achievement System for FlyntCore
+Achievement System for TERRAQORE
 Tracks project milestones, completion badges, and contributor statistics
 """
 
@@ -52,7 +52,7 @@ class AchievementTracker:
         AchievementType.PROJECT_CREATED: {
             "icon": "🎯",
             "name": "Project Founder",
-            "description": "Created your first FlyntCore project",
+            "description": "Created your first TERRAQORE Project",
             "points": 10
         },
         AchievementType.PROJECT_COMPLETED: {

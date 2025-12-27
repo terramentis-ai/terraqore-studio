@@ -1,5 +1,5 @@
 #!/bin/bash
-# Start script for FlyntCore - Linux/macOS
+# Start script for TERRAQORE - Linux/macOS
 
 set -e
 
@@ -8,7 +8,7 @@ BACKEND_DIR="$PROJECT_ROOT/core_clli"
 FRONTEND_DIR="$PROJECT_ROOT/gui"
 
 echo "=========================================="
-echo "FlyntCore v1.0 - Start Script"
+echo "TERRAQORE v1.0 - Start Script"
 echo "=========================================="
 echo ""
 
@@ -69,7 +69,7 @@ fi
 
 echo ""
 print_status "=========================================="
-print_status "FlyntCore is running!"
+print_status "TERRAQORE is running!"
 print_status "=========================================="
 echo ""
 

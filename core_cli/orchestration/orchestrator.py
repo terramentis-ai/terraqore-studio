@@ -1,5 +1,5 @@
 """
-Flynt Agent Orchestrator
+TerraQore Agent Orchestrator
 Coordinates agent execution and workflow management.
 """
 

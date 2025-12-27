@@ -1,5 +1,5 @@
 #!/bin/bash
-# Start Flynt API Server
+# Start TerraQore API Server
 
 # Set Python path
 export PYTHONPATH="${PYTHONPATH}:$(pwd)"
@@ -15,5 +15,5 @@ else
 fi
 
 # Start API server
-echo "Starting Flynt API server..."
-uvicorn flynt_api.app:create_app --host 0.0.0.0 --port 8000 --reload --log-level info
+echo "Starting TerraQore API server..."
+uvicorn terraqore_api.app:create_app --host 0.0.0.0 --port 8000 --reload --log-level info

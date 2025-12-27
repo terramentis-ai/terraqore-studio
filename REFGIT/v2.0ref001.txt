@@ -1,43 +1,43 @@
-Integrate a custom built-in Ollama server as a preinstalled feature in Flynt-Studio
-Transform Flynt Studio into a fully offline AI SDK. Currently, Flynt-Studio relies on cloud-based LLMs (e.g., Gemini, Groq). By embedding a custome Ollama—server a lightweight tool for local LLM inference—you can replace these with offline models, enabling self-hosted, air-gapped operation. This fits Flynt-Studio's enterprise-grade, production-ready design, enhancing resilience for offline scenarios like secure environments or low-connectivity setups.
+Integrate a custom built-in Ollama server as a preinstalled feature in terraqore-studio
+Transform TerraQore Studio into a fully offline AI SDK. Currently, terraqore-studio relies on cloud-based LLMs (e.g., Gemini, Groq). By embedding a custome Ollama—server a lightweight tool for local LLM inference—you can replace these with offline models, enabling self-hosted, air-gapped operation. This fits terraqore-studio's enterprise-grade, production-ready design, enhancing resilience for offline scenarios like secure environments or low-connectivity setups.
 
 The integration will:
 - Use Ollama's OpenAI-compatible API to seamlessly swap in local LLMs for your agents (e.g., Idea Agent for conceptualization, Coder Agent for code gen).
 - Bundle a custom Ollama binary and models into your repo/distribution.
 - Automate server startup in your orchestration layer or FastAPI backend.
-- Support custom models tuned for Flynt-Studio's workflows (e.g., agent-specific prompts for planning, coding, security).
+- Support custom models tuned for terraqore-studio's workflows (e.g., agent-specific prompts for planning, coding, security).
 - Maintain offline "Perplexity-like" querying: Agents can handle natural language inputs, reasoning, and outputs using local RAG (Retrieval-Augmented Generation) over pre-indexed docs (e.g., via vector storage in your core services).
 
-This keeps Flynt-Studio's multi-agent architecture intact while making it truly offline. Assume you're working in Python; extend your `requirements.txt` and config accordingly.
+This keeps terraqore-studio's multi-agent architecture intact while making it truly offline. Assume you're working in Python; extend your `requirements.txt` and config accordingly.
 
-### Step 1: Set Up Your Development Environment for Flynt-Studio
-- Clone and set up Flynt-Studio as per your README: `git clone https://github.com/Liberty-io/Flynt-Studio.git`, create venv, `pip install -r requirements.txt`.
+### Step 1: Set Up Your Development Environment for terraqore-studio
+- Clone and set up terraqore-studio as per your README: `git clone https://github.com/Liberty-io/terraqore-studio.git`, create venv, `pip install -r requirements.txt`.
 - Install Ollama dependencies: Add `ollama` to `requirements.txt` (`pip install ollama` for the Python client).
-- Hardware: Ensure 16GB+ RAM (for 7B+ models); GPU (NVIDIA/AMD) for acceleration via CUDA/ROCm. Flynt-Studio's 2GB min RAM works for small models like Gemma:2b.
+- Hardware: Ensure 16GB+ RAM (for 7B+ models); GPU (NVIDIA/AMD) for acceleration via CUDA/ROCm. terraqore-studio's 2GB min RAM works for small models like Gemma:2b.
 - Add Ollama binary: Download from ollama.com/download and place in a new `bin/` folder in your repo (e.g., `bin/ollama`). For cross-platform, include OS-specific variants and detect in code.
 
-### Step 2: Build Ollama from Source (for Custom Integration with Flynt-Studio)
-Customize Ollama to align with Flynt-Studio's resilience features (e.g., add error handling hooks, integrate with your monitoring endpoints).
+### Step 2: Build Ollama from Source (for Custom Integration with terraqore-studio)
+Customize Ollama to align with terraqore-studio's resilience features (e.g., add error handling hooks, integrate with your monitoring endpoints).
 
 - Clone Ollama: In a separate dir, `git clone https://github.com/ollama/ollama`.
 - Install Go 1.21+ and build tools (per `docs/development.md`).
 - Customize:
-  - In `server/routes.go`, add middleware for API key auth (matching Flynt-Studio's security; e.g., validate against your `config/settings.yaml`).
-  - Hook into Flynt-Studio's error recovery: Modify `server/server.go` to use exponential backoff on inference failures, mirroring your circuit breakers.
-  - Expose metrics: Add endpoints (e.g., `/metrics`) for agent health integration—report LLM latency/load to Flynt-Studio's `/health` API.
+  - In `server/routes.go`, add middleware for API key auth (matching terraqore-studio's security; e.g., validate against your `config/settings.yaml`).
+  - Hook into terraqore-studio's error recovery: Modify `server/server.go` to use exponential backoff on inference failures, mirroring your circuit breakers.
+  - Expose metrics: Add endpoints (e.g., `/metrics`) for agent health integration—report LLM latency/load to terraqore-studio's `/health` API.
   - Build: `go generate ./... && go build -o bin/flynt-ollama .`.
-- Bundle the custom binary: Move `flynt-ollama` to Flynt-Studio's `bin/` folder. Update `.gitignore` to exclude it if needed, but include in Docker images for distribution.
+- Bundle the custom binary: Move `flynt-ollama` to terraqore-studio's `bin/` folder. Update `.gitignore` to exclude it if needed, but include in Docker images for distribution.
 
-This creates a tailored Ollama server that is native to Flynt-Studio's architecture.
+This creates a tailored Ollama server that is native to terraqore-studio's architecture.
 
-### Step 3: Create Custom Models for Flynt-Studio Agents
+### Step 3: Create Custom Models for terraqore-studio Agents
 Tailor models to your eight agents using Ollama's Modelfile. Pre-download base models offline (e.g., `ollama pull llama3:8b`) and create variants for specialized tasks.
 
-- In a new `models/` folder in Flynt-Studio, create Modelfiles:
+- In a new `models/` folder in terraqore-studio, create Modelfiles:
   - For Coder Agent (code gen):  
     ```
     FROM llama3:8b
-    SYSTEM "You are a expert coder agent in Flynt-Studio. Generate secure, tested code in Python/JS/etc. based on plans. Follow best practices and include tests."
+    SYSTEM "You are a expert coder agent in terraqore-studio. Generate secure, tested code in Python/JS/etc. based on plans. Follow best practices and include tests."
     PARAMETER temperature 0.5  # Low for precise code
     PARAMETER num_ctx 16384  # Large context for full workflows
     ```
@@ -45,7 +45,7 @@ Tailor models to your eight agents using Ollama's Modelfile. Pre-download base m
   - For Planner Agent (task decomposition):  
     ```
     FROM mistral:7b
-    SYSTEM "You are a planner agent in Flynt-Studio. Break down user inputs into sequential tasks for multi-agent execution. Output in YAML format for orchestration."
+    SYSTEM "You are a planner agent in terraqore-studio. Break down user inputs into sequential tasks for multi-agent execution. Output in YAML format for orchestration."
     PARAMETER temperature 0.7
     ```
     Build: `ollama create flynt-planner -f models/planner.Modelfile`.
@@ -53,7 +53,7 @@ Tailor models to your eight agents using Ollama's Modelfile. Pre-download base m
 - Offline RAG: Enhance models with local knowledge. Use `ADD` in Modelfile to embed files (e.g., `ADD docs/best_practices.txt`). Integrate with your vector storage: In agents, use local embeddings (add `sentence-transformers` and `faiss` to `requirements.txt`) to query pre-indexed docs before LLM calls.
 - Bundle: Commit Modelfiles to repo. In setup scripts, automate `ollama create` if models are missing. For distribution, provide a script to pull/preload small quantized models (e.g., `llama3:8b-q4` for ~5GB).
 
-### Step 4: Run Ollama as a Built-In Server in Flynt-Studio
+### Step 4: Run Ollama as a Built-In Server in terraqore-studio
 Embed the server startup in your orchestration/core layers for seamless, preinstalled operation. It starts automatically on app init, providing a local API (http://localhost:11434) for all agents.
 
 - Update `core/llm_client.py` (or equivalent): Replace Gemini/Groq clients with Ollama. Use fallback to cloud if offline mode is disabled.
@@ -112,7 +112,7 @@ Embed the server startup in your orchestration/core layers for seamless, preinst
 
 This makes Ollama a "built-in" feature: It auto-starts, serves all agents offline, and integrates with your monitoring.
 
-### Step 5: Integrate into Flynt-Studio for Offline Perplexity-Like Functionality
+### Step 5: Integrate into terraqore-studio for Offline Perplexity-Like Functionality
 Adapt agents to use the local LLM for query handling, mimicking Perplexity's reasoning/search but offline.
 
 - Agent Enhancements:
@@ -151,5 +151,5 @@ Adapt agents to use the local LLM for query handling, mimicking Perplexity's rea
 - **Performance**: Use quantized models for speed (e.g., q4_0). Monitor via your health endpoints—add Ollama metrics (memory usage).
 - **Scalability**: For multi-user, run Ollama in a container; use Kubernetes as in your setup.
 - 
-This guide makes Flynt-Studio a fully offline, Perplexity-inspired agent framework with built-in local LLM capabilities.
-to offset the real-time data barrier due to offline nature? we could incorporate a seperate internet search function that connects to a seperate database, pulling amd dumping relevant information from the web securely into the offline db, which serves as a custom datalake for Flynt Studio to keep upto dat with relevant trends
+This guide makes terraqore-studio a fully offline, Perplexity-inspired agent framework with built-in local LLM capabilities.
+to offset the real-time data barrier due to offline nature? we could incorporate a seperate internet search function that connects to a seperate database, pulling amd dumping relevant information from the web securely into the offline db, which serves as a custom datalake for TerraQore Studio to keep upto dat with relevant trends

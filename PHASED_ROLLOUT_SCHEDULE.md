@@ -1,4 +1,4 @@
-# FlyntCore - Phased Rollout Schedule
+# TERRAQORE - Phased Rollout Schedule
 
 **Document Version**: 1.1  
 **Created**: December 26, 2025  
@@ -10,7 +10,7 @@
 
 ## 📋 Executive Summary
 
-This document outlines the phased rollout strategy for FlyntCore v1.0 → v2.0, spanning three major releases over 12 weeks:
+This document outlines the phased rollout strategy for TERRAQORE v1.0 → v2.0, spanning three major releases over 12 weeks:
 
 - **v1.1 (Weeks 1-4)**: Production Security - Hardening for enterprise use
 - **v1.2 (Weeks 5-8)**: Enterprise Reliability - Cost tracking, monitoring, human-in-the-loop
@@ -238,10 +238,10 @@ These three work streams must start in parallel **before Week 1** to unblock the
 
 **New CLI Commands**:
 ```bash
-flynt conflicts <project>              # Show blocking conflicts
-flynt resolve-conflicts <project>      # Run resolver agent
-flynt unblock-project <project>        # Manual resolution
-flynt manifest <project>               # Export dependencies
+TerraQore conflicts <project>              # Show blocking conflicts
+TerraQore resolve-conflicts <project>      # Run resolver agent
+TerraQore unblock-project <project>        # Manual resolution
+TerraQore manifest <project>               # Export dependencies
 ```
 
 **Acceptance Criteria**:
@@ -283,9 +283,9 @@ flynt manifest <project>               # Export dependencies
 
 **New CLI Flags**:
 ```bash
-flynt run <project> --cost-report         # Show cost breakdown
-flynt run <project> --budget-cap 10       # Set $10 budget cap
-flynt run <project> --prefer-cheap        # Optimize for cost
+TerraQore run <project> --cost-report         # Show cost breakdown
+TerraQore run <project> --budget-cap 10       # Set $10 budget cap
+TerraQore run <project> --prefer-cheap        # Optimize for cost
 ```
 
 **Acceptance Criteria**:
@@ -319,13 +319,13 @@ flynt run <project> --prefer-cheap        # Optimize for cost
 **Key Files to Modify**:
 - `core_cli/core/metrics_collector.py` (create new)
 - `core_cli/cli/dashboard.py` (create new)
-- `flynt_api/app.py` (add metrics endpoints)
+- `terraqore_api/app.py` (add metrics endpoints)
 - `core_cli/cli/main.py` (add dashboard command)
 
 **New Features**:
 ```bash
-flynt dashboard                   # Real-time CLI metrics
-flynt health-check                # System health status
+TerraQore dashboard                   # Real-time CLI metrics
+TerraQore health-check                # System health status
 ```
 
 **Metrics Tracked**:
@@ -373,7 +373,7 @@ flynt health-check                # System health status
 
 **New CLI Mode**:
 ```bash
-flynt run <project> --interactive    # Start interactive mode
+TerraQore run <project> --interactive    # Start interactive mode
 ```
 
 **Interactive Commands**:
@@ -431,14 +431,14 @@ flynt run <project> --interactive    # Start interactive mode
 ### Week 9: FastAPI Shim & Dashboard Foundation
 
 **Deliverables**:
-- [ ] FastAPI shim in `flynt_api/app.py` for orchestration exposure
+- [ ] FastAPI shim in `terraqore_api/app.py` for orchestration exposure
 - [ ] React/Vite dashboard in `gui/` directory
 - [ ] Project visualization component
 - [ ] Workflow builder component (MVP)
 - [ ] Approval UI synced to CLI state
 
 **Key Files to Modify**:
-- `flynt_api/app.py` (add orchestration endpoints)
+- `terraqore_api/app.py` (add orchestration endpoints)
 - `gui/components/ProjectDashboard.tsx` (create new)
 - `gui/components/WorkflowBuilder.tsx` (create new)
 - `gui/components/ApprovalPanel.tsx` (create new)
@@ -528,11 +528,11 @@ templates/
 
 **New CLI Commands**:
 ```bash
-flynt create <project-name> --template rag-chatbot
-flynt create <project-name> --template ml-pipeline
-flynt create <project-name> --template microservices
-flynt create <project-name> --template fastapi-service
-flynt create <project-name> --template data-analysis
+TerraQore create <project-name> --template rag-chatbot
+TerraQore create <project-name> --template ml-pipeline
+TerraQore create <project-name> --template microservices
+TerraQore create <project-name> --template fastapi-service
+TerraQore create <project-name> --template data-analysis
 ```
 
 **Acceptance Criteria**:
@@ -889,7 +889,7 @@ Week X Report:
 
 ## 🔗 Related Documents
 
-- [REFGIT/Flynt_implementation_guide.txt](REFGIT/Flynt_implementation_guide.txt) - Complete vision & technical specs
+- [REFGIT/TerraQore_implementation_guide.txt](REFGIT/TerraQore_implementation_guide.txt) - Complete vision & technical specs
 - [MASTER_INDEX.md](MASTER_INDEX.md) - Project overview
 - [DEPLOYMENT_STATUS.txt](DEPLOYMENT_STATUS.txt) - Current deployment status
 - [RELEASE_COMPLETE.md](RELEASE_COMPLETE.md) - v1.0 release details

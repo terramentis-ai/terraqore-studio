@@ -1,5 +1,5 @@
 #!/bin/bash
-# Build script for FlyntCore - Linux/macOS
+# Build script for TERRAQORE - Linux/macOS
 
 set -e
 
@@ -8,7 +8,7 @@ BACKEND_DIR="$PROJECT_ROOT/core_clli"
 FRONTEND_DIR="$PROJECT_ROOT/gui"
 
 echo "=========================================="
-echo "FlyntCore v1.0 - Build Script"
+echo "TERRAQORE v1.0 - Build Script"
 echo "=========================================="
 echo ""
 

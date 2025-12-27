@@ -412,7 +412,7 @@ class PromptOptimizer:
     def _fetch_agent_errors(self, agent_name: str, build_id: str, lookback_days: int) -> List[Dict[str, Any]]:
         """Fetch error logs for an agent from build database."""
         try:
-            # Query flynt_build.db error_log table
+            # Query terraqore_build.db error_log table
             errors = self.state_manager.db.execute(
                 """
                 SELECT * FROM error_log

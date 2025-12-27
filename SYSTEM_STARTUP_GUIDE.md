@@ -1,4 +1,4 @@
-# FlyntCore v1.0 - Complete System Startup Guide
+# TERRAQORE v1.0 - Complete System Startup Guide
 
 ## ✅ System Status: READY FOR TESTING
 
@@ -26,7 +26,7 @@ All 6 tasks have been successfully implemented and integrated:
 
 ```bash
 # Navigate to backend
-cd c:\Users\user\Desktop\FlyntCore_v1.0_pre_release\core_clli
+cd c:\Users\user\Desktop\TERRAQORE_v1.0_pre_release\core_clli
 
 # Check Python version
 python --version  # Should be 3.9+
@@ -64,7 +64,7 @@ curl http://localhost:8000/api/projects/list  # Should return empty list or exis
 
 ```bash
 # Navigate to GUI
-cd c:\Users\user\Desktop\FlyntCore_v1.0_pre_release\gui
+cd c:\Users\user\Desktop\TERRAQORE_v1.0_pre_release\gui
 
 # Install dependencies
 npm install
@@ -85,7 +85,7 @@ Open your browser:
 http://localhost:5173
 ```
 
-You should see the FlyntCore Studio interface with:
+You should see the TERRAQORE Studio interface with:
 - Left sidebar with 7 navigation tabs
 - Main content area (starts with Project Workspace)
 - Settings and configuration panels
@@ -307,7 +307,7 @@ python backend_main.py
   - `core_clli/core/attribution_system.py` - Code attribution tracking
   - `core_clli/core/achievement_system.py` - Achievement management
   - `core_clli/core/export_system.py` - Multi-format export
-  - `flynt_api/routers/task6_marketing.py` - REST API endpoints
+  - `terraqore_api/routers/task6_marketing.py` - REST API endpoints
 
 - **Frontend**
   - `gui/components/ProjectGallery.tsx` - Gallery UI component
@@ -350,4 +350,4 @@ For issues or questions:
 
 **Status**: ✅ System Ready for Testing
 **Last Updated**: 2024-12-19
-**Version**: FlyntCore v1.0 Pre-Release
+**Version**: TERRAQORE v1.0 Pre-Release

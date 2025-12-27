@@ -9,8 +9,8 @@ import ProjectDashboard from './components/ProjectDashboard';
 import ProjectDetail from './components/ProjectDetail';
 import ProjectGallery from './components/ProjectGallery';
 import { metaAgentService } from './services/geminiService';
-import flyntAPI from './services/flyntAPIService';
-import { Project } from './services/flyntAPIService';
+import terraqoreAPI from './services/terraqoreAPIService';
+import { Project } from './services/terraqoreAPIService';
 import Settings from './components/Settings';
 
 const App: React.FC = () => {
@@ -34,7 +34,7 @@ const App: React.FC = () => {
       const types = Object.values(AgentType);
       const iconMap: Record<string, string> = {};
       
-      addLog('System', 'Initializing Flynt Icon Engine...', 'info');
+      addLog('System', 'Initializing TerraQore Icon Engine...', 'info');
       
       // Process icons one by one to respect rate limits
       for (const type of types) {
@@ -65,7 +65,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const checkHealth = async () => {
       try {
-        await flyntAPI.healthCheck();
+        await terraqoreAPI.healthCheck();
         addLog('System', 'FastAPI backend connected successfully.', 'success');
       } catch (err) {
         addLog('System', 'Warning: FastAPI backend not available. Running in offline mode.', 'warning');
@@ -116,7 +116,7 @@ const App: React.FC = () => {
       currentTab: Tab.PLAYGROUND
     }));
 
-    addLog('System', 'Launching Flynt Orchestration Protocol...', 'info');
+    addLog('System', 'Launching TerraQore Orchestration Protocol...', 'info');
     addLog('System', `Active tools: ${state.enabledTools.join(', ')}`, 'info');
     
     updateNode('meta-root', { status: AgentStatus.THINKING });
@@ -183,7 +183,7 @@ const App: React.FC = () => {
       setState(prev => ({ ...prev, isProcessing: true }));
       addLog('System', `Executing ${workflowType} workflow for project...`, 'info');
       
-      const result = await flyntAPI.runWorkflow(projectId, workflowType);
+      const result = await terraqoreAPI.runWorkflow(projectId, workflowType);
       
       setState(prev => ({
         ...prev,
@@ -261,7 +261,7 @@ const App: React.FC = () => {
         <header className="h-16 border-b border-white/5 flex items-center px-8 justify-between bg-[#080808]/80 backdrop-blur-md z-20 shadow-xl">
           <div className="flex items-center gap-4">
             <h1 className="text-sm font-bold tracking-[0.3em] uppercase text-transparent bg-clip-text bg-gradient-to-r from-zinc-100 to-zinc-500">
-              Flynt Studio
+              TerraQore Studio
             </h1>
             <div className="h-4 w-[1px] bg-white/10"></div>
             <div className="flex items-center gap-2">
@@ -276,7 +276,7 @@ const App: React.FC = () => {
                   ? 'Registry Explorer'
                   : state.currentTab === Tab.DASHBOARD
                   ? 'System Dashboard'
-                  : 'Flynt Studio'}
+                  : 'TerraQore Studio'}
                </span>
             </div>
           </div>

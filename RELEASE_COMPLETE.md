@@ -1,4 +1,4 @@
-# FlyntCore v1.0 - Release Complete ✅
+# TERRAQORE v1.0 - Release Complete ✅
 
 **Date**: December 26, 2025  
 **Status**: Production Ready for GitHub Deployment  
@@ -212,14 +212,14 @@ Actions:
 
 ### Step 1: Go to GitHub
 Visit https://github.com/new and create:
-- **Repository name**: FlyntCore
+- **Repository name**: TERRAQORE
 - **Description**: Multi-agent AI orchestration with multi-provider LLM support
 - **Visibility**: Public or Private (your choice)
 
 ### Step 2: Connect Local Repo
 ```bash
-cd C:\Users\user\Desktop\FlyntCore_v1.0_pre_release
-git remote add origin https://github.com/YOUR_USERNAME/FlyntCore.git
+cd C:\Users\user\Desktop\TERRAQORE_v1.0_pre_release
+git remote add origin https://github.com/YOUR_USERNAME/TERRAQORE.git
 git branch -M main
 git push -u origin main
 ```
@@ -353,7 +353,7 @@ git push origin v1.0.0
 
 ## 🎉 Summary
 
-**FlyntCore v1.0 is fully prepared for GitHub deployment!**
+**TERRAQORE v1.0 is fully prepared for GitHub deployment!**
 
 Your project includes:
 - Production-grade multi-agent system
@@ -373,4 +373,4 @@ Your project includes:
 **Files Tracked**: 148  
 **Documentation**: Complete  
 
-**Your FlyntCore v1.0 repository is production-ready!** 🚀
+**Your TERRAQORE v1.0 repository is production-ready!** 🚀

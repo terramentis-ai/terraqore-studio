@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Project, Task } from '../services/flyntAPIService';
-import flyntAPI from '../services/flyntAPIService';
+import { Project, Task } from '../services/terraqoreAPIService';
+import terraqoreAPI from '../services/terraqoreAPIService';
 
 interface ProjectDetailProps {
   project: Project;
@@ -26,8 +26,8 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onBack, onExecut
       setLoading(true);
       setError(null);
       const [tasksData, conflictsData] = await Promise.all([
-        flyntAPI.getProjectTasks(project.id),
-        flyntAPI.getProjectConflicts(project.id),
+        terraqoreAPI.getProjectTasks(project.id),
+        terraqoreAPI.getProjectConflicts(project.id),
       ]);
       setTasks(tasksData.tasks);
       setConflicts(conflictsData);
@@ -44,7 +44,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onBack, onExecut
     if (!newTask.title.trim()) return;
 
     try {
-      const createdTask = await flyntAPI.createTask(
+      const createdTask = await terraqoreAPI.createTask(
         project.id,
         newTask.title,
         '',
@@ -61,10 +61,10 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onBack, onExecut
 
   const handleResolveConflict = async (library: string, version: string) => {
     try {
-      const result = await flyntAPI.resolveConflict(project.id, library, version);
+      const result = await terraqoreAPI.resolveConflict(project.id, library, version);
       if (result.success) {
         // Refresh conflicts
-        const updatedConflicts = await flyntAPI.getProjectConflicts(project.id);
+        const updatedConflicts = await terraqoreAPI.getProjectConflicts(project.id);
         setConflicts(updatedConflicts);
       }
     } catch (err) {

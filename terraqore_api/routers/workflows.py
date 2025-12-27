@@ -7,14 +7,14 @@ import logging
 from fastapi import APIRouter, HTTPException
 from typing import Optional
 
-from flynt_api.models import (
+from terraqore_api.models import (
     WorkflowExecutionRequest,
     WorkflowExecutionResponse,
     AgentExecutionRequest,
     AgentExecutionResponse,
     ProjectBlockInfo,
 )
-from flynt_api.service import get_flynt_service
+from terraqore_api.service import get_terraqore_service
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ async def run_workflow(request: WorkflowExecutionRequest):
         Workflow execution result.
     """
     try:
-        service = get_flynt_service()
+        service = get_terraqore_service()
         
         # Check project exists
         project = service.get_project(request.project_id)
@@ -79,7 +79,7 @@ async def run_agent(request: AgentExecutionRequest):
         Agent execution result.
     """
     try:
-        service = get_flynt_service()
+        service = get_terraqore_service()
         
         # Check project exists
         project = service.get_project(request.project_id)
@@ -145,7 +145,7 @@ async def get_conflicts(project_id: int):
         Blocking conflict information.
     """
     try:
-        service = get_flynt_service()
+        service = get_terraqore_service()
         
         # Check project exists
         project = service.get_project(project_id)
@@ -188,7 +188,7 @@ async def resolve_conflict(project_id: int, library: str, version: str):
         Resolve result.
     """
     try:
-        service = get_flynt_service()
+        service = get_terraqore_service()
         
         # Check project exists
         project = service.get_project(project_id)
@@ -225,7 +225,7 @@ async def get_manifest(project_id: int):
         Manifest content.
     """
     try:
-        service = get_flynt_service()
+        service = get_terraqore_service()
         
         # Check project exists
         project = service.get_project(project_id)

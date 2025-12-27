@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Project } from '../services/flyntAPIService';
-import flyntAPI from '../services/flyntAPIService';
+import { Project } from '../services/terraqoreAPIService';
+import terraqoreAPI from '../services/terraqoreAPIService';
 
 interface Achievement {
   icon: string;
@@ -32,7 +32,7 @@ const ProjectGallery: React.FC = () => {
   const fetchProjectsGallery = async () => {
     try {
       setLoading(true);
-      const result = await flyntAPI.getProjects();
+      const result = await terraqoreAPI.getProjects();
       
       // Transform projects into gallery items with mock achievement data
       const galleryItems: ProjectGalleryItem[] = result.projects.map(project => ({
@@ -58,7 +58,7 @@ const ProjectGallery: React.FC = () => {
     achievements.push({
       icon: '🎯',
       badge_name: 'Project Founder',
-      description: 'Created your first FlyntCore project',
+      description: 'Created your first TERRAQORE Project',
       points: 10,
       achieved_at: new Date(project.created_at).toISOString(),
       type: 'project_created'

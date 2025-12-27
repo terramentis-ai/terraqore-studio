@@ -1,6 +1,6 @@
 /**
- * Flynt API Service
- * Client for communicating with the Flynt FastAPI backend
+ * TerraQore API Service
+ * Client for communicating with the TerraQore FastAPI backend
  */
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
@@ -103,7 +103,7 @@ export interface LLMConfigUpdate {
   fallback_max_tokens?: number;
 }
 
-class FlyntAPIClient {
+class terraqoreAPIClient {
   private baseUrl: string;
 
   constructor(baseUrl: string = API_BASE_URL) {
@@ -301,6 +301,6 @@ class FlyntAPIClient {
   }
 }
 
-export const flyntAPI = new FlyntAPIClient();
+export const terraqoreAPI = new terraqoreAPIClient();
 
-export default flyntAPI;
+export default terraqoreAPI;

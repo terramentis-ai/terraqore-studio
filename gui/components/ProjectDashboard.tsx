@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Project } from '../services/flyntAPIService';
-import flyntAPI from '../services/flyntAPIService';
+import { Project } from '../services/terraqoreAPIService';
+import terraqoreAPI from '../services/terraqoreAPIService';
 import { COLORS } from '../constants';
 
 interface ProjectDashboardProps {
@@ -25,7 +25,7 @@ const ProjectDashboard: React.FC<ProjectDashboardProps> = ({ onSelectProject, on
     try {
       setLoading(true);
       setError(null);
-      const result = await flyntAPI.getProjects();
+      const result = await terraqoreAPI.getProjects();
       setProjects(result.projects);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load projects');
@@ -41,7 +41,7 @@ const ProjectDashboard: React.FC<ProjectDashboardProps> = ({ onSelectProject, on
 
     try {
       setCreating(true);
-      const newProject = await flyntAPI.createProject(newProjectName);
+      const newProject = await terraqoreAPI.createProject(newProjectName);
       setProjects([...projects, newProject]);
       setNewProjectName('');
       setShowCreateForm(false);

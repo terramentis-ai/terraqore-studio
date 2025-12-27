@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("run_e2e_phi")
 
 # Ensure we prefer Ollama locally (also respected by create_llm_client_from_config)
-os.environ.setdefault('FLYNT_FORCE_OLLAMA', '1')
+os.environ.setdefault('TERRAQORE_FORCE_OLLAMA', '1')
 
 cfg_mgr = get_config_manager()
 config = cfg_mgr.load()

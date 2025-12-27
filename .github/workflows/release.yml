@@ -44,7 +44,7 @@ jobs:
         draft: false
         prerelease: false
         body: |
-          ## FlyntCore Release ${{ github.ref }}
+          ## TERRAQORE Release ${{ github.ref }}
           
           ### Changes
           - Backend: FastAPI LLM abstraction with multi-provider support (Gemini, Groq, OpenRouter, Ollama)

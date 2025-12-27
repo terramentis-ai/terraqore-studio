@@ -1,4 +1,4 @@
-# FlyntCore v1.0
+# TERRAQORE v1.0
 
 A production-ready multi-agent AI orchestration platform with multi-provider LLM support.
 
@@ -38,8 +38,8 @@ A production-ready multi-agent AI orchestration platform with multi-provider LLM
 
 ```bash
 # Clone the repository
-git clone https://github.com/FlyntCore/FlyntCore.git
-cd FlyntCore
+git clone https://github.com/TERRAQORE/TERRAQORE.git
+cd TERRAQORE
 
 # Build the project
 ./build.sh              # Linux/macOS
@@ -79,7 +79,7 @@ ollama pull phi3
 ## Project Structure
 
 ```
-FlyntCore/
+TERRAQORE/
 ├── core_clli/              # Backend (Python/FastAPI)
 │   ├── agents/             # Multi-agent implementations
 │   ├── core/               # Core components
@@ -220,7 +220,7 @@ OPENROUTER_API_KEY=      # OpenRouter API key
 
 # Application
 FLYNT_DEBUG=0            # Enable debug mode
-FLYNT_FORCE_OLLAMA=0     # Force Ollama as primary provider
+TERRAQORE_FORCE_OLLAMA=0     # Force Ollama as primary provider
 FLYNT_TIMEOUT=30         # Request timeout (seconds)
 
 # Ollama
@@ -269,9 +269,9 @@ This project is licensed under the MIT License - see [LICENSE](core_clli/LICENSE
 ## Support
 
 - 📖 [Documentation](SETUP_AND_RUN_GUIDE.md)
-- 🐛 [Issues](https://github.com/FlyntCore/FlyntCore/issues)
-- 💬 [Discussions](https://github.com/FlyntCore/FlyntCore/discussions)
-- 📧 Email: dev@flyntcore.ai
+- 🐛 [Issues](https://github.com/TERRAQORE/TERRAQORE/issues)
+- 💬 [Discussions](https://github.com/TERRAQORE/TERRAQORE/discussions)
+- 📧 Email: dev@terraqore.com
 
 ## Acknowledgments
 
@@ -288,5 +288,5 @@ Built with:
 
 **Version**: 1.0.0  
 **Last Updated**: December 26, 2025  
-**Maintained by**: FlyntCore Development Team  
-**Repository**: https://github.com/FlyntCore/FlyntCore
+**Maintained by**: TERRAQORE Development Team  
+**Repository**: https://github.com/TERRAQORE/TERRAQORE

@@ -1,11 +1,11 @@
-# FlyntCore v1.0 - Complete Setup & Run Guide
+# TERRAQORE v1.0 - Complete Setup & Run Guide
 
 ## System Overview
 
-FlyntCore is a comprehensive **Personal Developer Assistant for Agentic AI Projects** consisting of:
+TERRAQORE is a comprehensive **Personal Developer Assistant for Agentic AI Projects** consisting of:
 
 1. **FastAPI Backend** (`core_clli/`) - Multi-agent orchestration, PSMP dependency management, test critique
-2. **React Frontend** (`gui/`) - Flynt Studio UI with project/task management, workflow execution
+2. **React Frontend** (`gui/`) - TerraQore Studio UI with project/task management, workflow execution
 3. **Integration Bridge** - Full REST API connecting frontend to backend
 
 ## Prerequisites
@@ -100,9 +100,9 @@ npm run dev
 ```
 
 ### Step 5: Open in browser
-Navigate to `http://localhost:5173/` - you should see Flynt Studio
+Navigate to `http://localhost:5173/` - you should see TerraQore Studio
 
-## Part 3: Using Flynt Studio
+## Part 3: Using TerraQore Studio
 
 ### Initial Navigation
 
@@ -187,7 +187,7 @@ In Project Detail:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                   Flynt Studio (React)                  │
+│                   TerraQore Studio (React)                  │
 │  ProjectDashboard → ProjectDetail → Playground          │
 │       ↓                ↓                ↓                │
 │  [WORKSPACE]    [PROJECT MGMT]    [EXECUTION]           │
@@ -331,7 +331,7 @@ GET    /projects/{id}/manifest         - Get manifest
 ```
 GOOGLE_API_KEY=your-key-here
 LOG_LEVEL=INFO
-DATABASE_URL=sqlite:///flynt.db
+DATABASE_URL=sqlite:///terraqore.db
 ```
 
 ### Frontend (gui/.env.local)
@@ -378,4 +378,4 @@ npm run dev
 
 ---
 
-**FlyntCore v1.0** is now ready to use! Start in the WORKSPACE tab and create your first project.
+**TERRAQORE v1.0** is now ready to use! Start in the WORKSPACE tab and create your first project.

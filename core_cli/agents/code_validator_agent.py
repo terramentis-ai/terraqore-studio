@@ -1,5 +1,5 @@
 """
-Flynt Code Validation Agent
+TerraQore Code Validation Agent
 Validates generated code for quality, best practices, and standards compliance.
 
 Integrates hallucination detection to ensure AI-generated code is:

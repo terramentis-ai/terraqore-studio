@@ -1,5 +1,5 @@
 """
-Flynt Context Mining Tool
+TerraQore Context Mining Tool
 Extracts ideas and context from various file formats and sources.
 Supports: PDF, TXT, MD, DOCX, URLs, and more.
 """

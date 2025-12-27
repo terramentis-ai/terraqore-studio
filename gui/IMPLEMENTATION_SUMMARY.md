@@ -2,7 +2,7 @@
 
 ## What Was Added
 
-A fully functional **Workflow Playground** panel has been integrated into the Flynt Studio UI, enabling users to visualize and execute AI agent workflows in real-time, similar to Google AI Studio and OpenAI Playground.
+A fully functional **Workflow Playground** panel has been integrated into the TerraQore Studio UI, enabling users to visualize and execute AI agent workflows in real-time, similar to Google AI Studio and OpenAI Playground.
 
 ## Files Created
 
@@ -216,7 +216,7 @@ Complete user guide covering:
 ### Color Scheme
 - **Cyan** accents: Distinguishes from purple workspace theme
 - **Status colors**: Green (success), Blue (running), Red (failed), Gray (idle)
-- **Dark background**: Matches existing Flynt Studio aesthetic
+- **Dark background**: Matches existing TerraQore Studio aesthetic
 - **High contrast**: Ensures readability
 
 ### Interactions
@@ -250,7 +250,7 @@ Complete user guide covering:
 ## Usage Instructions
 
 ### For End Users
-1. Open Flynt Studio
+1. Open TerraQore Studio
 2. Click **P** (Playground) in left navigation
 3. Enter a workflow prompt (e.g., "Analyze sales data")
 4. Click **Execute Workflow**

@@ -1,5 +1,5 @@
 
-import flyntAPI from './flyntAPIService';
+import terraqoreAPI from './terraqoreAPIService';
 
 /**
  * MetaAgentService - Production LLM orchestration service
@@ -13,7 +13,7 @@ export class MetaAgentService {
    */
   async planTask(userInput: string) {
     try {
-      const plan = await flyntAPI.planTask(userInput);
+      const plan = await terraqoreAPI.planTask(userInput);
       return plan;
     } catch (e: any) {
       console.error("Meta Controller failed to generate orchestration plan:", e);
@@ -28,7 +28,7 @@ export class MetaAgentService {
    */
   async executeAgentTask(agentType: string, taskDescription: string, context?: string) {
     try {
-      const result = await flyntAPI.executeAgentTask(agentType, taskDescription, context);
+      const result = await terraqoreAPI.executeAgentTask(agentType, taskDescription, context);
       return result.output;
     } catch (e: any) {
       console.error(`Agent execution error for ${agentType}:`, e);
@@ -43,7 +43,7 @@ export class MetaAgentService {
    */
   async generateAgentIcon(agentType: string): Promise<string | null> {
     try {
-      const response = await flyntAPI.chat(
+      const response = await terraqoreAPI.chat(
         `Generate a single SVG path 'd' attribute string for a minimalist, geometric icon representing a '${agentType}'. 
         Guidelines:
         - The icon should be abstract and minimalist.

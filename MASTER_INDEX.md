@@ -1,4 +1,4 @@
-# FlyntCore Development - Master Index
+# TERRAQORE Development - Master Index
 
 **Last Updated**: Today  
 **Status**: 5 of 6 initiatives completed (83%)  
@@ -42,10 +42,10 @@ Key Features:
 
 **New CLI Commands**:
 ```bash
-flynt conflicts <project>           # Show blocking conflicts
-flynt resolve-conflicts <project>   # Run resolver agent
-flynt unblock-project <project>     # Manually resolve
-flynt manifest <project>            # Export dependencies
+TerraQore conflicts <project>           # Show blocking conflicts
+TerraQore resolve-conflicts <project>   # Run resolver agent
+TerraQore unblock-project <project>     # Manually resolve
+TerraQore manifest <project>            # Export dependencies
 ```
 
 ---
@@ -95,7 +95,7 @@ Key Features:
 
 **New CLI Command**:
 ```bash
-flynt test-critique <project> [-o output_file]
+TerraQore test-critique <project> [-o output_file]
 ```
 
 **Analysis Output**:
@@ -108,7 +108,7 @@ flynt test-critique <project> [-o output_file]
 ---
 
 ### Initiative 4: FastAPI REST Service ✅
-**Files**: `flynt_api/` (7 modules + supporting files)  
+**Files**: `terraqore_api/` (7 modules + supporting files)  
 **Impact**: HTTP REST API for external integrations
 
 Key Features:
@@ -133,7 +133,7 @@ Manifest:     GET  /api/workflows/manifest/{id}
 **Startup**:
 ```bash
 ./start_api.sh              # Development
-docker build -f Dockerfile.api -t flynt-api . && docker run -p 8000:8000 flynt-api
+docker build -f Dockerfile.api -t terraqore-api . && docker run -p 8000:8000 terraqore-api
 ```
 
 ---
@@ -148,7 +148,7 @@ core/psmp/                          # PSMP dependency management
 ├── dependency_resolver.py          # Conflict resolution logic
 └── service.py                      # State machine & orchestration
 
-flynt_api/                          # REST API service
+terraqore_api/                          # REST API service
 ├── __init__.py
 ├── app.py                          # FastAPI application factory
 ├── models.py                       # Pydantic schemas
@@ -215,7 +215,7 @@ V1_1_ROLLOUT_CHECKLIST.md           # Rollout verification checklist
 ```
 ┌─────────────────────────────────────────────────────────┐
 │               User Interfaces                           │
-│  CLI (cli/main.py)    │    FastAPI (flynt_api/)        │
+│  CLI (cli/main.py)    │    FastAPI (terraqore_api/)        │
 └───────────┬───────────┼──────────────┬──────────────────┘
             │           │              │
         ┌───▼───────────▼──────────────▼─────┐
@@ -273,7 +273,7 @@ success, artifact, conflicts = psmp.declare_artifact(
 **How**: 
 ```bash
 # CLI
-flynt test-critique "My Project" -o test_report.txt
+TerraQore test-critique "My Project" -o test_report.txt
 
 # Programmatic
 from agents.test_critique_agent import TestCritiqueAgent
@@ -302,13 +302,13 @@ curl -X POST http://localhost:8000/api/projects \
 **How**:
 ```bash
 # See conflicts
-flynt conflicts "My Project"
+TerraQore conflicts "My Project"
 
 # Run analyzer
-flynt resolve-conflicts "My Project"
+TerraQore resolve-conflicts "My Project"
 
 # Apply resolution
-flynt unblock-project "My Project" --library pandas --version 2.0
+TerraQore unblock-project "My Project" --library pandas --version 2.0
 ```
 
 ---
@@ -320,7 +320,7 @@ flynt unblock-project "My Project" --library pandas --version 2.0
 Key Features:
 - ProjectDashboard component for project listing & creation
 - ProjectDetail component for task & conflict management
-- Integrated with flyntAPIService for backend communication
+- Integrated with terraqoreAPIService for backend communication
 - Tab-based navigation (WORKSPACE as default)
 - Responsive grid layouts
 - Real-time status tracking
@@ -371,7 +371,7 @@ gui/components/
 └── ControlPanel.tsx             # (existing)
 
 gui/services/
-├── flyntAPIService.ts           # API client (created in Task 4)
+├── terraqoreAPIService.ts           # API client (created in Task 4)
 └── geminiService.ts             # (existing)
 ```
 
@@ -389,14 +389,14 @@ UI_INTEGRATION_GUIDE.md             # NEW: Component documentation
 
 ```
 ┌──────────────────────────────────────────────────────┐
-│          Flynt Studio (React UI)                    │
+│          TerraQore Studio (React UI)                    │
 │  ┌─────────────┐  ┌─────────────┐  ┌────────────┐  │
 │  │ Workspace   │  │ Playground  │  │ Dashboard  │  │
 │  │ (Projects)  │  │ (Execution) │  │(Analytics) │  │
 │  └──────┬──────┘  └─────────────┘  └────────────┘  │
 │         │                                            │
 │    ┌────▼────────────────────────────────────────┐  │
-│    │    FlyntAPIService (HTTP Client)            │  │
+│    │    terraqoreAPIService (HTTP Client)            │  │
 │    │    - Projects, Tasks, Workflows, Conflicts  │  │
 │    └────┬─────────────────────────────────────────┘ │
 └────────────┼──────────────────────────────────────────┘
@@ -454,21 +454,21 @@ UI_INTEGRATION_GUIDE.md             # NEW: Component documentation
 />
 ```
 
-### 3. FlyntAPIService
+### 3. terraqoreAPIService
 **When**: Any backend communication  
 **How**:
 ```typescript
-import flyntAPI from './services/flyntAPIService';
+import terraqoreAPI from './services/terraqoreAPIService';
 
 // Projects
-const projects = await flyntAPI.getProjects();
-const newProject = await flyntAPI.createProject('My Project');
+const projects = await terraqoreAPI.getProjects();
+const newProject = await terraqoreAPI.createProject('My Project');
 
 // Workflows
-const result = await flyntAPI.runWorkflow(projectId, 'ideate');
+const result = await terraqoreAPI.runWorkflow(projectId, 'ideate');
 
 // Conflicts
-const conflicts = await flyntAPI.getProjectConflicts(projectId);
+const conflicts = await terraqoreAPI.getProjectConflicts(projectId);
 ```
 
 ### 4. App.tsx Integration
@@ -568,7 +568,7 @@ All core initiatives completed! 🎉
 ### UI Components
 - Read: `UI_INTEGRATION_GUIDE.md`
 - See: `gui/components/ProjectDashboard.tsx` for patterns
-- Study: `gui/services/flyntAPIService.ts` for API client
+- Study: `gui/services/terraqoreAPIService.ts` for API client
 
 ### Complete Setup
 - Read: `SETUP_AND_RUN_GUIDE.md` - Start here!
@@ -587,8 +587,8 @@ All core initiatives completed! 🎉
 
 ### FastAPI Service
 - Read: `FASTAPI_IMPLEMENTATION.md`
-- See: `flynt_api/models.py` for schemas
-- Study: `flynt_api/routers/*.py` for patterns
+- See: `terraqore_api/models.py` for schemas
+- Study: `terraqore_api/routers/*.py` for patterns
 9. **Security First**: Run `pytest core_cli/tests/security -q` before deployment
 10. **Enable Docker**: Set `use_docker=true` for production code execution
 
@@ -640,7 +640,7 @@ Click WORKSPACE tab → Create Project → Explore!
 
 ## 📝 Final Notes (Updated)
 
-This session delivered **comprehensive infrastructure** for FlyntCore:
+This session delivered **comprehensive infrastructure** for TERRAQORE:
 
 1. **Backend Foundation**: PSMP + orchestration + agents (Tasks 1-4)
 2. **API Service**: Full REST API for integrations (Task 4)

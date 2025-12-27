@@ -1,5 +1,5 @@
 """
-Flynt Security Vulnerability Agent
+TerraQore security Vulnerability Agent
 Scans code for security vulnerabilities and compliance issues.
 """
 

@@ -1,4 +1,4 @@
-# FlyntCore v1.1 Security Whitepaper (Phase 1)
+# TERRAQORE v1.1 Security Whitepaper (Phase 1)
 
 ## 1) Scope and Objectives
 - Protect execution of AI-generated code against misuse, resource abuse, and hallucinated behaviors.

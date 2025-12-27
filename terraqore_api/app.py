@@ -1,6 +1,6 @@
 """
 FastAPI Application Factory
-Main entry point for Flynt API service.
+Main entry point for TerraQore API service.
 """
 
 import logging
@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 
-from flynt_api.routers import self_marketing_agent
+from terraqore_api.routers import self_marketing_agent
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ def create_app() -> FastAPI:
         Configured FastAPI app instance.
     """
     app = FastAPI(
-        title="Flynt API",
+        title="TerraQore API",
         description="Personal Developer Assistant for Agentic AI Projects",
         version="0.1.0",
         docs_url="/api/docs",
@@ -50,7 +50,7 @@ def create_app() -> FastAPI:
         """Health check endpoint."""
         return {
             "status": "healthy",
-            "service": "flynt-api",
+            "service": "terraqore-api",
             "version": "0.1.0"
         }
     
@@ -59,7 +59,7 @@ def create_app() -> FastAPI:
     async def root():
         """API root endpoint."""
         return {
-            "message": "Welcome to Flynt API",
+            "message": "Welcome to TerraQore API",
             "docs": "/api/docs",
             "version": "0.1.0"
         }
@@ -78,7 +78,7 @@ def create_app() -> FastAPI:
         )
     
     # Include routers
-    from flynt_api.routers import projects, tasks, workflows
+    from terraqore_api.routers import projects, tasks, workflows
     
     app.include_router(
         projects.router,

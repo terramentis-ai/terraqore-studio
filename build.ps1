@@ -1,4 +1,4 @@
-# Build script for FlyntCore - Windows PowerShell
+# Build script for TERRAQORE - Windows PowerShell
 
 param(
     [switch]$Backend = $true,
@@ -11,7 +11,7 @@ $BackendDir = "$ProjectRoot\core_clli"
 $FrontendDir = "$ProjectRoot\gui"
 
 Write-Host "=========================================="
-Write-Host "FlyntCore v1.0 - Build Script (Windows)"
+Write-Host "TERRAQORE v1.0 - Build Script (Windows)"
 Write-Host "=========================================="
 Write-Host ""
 

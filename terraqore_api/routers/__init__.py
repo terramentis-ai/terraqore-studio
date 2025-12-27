@@ -1,5 +1,5 @@
 """
-Flynt API Routers Package
+TerraQore API Routers Package
 """
 
 from . import projects, tasks, workflows

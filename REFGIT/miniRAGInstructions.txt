@@ -1,8 +1,8 @@
-thi folder is meant to serve as a miniRAG where I dump all the reflections, aspirations, and inspirations I have concerning Flynt Studio project development.
+thi folder is meant to serve as a miniRAG where I dump all the reflections, aspirations, and inspirations I have concerning TerraQore Studio project development.
 
-ATTENTION!!! the implementation guide contained in this folder refelcts the ultimate vision of the Flynt studio project, and becomes the standard roadmap for this production, going forward, the primary objective is to deliver on the laid out specifications
+ATTENTION!!! the implementation guide contained in this folder refelcts the ultimate vision of the TerraQore Studio project, and becomes the standard roadmap for this production, going forward, the primary objective is to deliver on the laid out specifications
 
 
 Instruction>>>
-Use the 'flynt_implementation_guide.txt' file to reshape this code base, making it deliver exactly on everything outlined in the guide.
+Use the 'TerraQore_implementation_guide.txt' file to reshape this code base, making it deliver exactly on everything outlined in the guide.
 the 'ref.txt' files are support refferences you can consult if needed.

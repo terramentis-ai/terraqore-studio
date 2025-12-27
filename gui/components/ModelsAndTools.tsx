@@ -129,7 +129,7 @@ const ModelsAndTools: React.FC<ModelsAndToolsProps> = ({ enabledTools, onToggleT
                 <h1 className="text-4xl font-light text-white tracking-tight">Registry <span className="text-zinc-500 font-medium">Explorer</span></h1>
              </div>
             <p className="text-zinc-500 max-w-2xl text-sm leading-relaxed tracking-wide">
-              Flynt Studio's unified resource platform. Manage RAG pipelines, DS engines, and MLOps deployments within a high-density material ecosystem.
+              TerraQore Studio's unified resource platform. Manage RAG pipelines, DS engines, and MLOps deployments within a high-density material ecosystem.
             </p>
           </div>
           

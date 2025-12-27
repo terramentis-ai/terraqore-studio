@@ -1,5 +1,5 @@
 """
-Flynt Planner Agent
+TerraQore Planner Agent
 Specialized agent for breaking down projects into actionable tasks with dependencies.
 """
 
@@ -387,8 +387,8 @@ Return ONLY valid JSON, no other text:
 ## 🚀 Next Steps
 1. Review the task breakdown above
 2. Start with tasks in the first milestone
-3. Use `flynt tasks "Project Name"` to see available tasks
-4. Execute tasks: `flynt run "Project Name"` (Coming Soon)
+3. Use `TerraQore tasks "Project Name"` to see available tasks
+4. Execute tasks: `TerraQore run "Project Name"` (Coming Soon)
 
 ✨ Your project is now ready for execution!
 """

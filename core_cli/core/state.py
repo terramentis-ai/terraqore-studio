@@ -1,5 +1,5 @@
 """
-Flynt State Management Module
+TerraQore State Management Module
 Handles project state, memory, and persistence using SQLite.
 """
 
@@ -90,7 +90,7 @@ class StateManager:
         Args:
             db_path: Path to SQLite database. If None, uses default location.
         """
-        self.db_path = db_path or Path.cwd() / "data" / "flynt.db"
+        self.db_path = db_path or Path.cwd() / "data" / "terraqore.db"
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._init_database()
         

@@ -1,5 +1,5 @@
 """
-Build Data Collector for Flynt Studio
+Build Data Collector for TerraQore Studio
 Captures production phase metrics and execution data for later analysis and testing.
 """
 
@@ -80,7 +80,7 @@ class BuildDataCollector:
         Args:
             db_path: Path to build database. If None, uses default location.
         """
-        self.db_path = db_path or Path.cwd() / "data" / "flynt_build.db"
+        self.db_path = db_path or Path.cwd() / "data" / "terraqore_build.db"
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._init_database()
         

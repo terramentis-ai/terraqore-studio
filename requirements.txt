@@ -1,4 +1,4 @@
-# FlyntCore Backend Requirements
+# TERRAQORE Backend Requirements
 # Python 3.9+
 
 # Core Framework

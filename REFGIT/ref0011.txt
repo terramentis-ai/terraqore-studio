@@ -1,4 +1,4 @@
-# Flynt Studio: Bootstrap to $10K MRR in 90 Days
+# TerraQore Studio: Bootstrap to $10K MRR in 90 Days
 ## The Broke Founder's Playbook to Revenue
 
 ---
@@ -48,7 +48,7 @@ GOAL (90 Days):
    ├─ Target: 2-4 calls/week = $1,200-2,400/month
    
 4. YouTube/Content (Start this week)
-   ├─ Demo Flynt Studio features
+   ├─ Demo TerraQore Studio features
    ├─ Monetize when you hit 1,000 subs
    ├─ Dual purpose: Revenue + Marketing
 ```
@@ -149,7 +149,7 @@ Worth it? Only if you're truly out of runway
 
 **Strategy: Consult Before You Scale**
 
-Instead of selling Flynt (not ready), sell consulting:
+Instead of selling TerraQore (not ready), sell consulting:
 
 ```
 OFFER: "AI Agent Implementation Consulting"
@@ -197,7 +197,7 @@ We could build something similar for [their specific pain].
 Quick 15-min call to explore?
 
 [Your name]
-Flynt Studio
+TerraQore Studio
 ```
 
 Targets:
@@ -302,7 +302,7 @@ Now you have:
 **Scale the model:**
 
 ```
-FLYNT MONETIZATION STACK
+TerraQore MONETIZATION STACK
 
 Layer 1: Services (High touch, high margin)
 ├─ Custom agent development: $2,500-5,000 per project
@@ -495,7 +495,7 @@ Even though you're broke, you actually have:
 
 ```
 ✅ WORKING PRODUCT (most founders don't)
-   └─ Flynt is real, 41 commits, proven architecture
+   └─ TerraQore is real, 41 commits, proven architecture
 
 ✅ CLEAR PROBLEM (AI teams need orchestration)
    └─ $40B market exists
@@ -616,7 +616,7 @@ If you execute this plan for 90 days (seriously, no BS), you will:
 
 ### The Payoff:
 ```
-✅ Flynt becomes your job (not side hustle)
+✅ TerraQore becomes your job (not side hustle)
 ✅ You actually get paid (wild concept)
 ✅ You own your company (no dilution yet)
 ✅ You have time to build the product right

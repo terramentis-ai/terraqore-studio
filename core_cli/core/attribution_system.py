@@ -1,6 +1,6 @@
 """
-Attribution System for FlyntCore
-Tracks and marks all generated code with FlyntCore metadata and attribution
+Attribution System for TERRAQORE
+Tracks and marks all generated code with TERRAQORE metadata and attribution
 """
 
 from dataclasses import dataclass, field, asdict
@@ -42,7 +42,7 @@ class AttributionMetadata:
     project_id: int
     project_name: str
     agent_responsible: str
-    generated_by: str  # "FlyntCore v1.0"
+    generated_by: str  # "TERRAQORE v1.0"
     generation_timestamp: str
     source_commit: Optional[str] = None
     dependencies: List[str] = field(default_factory=list)
@@ -74,11 +74,11 @@ class AttributionMetadata:
 
 class AttributionSystem:
     """
-    Manages code attribution across FlyntCore-generated artifacts.
+    Manages code attribution across TERRAQORE-generated artifacts.
     Provides headers, tracking, and export functionality.
     """
     
-    def __init__(self, db_path: str = "flynt_attribution.db"):
+    def __init__(self, db_path: str = "terraqore_attribution.db"):
         """Initialize attribution system"""
         self.db_path = db_path
         self._init_database()
@@ -136,7 +136,7 @@ class AttributionSystem:
         
         header = f"""
 # ============================================================================
-# Generated with FlyntCore v1.0 - Personal Developer Assistant
+# Generated with TERRAQORE v1.0 - Personal Developer Assistant
 # 
 # Project: {metadata.project_name} (ID: {metadata.project_id})
 # Artifact: {metadata.artifact_name}
@@ -149,8 +149,8 @@ class AttributionSystem:
 # Quality Score: {metadata.quality_score or 'N/A'}
 # Test Coverage: {metadata.test_coverage or 'N/A'}%
 #
-# This code was generated with AI assistance and reviewed by FlyntCore.
-# See https://github.com/FlyntCore for more information.
+# This code was generated with AI assistance and reviewed by TERRAQORE.
+# See https://github.com/TERRAQORE for more information.
 # ============================================================================
 """
         
@@ -184,7 +184,7 @@ class AttributionSystem:
             project_id=project_id,
             project_name=project_name,
             agent_responsible=agent_responsible,
-            generated_by="FlyntCore v1.0",
+            generated_by="TERRAQORE v1.0",
             generation_timestamp=datetime.now().isoformat(),
             dependencies=dependencies or [],
             quality_score=quality_score,

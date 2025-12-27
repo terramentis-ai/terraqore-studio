@@ -58,7 +58,7 @@ const Dashboard: React.FC<DashboardProps> = ({ nodes, logs }) => {
             <h1 className="text-4xl font-light text-white tracking-tight">Mission <span className="text-zinc-500 font-medium">Dashboard</span></h1>
           </div>
           <p className="text-zinc-500 max-w-2xl text-sm leading-relaxed tracking-wide">
-            Real-time analytics for the active Flynt orchestration cluster. Monitor agent throughput, communication density, and overall project convergence.
+            Real-time analytics for the active TerraQore orchestration cluster. Monitor agent throughput, communication density, and overall project convergence.
           </p>
         </div>
 

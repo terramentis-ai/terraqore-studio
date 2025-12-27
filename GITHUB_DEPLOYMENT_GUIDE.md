@@ -1,4 +1,4 @@
-# FlyntCore v1.0 - GitHub Deployment Instructions
+# TERRAQORE v1.0 - GitHub Deployment Instructions
 
 **Status**: ✅ Local Repository Ready  
 **Next Step**: Push to GitHub  
@@ -6,7 +6,7 @@
 
 ## Quick Summary
 
-Your FlyntCore project is fully prepared for GitHub deployment:
+Your TERRAQORE Project is fully prepared for GitHub deployment:
 
 ✅ Git initialized with initial commit  
 ✅ All source code tracked (145 files)  
@@ -20,17 +20,17 @@ Your FlyntCore project is fully prepared for GitHub deployment:
 
 ### Step 1: Create GitHub Repository
 Go to https://github.com/new and create:
-- **Repository name**: FlyntCore
+- **Repository name**: TERRAQORE
 - **Description**: Multi-agent AI orchestration with multi-provider LLM support
 - **Visibility**: Public (or Private)
 
 ### Step 2: Connect Your Local Repository
 
 ```bash
-cd C:\Users\user\Desktop\FlyntCore_v1.0_pre_release
+cd C:\Users\user\Desktop\TERRAQORE_v1.0_pre_release
 
 # Add GitHub as remote
-git remote add origin https://github.com/YOUR_USERNAME/FlyntCore.git
+git remote add origin https://github.com/YOUR_USERNAME/TERRAQORE.git
 
 # Rename branch to main
 git branch -M main
@@ -55,7 +55,7 @@ When you push code changes to main:
 ```bash
 # Add the latest code to git
 git add .
-git commit -m "FlyntCore v1.0.0 - Production ready release"
+git commit -m "TERRAQORE v1.0.0 - Production ready release"
 
 # Create and push version tag
 git tag -a v1.0.0 -m "Release version 1.0.0"
@@ -114,7 +114,7 @@ Get-ChildItem -Recurse -Include *.yaml, *.yml, *.py |
 
 ### Git Status
 ```bash
-cd C:\Users\user\Desktop\FlyntCore_v1.0_pre_release
+cd C:\Users\user\Desktop\TERRAQORE_v1.0_pre_release
 git status  # Should show "nothing to commit"
 git log --oneline  # Should show your initial commit
 ```
@@ -176,7 +176,7 @@ Add optional secrets for automated testing:
 ## Project Structure for GitHub
 
 ```
-FlyntCore/
+TERRAQORE/
 ├── .github/workflows/          ← CI/CD pipelines
 │   ├── backend.yml
 │   ├── frontend.yml

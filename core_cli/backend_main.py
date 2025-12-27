@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 load_dotenv(override=True)
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="Flynt Studio Backend")
+    app = FastAPI(title="TerraQore Studio Backend")
     
     # Enable CORS for frontend development
     app.add_middleware(

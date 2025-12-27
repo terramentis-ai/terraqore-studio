@@ -1,5 +1,5 @@
 """
-Flynt Idea Agent
+TerraQore Idea Agent
 Specialized agent for project ideation, research, and concept refinement.
 """
 
