@@ -1,4 +1,11 @@
+﻿# =============================================================================
+# TERRAQORE .gitignore
+# Professional project configuration
+# =============================================================================
+
+# -----------------------------------------------------------------------------
 # Python
+# -----------------------------------------------------------------------------
 __pycache__/
 *.py[cod]
 *$py.class
@@ -25,99 +32,136 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
+# -----------------------------------------------------------------------------
 # Virtual Environments
-.venv
+# -----------------------------------------------------------------------------
+.venv/
 venv/
 ENV/
 env/
 .env
 .env.local
 .env.*.local
+!.env.example
 
-# IDE
+# -----------------------------------------------------------------------------
+# IDE & Editors
+# -----------------------------------------------------------------------------
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
-.DS_Store
 .sublime-project
 .sublime-workspace
+*.code-workspace
 
-# Node.js
+# -----------------------------------------------------------------------------
+# Node.js & Frontend
+# -----------------------------------------------------------------------------
 node_modules/
 npm-debug.log
 yarn-error.log
 package-lock.json
 yarn.lock
-dist/
 .next/
+.nuxt/
+.cache/
 
-# Environment variables and secrets
-.env
-.env.*
-!.env.example
-!.env.development.example
-
-# Application logs
-logs/
-*.log
-*.logs
-
-# Temporary files
-*.tmp
-*.temp
-tmp/
-temp/
-
-# OS
+# -----------------------------------------------------------------------------
+# OS Generated Files
+# -----------------------------------------------------------------------------
 .DS_Store
 Thumbs.db
 .AppleDouble
 .LSOverride
-*.swp
+Desktop.ini
+ehthumbs.db
+*.orig
+*.rej
 
-# Database
-*.db
-*.sqlite
-*.sqlite3
-data/
+# -----------------------------------------------------------------------------
+# Application Data & Logs
+# -----------------------------------------------------------------------------
+logs/
+*.log
+*.logs
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+terraqore.db
+terraqore_build.db
+terraqore_attribution.db
+*.db-journal
 
-# Config files with secrets
-core_clli/config/settings.yaml
-core_clli/config/settings*.yaml
-!core_clli/config/settings.example.yaml
+# Keep data directory structure
+!data/.gitkeep
 
-# Session/state files
+# -----------------------------------------------------------------------------
+# Configuration with Secrets
+# -----------------------------------------------------------------------------
+core_cli/config/settings.yaml
+core_cli/config/settings*.yaml
+!core_cli/config/settings.example.yaml
+
+# API keys and secrets
+*.pem
+*.key
+secrets/
+.secrets
+
+# -----------------------------------------------------------------------------
+# Test & Coverage
+# -----------------------------------------------------------------------------
+.coverage
+coverage/
+htmlcov/
+.pytest_cache/
+.tox/
+.nox/
+*.cover
+*.py,cover
+.hypothesis/
+
+# -----------------------------------------------------------------------------
+# Type Checking & Linting
+# -----------------------------------------------------------------------------
+.mypy_cache/
+.dmypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+.pytype/
+
+# -----------------------------------------------------------------------------
+# Build & Distribution Artifacts
+# -----------------------------------------------------------------------------
+*.build
+build-output/
+*.manifest
+*.spec
+
+# -----------------------------------------------------------------------------
+# Session & Temporary Files
+# -----------------------------------------------------------------------------
+*.tmp
+*.temp
+tmp/
+temp/
 reflections/
 .session
 session_*.json
 *.session
 
-# Build artifacts
-*.build
-build-output/
+# -----------------------------------------------------------------------------
+# Rename Scripts (one-time use)
+# -----------------------------------------------------------------------------
+rename_terraqore.ps1
+rename_to_terraqore.ps1
 
-# Test coverage
-.coverage
-htmlcov/
-.pytest_cache/
-
-# Type checking
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Task documentation (development files)
-TASK_*.md
-SESSION_*.md
-*_COMPLETION_*.md
-*_SESSION_*.md
-
-# VS Code workspace settings
-.vscode/settings.json
-
-# Misc development files
-.DS_Store
-*.orig
-*.rej
+# -----------------------------------------------------------------------------
+# Backup Files
+# -----------------------------------------------------------------------------
+*.bak
+*.backup
+*~
