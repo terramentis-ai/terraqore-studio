@@ -2,7 +2,7 @@
 
 ![TerraQore Studio Banner](docs/terraqore_banner.jpeg)
 
-> Enterprise agentic AI development platform — unified documentation
+> Enterprise-Grade Agentic AI Development Platform
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/) [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
 
