@@ -1,0 +1,15 @@
+llm:
+  fallback_provider: groq
+  gemini:
+    max_tokens: 4096
+    model: models/gemini-2.5-flash
+    temperature: 0.7
+  groq:
+    max_tokens: 4096
+    model: llama-3.1-70b-versatile
+    temperature: 0.7
+  primary_provider: gemini
+system:
+  debug: false
+  max_retries: 3
+  timeout: 30

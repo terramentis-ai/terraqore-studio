@@ -50,7 +50,7 @@ class PlannerAgent(BaseAgent):
 
 Your role is to:
 1. Analyze project goals and requirements
-2. Break work into concrete, achievable tasks
+2. Break work into concrete, achievable tasks (10-15 tasks for MVP)
 3. Identify task dependencies and relationships
 4. Organize tasks into logical milestones/phases
 5. Estimate effort and set priorities
@@ -63,6 +63,7 @@ When creating tasks:
 - Identify dependencies between tasks
 - Consider MVP-first approach
 - Think about what can be parallelized
+- **IMPORTANT: Limit to 10-15 tasks maximum to ensure complete JSON output**
 
 When organizing milestones:
 - Group related tasks together
@@ -80,6 +81,7 @@ Provide tasks in structured JSON format with these fields:
 - dependencies: List of task titles this depends on
 - agent_type: Which agent should handle it (e.g., "CoderAgent", "ResearchAgent", "manual")
 
+**CRITICAL: Return ONLY valid, complete JSON array. Ensure the JSON is properly closed with ] at the end.**
 Be practical and realistic. Focus on getting to a working MVP."""
     
     def execute(self, context: AgentContext) -> AgentResult:
@@ -240,17 +242,18 @@ Return ONLY valid JSON, no other text:
         Returns:
             List of task dictionaries.
         """
-        # Try to extract JSON from response
-        json_match = re.search(r'\[[\s\S]*\]', task_plan)
+        # Remove all markdown code block markers
+        json_str = re.sub(r'```+\w*\s*', '', task_plan)  # Remove opening code blocks
+        json_str = re.sub(r'\s*```+', '', json_str)      # Remove closing code blocks
+        json_str = json_str.strip()
+        
+        # Try to extract JSON array from response
+        json_match = re.search(r'\[[\s\S]*\]', json_str)
         if json_match:
             json_str = json_match.group(0)
         else:
-            json_str = task_plan
-        
-        # Clean up control characters that might break JSON parsing
-        json_str = json_str.replace('\r', ' ').replace('\n', ' ').replace('\t', ' ')
-        # Remove multiple spaces
-        json_str = re.sub(r' +', ' ', json_str)
+            # If no array found, the whole string might be the JSON
+            pass
         
         try:
             tasks = json.loads(json_str)
@@ -278,7 +281,43 @@ Return ONLY valid JSON, no other text:
             
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse task JSON: {e}")
-            logger.debug(f"JSON content: {json_str[:500]}")
+            logger.error(f"JSON content (first 1000 chars): {json_str[:1000]}")
+            
+            # Try to repair truncated JSON
+            try:
+                # If JSON is cut off, try to close it properly
+                if not json_str.rstrip().endswith(']'):
+                    # Find the last complete task object
+                    last_brace = json_str.rfind('},')
+                    if last_brace > 0:
+                        repaired = json_str[:last_brace+1] + '\n]'
+                        logger.info("Attempting to repair truncated JSON")
+                        tasks = json.loads(repaired)
+                        if isinstance(tasks, list) and len(tasks) > 0:
+                            logger.warning(f"Successfully repaired JSON, recovered {len(tasks)} tasks (may be incomplete)")
+                            # Validate and clean up recovered tasks
+                            required = ['title', 'description', 'milestone']
+                            for i, task in enumerate(tasks):
+                                for field in required:
+                                    if field not in task:
+                                        task[field] = task.get(field, "Unknown")
+                                task['priority'] = int(task.get('priority', 1))
+                                task['estimated_hours'] = float(task.get('estimated_hours', 2.0))
+                                task['dependencies'] = task.get('dependencies', [])
+                                if not isinstance(task['dependencies'], list):
+                                    task['dependencies'] = []
+                                task['agent_type'] = task.get('agent_type', 'manual')
+                            return tasks
+            except Exception as repair_error:
+                logger.error(f"JSON repair failed: {repair_error}")
+            
+            # Try to save full response for debugging
+            try:
+                with open("failed_plan_response.txt", "w", encoding="utf-8") as f:
+                    f.write(task_plan)
+                logger.info("Full response saved to failed_plan_response.txt")
+            except:
+                pass
             raise Exception("Failed to parse task breakdown. Invalid JSON format.")
     
     def _create_tasks(self, project_id: int, tasks: List[Dict[str, Any]]) -> int:

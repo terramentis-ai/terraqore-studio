@@ -63,10 +63,10 @@ class ExecutionEngine:
         from core.llm_client import create_llm_client_from_config
 
         config = get_config_manager().load()
-        llm_client = create_llm_client_from_config(config)
+        self.llm_client = create_llm_client_from_config(config)
 
         # Pass test_mode through to the coder agent
-        self.coder_agent = CoderAgent(llm_client=llm_client, test_mode=test_mode)
+        self.coder_agent = CoderAgent(llm_client=self.llm_client, test_mode=test_mode)
         self.file_ops = FileOperations(str(self.project_root))
         self.code_executor = CodeExecutor(str(self.project_root))
         
@@ -119,7 +119,10 @@ class ExecutionEngine:
     
     def generate_code_for_task(self, task: Dict[str, Any]) -> Tuple[bool, Optional[CodeGeneration]]:
         """
-        Generate code for a specific task.
+        Generate code for a specific task with collaborative refinement loop.
+        
+        Uses ConflictResolverAgent to refine code if validation fails,
+        implementing iterative improvement until validation passes.
         
         Args:
             task: Task dictionary from database
@@ -127,14 +130,15 @@ class ExecutionEngine:
         Returns:
             Tuple of (success, CodeGeneration)
         """
+        max_refinement_iterations = 3
+        iteration = 0
+        last_feedback = None
+        
         try:
             project_id = self.state_manager.get_project_id(self.project_name)
-
-            # Mark as in progress
             self._mark_task_status(task["id"], "in_progress")
             
             # Prepare context for agent
-            # Build AgentContext using the structure expected by BaseAgent
             context = AgentContext(
                 project_id=project_id,
                 project_name=self.project_name,
@@ -145,78 +149,307 @@ class ExecutionEngine:
                     "task_title": task["title"],
                     "priority": task.get("priority", 1),
                     "estimated_hours": task.get("estimated_hours", 4),
-                    # Normalize dependencies to strings for safe prompting
                     "dependencies": [str(d) for d in task.get("dependencies", [])],
                     "milestone": task.get("milestone", "unknown"),
                     "language_hint": self._get_language_hint(task)
                 }
             )
             
-            # Generate code
-            result = self.coder_agent.execute(context)
-            
-            if result.success:
-                # Parse the code generation payload if present
-                cg_payload = result.metadata.get("code_generation")
-                if cg_payload:
-                    files = []
-                    for f in cg_payload.get("files", []) or []:
-                        deps_raw = f.get("dependencies") or []
-                        deps = [str(d) for d in deps_raw]
-                        files.append(
-                            CodeFile(
-                                path=f.get("path", ""),
-                                language=cg_payload.get("language", result.metadata.get("language", "python")),
-                                content=f.get("content", ""),
-                                description=f.get("description", ""),
-                                test_code=f.get("test_code"),
-                                dependencies=deps
-                            )
-                        )
-                    code_gen = CodeGeneration(
-                        task_id=task["id"],
-                        task_title=task["title"],
-                        language=cg_payload.get("language", result.metadata.get("language", "python")),
-                        files=files,
-                        summary=cg_payload.get("summary", result.output[:200] if result.output else "Code generated"),
-                        execution_notes=cg_payload.get("execution_notes", ""),
-                        validation_passed=cg_payload.get("validation_passed", result.metadata.get("validation_passed", False))
-                    )
+            # Refinement loop: Generate code → Validate → Refine if needed
+            while iteration < max_refinement_iterations:
+                iteration += 1
+                logger.info(f"Code generation iteration {iteration}/{max_refinement_iterations} for task: {task['title']}")
+                
+                # Add refinement feedback to context if available
+                if last_feedback:
+                    context.metadata["refinement_feedback"] = last_feedback
+                    context.user_input = f"{task.get('description', '')}\n\nRefinement feedback from previous attempt:\n{last_feedback}"
+                
+                # Generate or regenerate code
+                result = self.coder_agent.execute(context)
+                
+                if not result.success:
+                    logger.warning(f"Code generation failed on iteration {iteration}: {result.error}")
+                    if iteration < max_refinement_iterations:
+                        # Get ConflictResolverAgent feedback and retry
+                        logger.info("Requesting refinement feedback from ConflictResolverAgent...")
+                        last_feedback = self._get_refinement_feedback(context, result.output, result.error)
+                        continue
+                    else:
+                        # Max iterations reached
+                        error_msg = f"Code generation failed after {max_refinement_iterations} refinement attempts: {result.error}"
+                        self._mark_task_status(task["id"], "failed")
+                        self._log_execution("code_generation_failed", task["id"], {
+                            "error": error_msg,
+                            "iterations": iteration,
+                            "last_feedback": last_feedback
+                        })
+                        logger.error(error_msg)
+                        return False, None
+                
+                # Parse generated code
+                code_gen = self._parse_code_generation(result, task)
+
+                # Apply lightweight auto-fixes before validation
+                code_gen = self._auto_fix_code_generation(code_gen)
+                
+                # Validate the generated code
+                validation_result = self._validate_code_generation(code_gen, task)
+                
+                if validation_result["success"]:
+                    # Validation passed - code is ready!
+                    logger.info(f"Code generation successful after {iteration} iteration(s)")
+                    code_gen.validation_passed = True
+                    
+                    # Store pending approval
+                    self.pending_approvals[task["id"]] = code_gen
+                    self._mark_task_status(task["id"], "generated")
+                    
+                    self._log_execution("code_generated", task["id"], {
+                        "iterations": iteration,
+                        "validation_passed": True,
+                        "language": code_gen.language,
+                        "files_generated": len(code_gen.files)
+                    })
+                    
+                    return True, code_gen
                 else:
-                    # Fallback when agent didn't include structured payload
-                    code_gen = CodeGeneration(
-                        task_id=task["id"],
-                        task_title=task["title"],
-                        language=result.metadata.get("language", "python"),
-                        files=[],  # Would be populated from agent output
-                        summary=result.output[:200] if result.output else "Code generated",
-                        execution_notes="",
-                        validation_passed=result.metadata.get("validation_passed", False)
-                    )
-                
-                # Store pending approval
-                self.pending_approvals[task["id"]] = code_gen
-                self._mark_task_status(task["id"], "generated")
-                
-                self._log_execution("code_generated", task["id"], result.metadata)
-                
-                logger.info(f"Code generated for task: {task['title']}")
-                return True, code_gen
-            else:
-                error_msg = f"Code generation failed: {result.output}"
-                self._mark_task_status(task["id"], "failed")
-                self._log_execution("code_generation_failed", task["id"], {"error": error_msg})
-                
-                logger.error(f"FAILED to generate code: {error_msg}")
-                return False, None
+                    # Validation failed - request refinement
+                    logger.warning(f"Code validation failed on iteration {iteration}: {validation_result['issues']}")
+                    
+                    if iteration < max_refinement_iterations:
+                        # Get feedback and refine
+                        logger.info("Requesting refinement from ConflictResolverAgent...")
+                        last_feedback = self._get_refinement_feedback(
+                            context, 
+                            code_gen, 
+                            validation_result['issues']
+                        )
+                        continue
+                    else:
+                        # Max iterations reached
+                        error_msg = f"Code validation failed after {max_refinement_iterations} refinement attempts"
+                        self._mark_task_status(task["id"], "failed")
+                        self._log_execution("code_generation_failed", task["id"], {
+                            "error": error_msg,
+                            "iterations": iteration,
+                            "validation_issues": validation_result['issues']
+                        })
+                        logger.error(error_msg)
+                        return False, None
+            
+            # Should not reach here
+            return False, None
                 
         except Exception as e:
             error_msg = f"Error during code generation: {str(e)}"
             self._mark_task_status(task["id"], "failed")
             self._log_execution("execution_error", task["id"], {"error": error_msg})
-            
-            logger.error(error_msg)
+            logger.error(error_msg, exc_info=True)
             return False, None
+    
+    def _parse_code_generation(self, result: AgentResult, task: Dict[str, Any]) -> CodeGeneration:
+        """Parse CodeGeneration from agent result."""
+        cg_payload = result.metadata.get("code_generation")
+        if cg_payload:
+            files = []
+            for f in cg_payload.get("files", []) or []:
+                deps_raw = f.get("dependencies") or []
+                deps = [str(d) for d in deps_raw]
+                files.append(
+                    CodeFile(
+                        path=f.get("path", ""),
+                        language=f.get("language", cg_payload.get("language", result.metadata.get("language", "python"))),
+                        content=f.get("content", ""),
+                        description=f.get("description", ""),
+                        test_code=f.get("test_code"),
+                        dependencies=deps
+                    )
+                )
+            return CodeGeneration(
+                task_id=task["id"],
+                task_title=task["title"],
+                language=cg_payload.get("language", result.metadata.get("language", "python")),
+                files=files,
+                summary=cg_payload.get("summary", result.output[:200] if result.output else "Code generated"),
+                execution_notes=cg_payload.get("execution_notes", ""),
+                validation_passed=cg_payload.get("validation_passed", result.metadata.get("validation_passed", False)),
+                raw_response_path=cg_payload.get("raw_response_path")
+            )
+        else:
+            # Fallback when agent didn't include structured payload
+            return CodeGeneration(
+                task_id=task["id"],
+                task_title=task["title"],
+                language=result.metadata.get("language", "python"),
+                files=[],
+                summary=result.output[:200] if result.output else "Code generated",
+                execution_notes="",
+                validation_passed=result.metadata.get("validation_passed", False),
+                raw_response_path=None
+            )
+    
+    def _validate_code_generation(self, code_gen: CodeGeneration, task: Dict[str, Any]) -> Dict[str, Any]:
+        """Validate generated code for syntax and quality.
+        
+        Returns:
+            Dict with 'success' (bool), 'issues' (list of problems), and metadata
+        """
+        issues = []
+        
+        if not code_gen.files:
+            issues.append("No files were generated")
+            return {"success": False, "issues": issues}
+        
+        for code_file in code_gen.files:
+            if not code_file.path:
+                issues.append(f"File has no path: {code_file.description}")
+                continue
+
+            # Determine by file extension whether this is Python source
+            try:
+                ext = Path(code_file.path).suffix.lower()
+            except Exception:
+                ext = ""
+            is_python_file = ext == ".py"
+
+            # Only enforce non-empty content for Python source files; allow empty __init__.py
+            if is_python_file:
+                if not code_file.content and not code_file.path.endswith("__init__.py"):
+                    issues.append(f"File {code_file.path} has no content")
+                    continue
+
+            # Language-specific validation
+            if is_python_file and (code_file.content or ""):
+                try:
+                    compile(code_file.content, code_file.path, 'exec')
+                except SyntaxError as e:
+                    issues.append(f"Python syntax error in {code_file.path}: {str(e)}")
+            elif (code_file.language or "").lower() in ["javascript", "typescript"]:
+                if code_file.content.count('{') != code_file.content.count('}'):
+                    issues.append(f"Mismatched braces in {code_file.path}")
+                if code_file.content.count('(') != code_file.content.count(')'):
+                    issues.append(f"Mismatched parentheses in {code_file.path}")
+        
+        return {
+            "success": len(issues) == 0,
+            "issues": issues,
+            "validated_files": len(code_gen.files)
+        }
+    
+    def _get_refinement_feedback(self, context: AgentContext, code_output, error_or_issues: Any) -> str:
+        """Use ConflictResolverAgent to analyze failures and provide feedback.
+        
+        Args:
+            context: Agent execution context
+            code_output: Generated code or CodeGeneration object
+            error_or_issues: Error message or list of validation issues
+            
+        Returns:
+            Feedback string for refinement
+        """
+        try:
+            from agents.conflict_resolver_agent import ConflictResolverAgent
+            
+            # Create a conflict resolver agent
+            conflict_resolver = ConflictResolverAgent(self.llm_client, verbose=False, retriever=None)
+            
+            # Prepare conflict analysis context
+            if isinstance(error_or_issues, list):
+                issues_str = "\n".join([f"- {issue}" for issue in error_or_issues])
+            else:
+                issues_str = str(error_or_issues)
+            
+            analysis_context = AgentContext(
+                project_id=context.project_id,
+                project_name=context.project_name,
+                project_description=context.project_description,
+                user_input=f"Analyze these code generation issues and provide specific feedback for refinement:\n\n{issues_str}\n\nGenerated code:\n{str(code_output)[:1000]}",
+                metadata={
+                    "conflict_type": "code_generation_failure",
+                    "issues": issues_str,
+                    "task_id": context.metadata.get("task_id"),
+                    "task_title": context.metadata.get("task_title"),
+                    "project_id": context.project_id,
+                }
+            )
+            
+            # Get feedback from conflict resolver
+            feedback_result = conflict_resolver.execute(analysis_context)
+            
+            if feedback_result.success:
+                logger.info("ConflictResolverAgent provided refinement feedback")
+                return feedback_result.output[:500]  # Limit feedback length
+            else:
+                logger.warning(f"ConflictResolverAgent failed: {feedback_result.error}")
+                return "Fix syntax errors and ensure proper indentation"
+        
+        except Exception as e:
+            logger.warning(f"Failed to get refinement feedback: {str(e)}")
+            return "Fix the validation errors and try again"
+
+    def _auto_fix_code_generation(self, code_gen: CodeGeneration) -> CodeGeneration:
+        """Attempt lightweight auto-fixes for common issues before validation.
+
+        Focuses on Python indentation errors by inserting 'pass' after
+        control statements lacking a block.
+        """
+        try:
+            if not code_gen or not code_gen.files:
+                return code_gen
+
+            # Only auto-fix Python code
+            if (code_gen.language or "").lower() != "python":
+                return code_gen
+
+            fixed_files: List[CodeFile] = []
+            for cf in code_gen.files:
+                content = cf.content or ""
+                fixed = self._auto_fix_python(content)
+                cf.content = fixed
+                fixed_files.append(cf)
+
+            code_gen.files = fixed_files
+            return code_gen
+        except Exception as e:
+            logger.warning(f"Auto-fix pass failed: {e}")
+            return code_gen
+
+    def _auto_fix_python(self, content: str) -> str:
+        """Fix common Python syntax issues heuristically.
+
+        - Inserts an indented 'pass' after lines ending with ':' when the next
+          line is not indented, addressing 'expected an indented block' errors.
+        Attempts up to 3 iterations.
+        """
+        if not content:
+            return content
+
+        def _indent_level(line: str) -> int:
+            return len(line) - len(line.lstrip(" "))
+
+        for _ in range(3):
+            try:
+                compile(content, "<auto-fix>", "exec")
+                return content
+            except SyntaxError as e:
+                msg = str(e)
+                lineno = getattr(e, "lineno", None)
+                if lineno and ("expected an indented block" in msg or "expected an indented block" in (getattr(e, 'msg', '') or "")):
+                    lines = content.splitlines()
+                    idx = max(0, min(len(lines) - 1, lineno - 1))
+                    # Determine indent of the control line
+                    base_indent = _indent_level(lines[idx])
+                    # If next line missing or not indented, insert 'pass'
+                    next_indent = _indent_level(lines[idx + 1]) if idx + 1 < len(lines) else -1
+                    if next_indent <= base_indent:
+                        insert_line = " " * (base_indent + 4) + "pass"
+                        lines.insert(idx + 1, insert_line)
+                        content = "\n".join(lines)
+                        continue
+                # If we cannot fix, break
+                break
+        return content
     
     def approve_and_apply_code(
         self,
@@ -400,60 +633,6 @@ class ExecutionEngine:
             for task_id, code_gen in self.pending_approvals.items()
         }
 
-
-import asyncio
-from pathlib import Path as _Path
-
-
-class Executor:
-    """Compatibility adapter providing a lightweight async Executor API
-    used by the frontend API module. This wraps the existing
-    ExecutionEngine and runs execution in a background thread so
-    the FastAPI endpoints can `await` the calls.
-    """
-
-    def __init__(self):
-        self.state_manager = StateManager()
-        self._engines: Dict[str, ExecutionEngine] = {}
-
-    async def execute_workflow(self, project_id: str) -> str:
-        """Start execution for a project's pending tasks in background.
-
-        Returns a generated execution id immediately.
-        """
-        try:
-            project = self.state_manager.get_project(project_id) or {"name": f"project-{project_id}"}
-            project_name = project.get("name", f"project-{project_id}")
-            engine = ExecutionEngine(project_name, self.state_manager, project_root=str(_Path.cwd()))
-            exec_id = f"exec-{int(datetime.utcnow().timestamp())}"
-
-            # Run the synchronous execution in a background thread
-            asyncio.create_task(asyncio.to_thread(engine.execute_all_pending_tasks))
-
-            # Keep a reference if needed for status checks
-            self._engines[exec_id] = engine
-            return exec_id
-        except Exception:
-            return "exec-error"
-
-    async def get_execution_status(self, execution_id: str) -> Dict[str, Any]:
-        """Return a simple status for the execution id.
-
-        This is a lightweight implementation which can be extended
-        to return real progress information from the engine.
-        """
-        engine = self._engines.get(execution_id)
-        if not engine:
-            return {"execution_id": execution_id, "status": "unknown"}
-
-        # Provide a basic summary from the execution engine
-        return {
-            "execution_id": execution_id,
-            "status": "running",
-            "pending_approvals": len(engine.get_pending_approvals()),
-            "executions_logged": len(engine.execution_log or [])
-        }
-    
     def get_execution_summary(self) -> Dict[str, Any]:
         """Get overall execution summary."""
         try:
@@ -529,3 +708,76 @@ class Executor:
     def get_execution_log(self) -> List[Dict[str, Any]]:
         """Get execution log."""
         return self.execution_log.copy()
+
+
+import asyncio
+from pathlib import Path as _Path
+
+
+class Executor:
+    """Compatibility adapter providing a lightweight async Executor API
+    used by the frontend API module. This wraps the existing
+    ExecutionEngine and runs execution in a background thread so
+    the FastAPI endpoints can `await` the calls.
+    """
+
+    def __init__(self):
+        self.state_manager = StateManager()
+        self._engines: Dict[str, ExecutionEngine] = {}
+
+    async def execute_workflow(self, project_id: str) -> str:
+        """Start execution for a project's pending tasks in background.
+
+        Returns a generated execution id immediately.
+        """
+        try:
+            project = self.state_manager.get_project(project_id) or {"name": f"project-{project_id}"}
+            project_name = project.get("name", f"project-{project_id}")
+            engine = ExecutionEngine(project_name, self.state_manager, project_root=str(_Path.cwd()))
+            exec_id = f"exec-{int(datetime.utcnow().timestamp())}"
+
+            # Run the synchronous execution in a background thread
+            asyncio.create_task(asyncio.to_thread(engine.execute_all_pending_tasks))
+
+            # Keep a reference if needed for status checks
+            self._engines[exec_id] = engine
+            return exec_id
+        except Exception:
+            return "exec-error"
+
+    async def get_execution_status(self, execution_id: str) -> Dict[str, Any]:
+        """Return a simple status for the execution id.
+
+        This is a lightweight implementation which can be extended
+        to return real progress information from the engine.
+        """
+        engine = self._engines.get(execution_id)
+        if not engine:
+            return {"execution_id": execution_id, "status": "unknown"}
+
+        # Provide a basic summary from the execution engine
+        return {
+            "execution_id": execution_id,
+            "status": "running",
+            "pending_approvals": len(engine.get_pending_approvals()),
+            "executions_logged": len(engine.execution_log or [])
+        }
+    
+    def _topological_sort(self, tasks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Sort tasks by dependencies (topological sort)."""
+        # Simplified - real implementation would use graph algorithms
+        return tasks
+    
+    def _log_execution(self, action: str, task_id: int, metadata: Dict[str, Any]) -> None:
+        """Log an execution event."""
+        self.execution_log.append({
+            "timestamp": datetime.now().isoformat(),
+            "action": action,
+            "task_id": task_id,
+            "metadata": metadata
+        })
+    
+    def get_execution_log(self) -> List[Dict[str, Any]]:
+        """Get execution log."""
+        return self.execution_log.copy()
+

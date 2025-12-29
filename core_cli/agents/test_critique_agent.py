@@ -29,12 +29,29 @@ class TestCritiqueAgent(BaseAgent):
         """
         super().__init__(
             name="TestCritiqueAgent",
+            description="Analyzes code and generates test recommendations",
             llm_client=llm_client,
             verbose=verbose,
             retriever=retriever
         )
         self.analyzer = None
         self.generator = None
+    
+    def get_system_prompt(self) -> str:
+        """Get system prompt for test critique agent."""
+        return """You are an expert software testing analyst.
+        
+Your role is to analyze code and provide recommendations for test coverage,
+identify untested edge cases, and suggest test scenarios.
+
+Focus on:
+- Unit test coverage
+- Integration test needs
+- Edge cases and error handling
+- Security testing
+- Performance testing where relevant
+
+Return your analysis in clear, actionable format."""
     
     def validate_context(self, context: AgentContext) -> bool:
         """Validate context has required information.

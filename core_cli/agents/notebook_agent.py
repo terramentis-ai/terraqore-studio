@@ -134,20 +134,21 @@ class NotebookAgent(BaseAgent):
         }
     }
     
-    def __init__(self, llm_client: LLMClient, verbose: bool = True):
+    def __init__(self, llm_client: LLMClient, verbose: bool = True, retriever: object = None):
         """Initialize Notebook Agent.
         
         Args:
-            llm_client: LLM client for AI interactions.
+            llm_client: LLM client for code generation.
             verbose: Whether to log detailed execution info.
+            retriever: Optional RAG retriever for context.
         """
-            super().__init__(
-                name="NotebookAgent",
-                description="Generates Jupyter notebooks for data science and analysis",
-                llm_client=llm_client,
-                verbose=verbose,
-                retriever=retriever
-            )
+        super().__init__(
+            name="NotebookAgent",
+            description="Generates Jupyter notebooks for data science and analysis",
+            llm_client=llm_client,
+            verbose=verbose,
+            retriever=retriever
+        )
         self.state_mgr = get_state_manager()
     
     def get_system_prompt(self) -> str:

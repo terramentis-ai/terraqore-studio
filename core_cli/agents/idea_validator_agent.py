@@ -60,19 +60,19 @@ class IdeaValidatorAgent(BaseAgent):
     - Complexity assessment
     """
     
-    def __init__(self, llm_client=None, verbose: bool = False):
+    def __init__(self, llm_client=None, verbose: bool = False, retriever: object = None):
         """Initialize Idea Validator Agent.
         
         Args:
             llm_client: LLM client for AI interactions.
             verbose: Whether to log detailed execution info.
+            retriever: Optional RAG retriever for context.
         """
         super().__init__(
             name="IdeaValidatorAgent",
             description="Validates project feasibility, identifies risks, and assesses complexity",
             llm_client=llm_client,
-            verbose=verbose,
-            retriever=retriever
+            verbose=verbose
         )
         
         # Feasibility rubric

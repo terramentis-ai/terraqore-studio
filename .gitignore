@@ -1,4 +1,29 @@
-﻿# =============================================================================
+﻿venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+ENV/
+.env
+/.vscode/
+/.idea/
+node_modules/
+dist/
+build/
+logs/
+data/
+.pytest_cache/
+.mypy_cache/
+npm-debug.log
+yarn-error.log
+coverage.xml
+*.db
+*.sqlite
+/.venv/
+/.DS_Store
+/.cache# =============================================================================
 # TERRAQORE .gitignore
 # Professional project configuration
 # =============================================================================

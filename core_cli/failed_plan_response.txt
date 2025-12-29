@@ -1,0 +1,167 @@
+```json
+[
+  {
+    "title": "Set up Python environment and project structure",
+    "description": "Initialize a Python virtual environment, create basic project directories (e.g., `src`, `data`, `config`), and set up a `requirements.txt` file. Done when a virtual environment is active and project structure is defined.",
+    "milestone": "Setup & Infrastructure",
+    "priority": 2,
+    "estimated_hours": 2,
+    "dependencies": [],
+    "agent_type": "CoderAgent"
+  },
+  {
+    "title": "Install core dependencies",
+    "description": "Install essential libraries like `langchain`, `openai` (or chosen LLM client), `fastapi` (for API) or `streamlit` (for UI), and a vector database client (e.g., `chromadb`, `pinecone-client`). Done when all specified libraries are installed and listed in `requirements.txt`.",
+    "milestone": "Setup & Infrastructure",
+    "priority": 2,
+    "estimated_hours": 1,
+    "dependencies": ["Set up Python environment and project structure"],
+    "agent_type": "CoderAgent"
+  },
+  {
+    "title": "Configure API keys and environment variables",
+    "description": "Set up a `.env` file or similar mechanism to securely store API keys for the LLM provider and any other external services. Done when API keys are configured and accessible via environment variables.",
+    "milestone": "Setup & Infrastructure",
+    "priority": 2,
+    "estimated_hours": 0.5,
+    "dependencies": ["Install core dependencies"],
+    "agent_type": "manual"
+  },
+  {
+    "title": "Research suitable data sources for job search",
+    "description": "Identify potential sources for job-related information (e.g., sample job descriptions, career advice articles, public datasets). Focus on acquiring diverse content relevant to a job search assistant. Done when a list of 2-3 viable data sources or types is compiled.",
+    "milestone": "Data Ingestion & Retrieval (RAG Core)",
+    "priority": 2,
+    "estimated_hours": 3,
+    "dependencies": [],
+    "agent_type": "ResearchAgent"
+  },
+  {
+    "title": "Define data schema for job information",
+    "description": "Outline a JSON or dictionary schema for how job-related documents will be structured (e.g., `title`, `description`, `requirements`, `company`, `url`). This schema will guide data ingestion. Done when a clear data schema is documented.",
+    "milestone": "Data Ingestion & Retrieval (RAG Core)",
+    "priority": 1,
+    "estimated_hours": 2,
+    "dependencies": ["Research suitable data sources for job search"],
+    "agent_type": "CoderAgent"
+  },
+  {
+    "title": "Implement data loader for sample job data",
+    "description": "Create a script to load a small dataset of job descriptions or career advice (e.g., from a local CSV, JSON file, or dummy data) into a list of document objects conforming to the defined schema. Done when the script successfully loads and parses the sample data.",
+    "milestone": "Data Ingestion & Retrieval (RAG Core)",
+    "priority": 2,
+    "estimated_hours": 4,
+    "dependencies": ["Define data schema for job information"],
+    "agent_type": "CoderAgent"
+  },
+  {
+    "title": "Choose and set up a vector database",
+    "description": "Select a vector database (e.g., ChromaDB for local, Pinecone/Weaviate for cloud) and initialize it within the project. This includes configuring the client and ensuring connectivity. Done when the chosen vector database is set up and ready to receive embeddings.",
+    "milestone": "Data Ingestion & Retrieval (RAG Core)",
+    "priority": 2,
+    "estimated_hours": 4,
+    "dependencies": ["Install core dependencies"],
+    "agent_type": "CoderAgent"
+  },
+  {
+    "title": "Implement text chunking and embedding generation",
+    "description": "Develop a component that takes raw text documents, splits them into smaller chunks suitable for embedding, and generates embeddings for each chunk using a chosen embedding model (e.g., OpenAI Embeddings, Sentence Transformers). Done when a list of text chunks and their corresponding embeddings can be generated from input documents.",
+    "milestone": "Data Ingestion & Retrieval (RAG Core)",
+    "priority": 2,
+    "estimated_hours": 6,
+    "dependencies": ["Implement data loader for sample job data", "Configure API keys and environment variables"],
+    "agent_type": "CoderAgent"
+  },
+  {
+    "title": "Store embeddings in vector database",
+    "description": "Write a function to take the generated text chunks and their embeddings and store them in the configured vector database. Ensure metadata (like original document source or ID) is also stored. Done when the sample data's embeddings are successfully indexed in the vector DB.",
+    "milestone": "Data Ingestion & Retrieval (RAG Core)",
+    "priority": 2,
+    "estimated_hours": 3,
+    "dependencies": ["Implement text chunking and embedding generation", "Choose and set up a vector database"],
+    "agent_type": "CoderAgent"
+  },
+  {
+    "title": "Develop retrieval function from vector DB",
+    "description": "Create a function that takes a user query, generates its embedding, and queries the vector database to retrieve the top N most relevant text chunks. Done when the function returns relevant text snippets based on a test query.",
+    "milestone": "Data Ingestion & Retrieval (RAG Core)",
+    "priority": 2,
+    "estimated_hours": 5,
+    "dependencies": ["Store embeddings in vector database"],
+    "agent_type": "CoderAgent"
+  },
+  {
+    "title": "Select and integrate LLM",
+    "description": "Choose a specific Large Language Model (e.g., OpenAI's GPT-3.5, a local Hugging Face model) and integrate its API or library into the project. Implement a basic function to send a prompt and receive a response. Done when a simple text prompt can be sent to the LLM and a response is received.",
+    "milestone": "Chatbot Core",
+    "priority": 2,
+    "estimated_hours": 3,
+    "dependencies": ["Install core dependencies", "Configure API keys and environment variables"],
+    "agent_type": "CoderAgent"
+  },
+  {
+    "title": "Implement basic chat interface (CLI/Web)",
+    "description": "Build a minimal user interface for interacting with the chatbot. For MVP, this could be a command-line interface or a simple web page using Streamlit/FastAPI. Done when a user can type a message and send it to a backend handler.",
+    "milestone": "Chatbot Core",
+    "priority": 2,
+    "estimated_hours": 6,
+    "dependencies": ["Install core dependencies"],
+    "agent_type": "CoderAgent"
+  },
+  {
+    "title": "Develop initial LLM prompt template",
+    "description": "Create a basic prompt template that includes system instructions (e.g., 'You are a helpful job search assistant') and a placeholder for user input. Done when a structured prompt can be generated for the LLM.",
+    "milestone": "Chatbot Core",
+    "priority": 1,
+    "estimated_hours": 2,
+    "dependencies": ["Select and integrate LLM"],
+    "agent_type": "CoderAgent"
+  },
+  {
+    "title": "Integrate retrieval into LLM chain",
+    "description": "Combine the retrieval function with the LLM. The user's query first goes to the retriever, relevant chunks are fetched, and then these chunks are injected into the LLM's prompt as context before generating a response. Done when the LLM's responses are clearly informed by the retrieved context.",
+    "milestone": "RAG Integration & Chat Flow",
+    "priority": 2,
+    "estimated_hours": 7,
+    "dependencies": ["Develop retrieval function from vector DB", "Develop initial LLM prompt template"],
+    "agent_type": "CoderAgent"
+  },
+  {
+    "title": "Implement conversational memory",
+    "description": "Add a mechanism to store and retrieve past turns of conversation, allowing the chatbot to maintain context over multiple interactions. This could be a simple list of messages or a more advanced memory buffer. Done when the chatbot can reference previous statements in its responses.",
+    "milestone": "RAG Integration & Chat Flow",
+    "priority": 1,
+    "estimated_hours": 5,
+    "dependencies": ["Integrate retrieval into LLM chain"],
+    "agent_type": "CoderAgent"
+  },
+  {
+    "title": "Refine RAG prompt for job search context",
+    "description": "Iteratively improve the prompt template to guide the LLM to use the retrieved job data effectively and answer job search-specific questions accurately and helpfully. Done when the chatbot consistently provides relevant and well-structured answers using the retrieved context.",
+    "milestone": "RAG Integration & Chat Flow",
+    "priority": 2,
+    "estimated_hours": 4,
+    "dependencies": ["Integrate retrieval into LLM chain", "Implement conversational memory"],
+    "agent_type": "CoderAgent"
+  },
+  {
+    "title": "Develop unit tests for core RAG components",
+    "description": "Write unit tests for data loading, chunking, embedding generation, and vector database retrieval functions. Done when all core RAG functions have passing unit tests covering common scenarios.",
+    "milestone": "Testing & Refinement",
+    "priority": 1,
+    "estimated_hours": 6,
+    "dependencies": ["Store embeddings in vector database", "Develop retrieval function from vector DB"],
+    "agent_type": "TestAgent"
+  },
+  {
+    "title": "Perform end-to-end testing of chatbot",
+    "description": "Conduct comprehensive tests of the full chatbot flow, submitting various job search queries, checking for accurate RAG, conversational coherence, and error handling. Done when a set of test cases is executed, and major bugs are identified and logged.",
+    "milestone": "Testing & Refinement",
+    "priority": 2,
+    "estimated_hours": 7,
+    "dependencies": ["Refine RAG prompt for job search context"],
+    "agent_type": "TestAgent"
+  },
+  {
+    "title": "Containerize application using Docker",
+    "description": "Create a `Dockerfile` to containerize the RAG chatbot application, including all dependencies and the
