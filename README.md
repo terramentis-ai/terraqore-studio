@@ -169,3 +169,18 @@ This repository is released under the MIT License — see `core_cli/LICENSE`.
 For full, developer-level documentation, see `Marketing/Doclogs/FLYNT_STUDIO_COMPLETE_DOCUMENTATION.md` or the docs folder if present.
 
 **TERRAQORE Studio** — enterprise-grade agentic AI tooling
+
+## Release v1.1 — 2025-12-29
+
+Summary: focused stability and reliability improvements — hardening the orchestration core to ensure robust, production-safe workflows.
+
+Key updates in v1.1:
+- Orchestrator transactional persistence (WAL/checkpointing) to avoid task loss on crashes
+- Dead-letter queue, retry policies, and exponential backoff for transient failures
+- Watchdog heartbeats and improved health checks for orchestration components
+- Concurrency controls and resource guards per-agent to prevent interference
+- Improved scheduler (priority handling, preemption) and race-condition fixes
+- Structured logs, trace IDs, and Prometheus metrics for observability
+- Stricter input/task schema validation and sandbox hardening for execution safety
+
+Migration notes: these upgrades are backward compatible for existing workflows, but test on staging before upgrading production. See `CHANGELOG.md` for full details.
