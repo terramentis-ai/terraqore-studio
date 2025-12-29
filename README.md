@@ -1,6 +1,6 @@
 # 🚀 TERRAQORE Studio
 
-![TerraQore Studio Banner](docs/terraqore_banner.jpg)
+![TerraQore Studio Banner](docs/terraqore_banner.jpeg)
 
 > Enterprise agentic AI development platform — unified documentation
 
