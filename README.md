@@ -1,186 +1,375 @@
 # 🚀 TERRAQORE Studio
 
-> Enterprise agentic AI development platform — unified documentation
+![TerraQore Banner](terraqore_banner.jpeg)
+
+> Enterprise-Grade Meta-Agentic AI Development Platform
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/) [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
 
-TERRAQORE Studio (TerraQore) is a comprehensive meta-agentic system that orchestrates specialized AI agents to ideate, plan, generate, validate, and deploy production-ready AI projects.
+**TerraQore Studio** is a comprehensive meta-agentic orchestration platform that coordinates 9 specialized AI agents through a complete project lifecycle: ideation → validation → planning → code generation → quality validation → security scanning → deployment.
 
-## Key Highlights
+---
 
-- Multi-provider LLM support with provider fallback and cost optimizations
-- Multi-agent orchestration (ideation, planning, coding, validation, MLOps, DevOps)
-- Secure sandboxed execution, prompt-injection defenses, and audit logging
-- Built-in ML lifecycle tools: experiment tracking, model registry, and serving
-- DevOps generators: Docker, Kubernetes, CloudFormation, Terraform
+## 🏗️ Architecture Overview
 
-## Unified Quick Start
+### Core Components
 
-Prerequisites:
-- Python 3.10+
-- Node.js 18+ (optional, for the GUI)
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    CLI / API / GUI Layer                     │
+│              (User Interface & Interaction)                  │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+┌──────────────────────▼──────────────────────────────────────┐
+│              Agent Orchestrator & Workflow Engine            │
+│        (State Management, Task Sequencing, PSMP)            │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+┌──────────────────────▼──────────────────────────────────────┐
+│                  9 Specialized AI Agents                     │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐            │
+│  │   Idea     │  │  Validator │  │  Planner   │            │
+│  └────────────┘  └────────────┘  └────────────┘            │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐            │
+│  │   Coder    │  │ CodeValida │  │  Security  │            │
+│  └────────────┘  └────────────┘  └────────────┘            │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐            │
+│  │  Notebook  │  │  Conflict  │  │   Test     │            │
+│  └────────────┘  └────────────┘  └────────────┘            │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+┌──────────────────────▼──────────────────────────────────────┐
+│            Multi-Provider LLM Client Layer                   │
+│   ┌─────────────────┐         ┌──────────────────┐         │
+│   │   OpenRouter    │  ◄──►   │     Ollama       │         │
+│   │   (Primary)     │         │   (Fallback)     │         │
+│   └─────────────────┘         └──────────────────┘         │
+│        300+ Models                  Local Models            │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+┌──────────────────────▼──────────────────────────────────────┐
+│              Core Services & Infrastructure                  │
+│   • SQLite State Management   • Security Validator          │
+│   • PSMP Conflict Detection   • Research Tool (ddgs)        │
+│   • Build Data Collector      • Attribution System          │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Agent Specialization
+
+Each agent operates with a dynamic **PROMPT_PROFILE** system that injects context-aware instructions:
+
+| Agent | Role | Input | Output |
+|-------|------|-------|--------|
+| **IdeaAgent** | Innovation specialist | User concept | Research-backed variations |
+| **IdeaValidatorAgent** | Feasibility analyst | Generated ideas | Feasibility scores & risks |
+| **PlannerAgent** | Task architect | Validated idea | Dependency graph & milestones |
+| **CoderAgent** | Implementation engineer | Task breakdown | Production-ready code |
+| **CodeValidationAgent** | QA reviewer | Generated code | Quality score & issues |
+| **SecurityVulnerabilityAgent** | Red-team auditor | Codebase | OWASP/CWE vulnerability report |
+| **NotebookAgent** | Jupyter specialist | ML/DS tasks | Interactive notebooks |
+| **ConflictResolverAgent** | Merge coordinator | Artifact conflicts | Resolution strategy |
+| **TestCritiqueAgent** | Coverage strategist | Code repository | Test recommendations |
+
+---
+
+## 🎯 Key Features
+
+### 🤖 Intelligent Orchestration
+- **6-Stage Pipeline**: Automatic progression through ideation, validation, planning, coding, quality checks, and security scanning
+- **PSMP Protocol**: Project State Management Protocol prevents artifact conflicts and blocks unsafe operations
+- **Adaptive Routing**: Task-specific LLM model selection (e.g., Claude for coding, GPT-4 for analysis)
+
+### 🔐 Enterprise Security
+- **Prompt Injection Defense**: Built-in security validator scans all agent inputs
+- **Sandboxed Execution**: Docker-based isolation for untrusted code
+- **Audit Logging**: Full execution trace with structured JSONL logs
+- **Vulnerability Scanning**: Automated OWASP Top 10 & CWE mapping
+
+### 🌐 Multi-Provider LLM Support
+- **Primary**: OpenRouter (300+ models via unified API)
+- **Fallback**: Ollama (offline-capable local models)
+- **Smart Routing**: Automatic provider selection based on availability and task type
+- **Cost Optimization**: Configurable per-agent model selection
+
+### 📊 Production ML Lifecycle
+- Experiment tracking and model registry
+- Automated hyperparameter tuning
+- Model serving and deployment orchestration
+- Data drift and performance monitoring
+
+### ⚙️ DevOps Automation
+- Infrastructure-as-Code generation (Terraform, CloudFormation)
+- Container orchestration (Docker, Kubernetes)
+- CI/CD pipeline scaffolding (GitHub Actions, GitLab CI)
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Python 3.10+ (tested on 3.14.2)
+- Node.js 18+ (optional, for GUI)
 - Docker (optional, for sandboxed execution)
 
-Install and prepare:
+### Installation
 
 ```powershell
-# From repository root
+# Clone and setup environment
+git clone <repository-url>
+cd terraqore_studio
 python -m venv .venv
 .\\.venv\\Scripts\\Activate.ps1
 pip install -r requirements.txt
 
-# copy example settings and edit API keys
-copy core_cli\\config\\settings.example.yaml core_cli\\config\\settings.yaml
-# edit settings.yaml to add provider keys and options
+# Configure LLM providers
+copy core_cli\\config\\settings.example.yaml config\\settings.yaml
+# Edit config/settings.yaml with your API keys
 ```
 
-Run CLI help:
+### Configuration Example
+
+```yaml
+llm:
+  primary_provider: openrouter
+  fallback_provider: ollama
+
+  openrouter:
+    api_key: "sk-or-v1-..."  # Or set OPENROUTER_API_KEY env var
+    model: openai/gpt-4o-mini
+    temperature: 0.7
+
+  ollama:
+    base_url: "http://localhost:11434"
+    model: phi3.5:latest
+    temperature: 0.3
+
+  task_routing:
+    ideation:
+      provider: openrouter
+      model: meta-llama/llama-3.1-70b-instruct
+    code:
+      provider: openrouter
+      model: anthropic/claude-3.5-sonnet
+```
+
+### Basic Usage
+
+```powershell
+# Initialize TerraQore
+cd core_cli
+python -m cli.main init
+
+# Create a new project
+python -m cli.main new "AI Code Review Assistant"
+
+# Run ideation phase (research + variations)
+python -m cli.main ideate "AI Code Review Assistant"
+
+# Generate project plan
+python -m cli.main plan "AI Code Review Assistant"
+
+# List all projects
+python -m cli.main list
+
+# View project details
+python -m cli.main show "AI Code Review Assistant"
+```
+
+### API Server
 
 ```powershell
 cd core_cli
-python -m cli.main --help
+python -m cli.main backend_main:app --reload
+# Server runs on http://localhost:8000
 ```
 
-Run API server (development):
-
-```powershell
-cd terraqore_api
-uvicorn app:app --reload --port 8000
-```
-
-Run GUI (optional):
+### GUI (Optional)
 
 ```powershell
 cd gui
 npm install
 npm run dev
+# GUI runs on http://localhost:5173
 ```
-
-## Canonical Configuration (example)
-
-Edit `config/settings.yaml` or `core_cli/config/settings.yaml` depending on your setup. Example canonical fields:
-
-```yaml
-llm:
-  primary_provider: "gemini"
-  fallback_provider: "groq"
-
-  gemini:
-    model: "gemini-1.5-flash"
-    temperature: 0.7
-    max_tokens: 4096
-    api_key: ${GEMINI_API_KEY}
-
-  groq:
-    model: "llama-3.1-70b-versatile"
-    temperature: 0.7
-    max_tokens: 4096
-    api_key: ${GROQ_API_KEY}
-
-system:
-  max_retries: 3
-  timeout: 30
-  debug: false
-
-agents:
-  enable_ideas: true
-  enable_planning: true
-  enable_coding: true
-  enable_validation: true
-  enable_ml: true
-  enable_devops: true
-
-database:
-  type: "sqlite"
-  path: "./data/terraqore.db"
-
-output:
-  backup_existing: true
-  log_level: "INFO"
-```
-
-Set API keys as environment variables (PowerShell example):
-
-```powershell
-$env:GEMINI_API_KEY = "your_key"
-$env:GROQ_API_KEY = "your_key"
-```
-
-## Project Layout (summary)
-
-```
-terraqore-studio/
-├── core_cli/           # Core Python backend & CLI (primary runtime)
-│   ├── agents/         # Specialized AI agents
-│   ├── core/           # Core services & utilities
-│   └── orchestration/  # Agent orchestration
-├── terraqore_api/      # FastAPI REST service
-├── gui/                # React/TypeScript frontend (optional)
-├── projects/           # Generated project artifacts
-├── config/             # Global configuration
-└── tests/              # Test suites and e2e harnesses
-```
-
-## Workflow Commands (CLI reference)
-
-Use the `TerraQore` CLI (or the `cli.main` module) to run phases:
-
-```bash
-TerraQore init                 # Initialize system
-TerraQore new <name>           # Create project
-TerraQore ideate <name>        # Ideation phase
-TerraQore plan <name>          # Planning phase
-TerraQore generate <name>      # Generate code (stack choices supported)
-TerraQore validate <name>      # Security and quality validations
-TerraQore train <name>         # Run ML training pipelines
-TerraQore deploy <name>        # Deploy (targets: k8s, aws-lambda, docker-compose)
-```
-
-## Security & Auditing
-
-- Prompt injection detection and mitigation
-- Hallucination detection and AST/spec verification
-- Sandboxed Docker-based execution with resource limits
-- Execution audit logs (JSONL) for traceability
-
-## Testing
-
-Run automated tests from the repository root:
-
-```powershell
-cd core_cli
-pytest tests/ -v
-```
-
-## Troubleshooting (common)
-
-- "API Key Not Found": verify environment variables or `core_cli/config/settings.yaml` entries
-- "Module Import Errors": `pip install -r requirements.txt` or `pip install -e .`
-- "Database Locked": ensure no other TerraQore instance is running; remove `data/terraqore.db` to reset
-
-## Contributing & License
-
-Contributions welcome. See `core_cli/CONTRIBUTING.md` for contribution guidelines.
-
-This repository is released under the MIT License — see `core_cli/LICENSE`.
 
 ---
 
-For full, developer-level documentation, see `Marketing/Doclogs/FLYNT_STUDIO_COMPLETE_DOCUMENTATION.md` or the docs folder if present.
+## 📁 Project Structure
 
-**TERRAQORE Studio** — enterprise-grade agentic AI tooling
+```
+terraqore_studio/
+├── core_cli/                 # Primary backend & CLI
+│   ├── agents/              # 9 specialized AI agents
+│   │   ├── base.py         # BaseAgent with PROMPT_PROFILE system
+│   │   ├── idea_agent.py
+│   │   ├── planner_agent.py
+│   │   ├── coder_agent.py
+│   │   └── ...
+│   ├── core/                # Core services
+│   │   ├── llm_client.py   # Multi-provider LLM abstraction
+│   │   ├── state.py        # SQLite state management
+│   │   ├── security_validator.py
+│   │   └── psmp/           # Project State Management Protocol
+│   ├── orchestration/       # Workflow coordination
+│   │   └── orchestrator.py
+│   ├── tools/              # Utility tools
+│   │   └── research.py     # Web search (ddgs)
+│   └── cli/                # Command-line interface
+│       └── main.py
+├── terraqore_api/          # FastAPI REST service
+├── gui/                    # React frontend
+├── config/                 # Global configuration
+│   └── settings.yaml
+├── data/                   # SQLite databases & artifacts
+└── projects/              # Generated project outputs
+```
 
-## Release v1.1 — 2025-12-29
+---
 
-Summary: focused stability and reliability improvements — hardening the orchestration core to ensure robust, production-safe workflows.
+## 🔧 Workflow Pipeline
 
-Key updates in v1.1:
-- Orchestrator transactional persistence (WAL/checkpointing) to avoid task loss on crashes
-- Dead-letter queue, retry policies, and exponential backoff for transient failures
-- Watchdog heartbeats and improved health checks for orchestration components
-- Concurrency controls and resource guards per-agent to prevent interference
-- Improved scheduler (priority handling, preemption) and race-condition fixes
-- Structured logs, trace IDs, and Prometheus metrics for observability
-- Stricter input/task schema validation and sandbox hardening for execution safety
+### 1. **Ideation** (IdeaAgent)
+- Researches current trends using ddgs search
+- Generates 3-5 project variations
+- Refines recommendations based on feasibility
 
-Migration notes: these upgrades are backward compatible for existing workflows, but test on staging before upgrading production. See `CHANGELOG.md` for full details.
+### 2. **Validation** (IdeaValidatorAgent)
+- Scores technical, timeline, and resource feasibility (0-10)
+- Identifies risks and mitigation strategies
+- Gates progression to planning phase
+
+### 3. **Planning** (PlannerAgent)
+- Breaks project into tasks with dependencies
+- Generates milestones and time estimates
+- Creates execution roadmap
+
+### 4. **Code Generation** (CoderAgent)
+- Implements tasks according to plan
+- Generates production-ready code
+- Follows language-specific best practices
+
+### 5. **Code Validation** (CodeValidationAgent)
+- Scores code quality (0-10)
+- Checks style, documentation, error handling
+- Blocks deployment if score < 6.0
+
+### 6. **Security Scanning** (SecurityVulnerabilityAgent)
+- Scans for OWASP Top 10 vulnerabilities
+- Maps findings to CWE/CVE standards
+- Flags critical issues for remediation
+
+---
+
+## 🧪 Testing
+
+```powershell
+# Run regression tests
+python test_terraqore.py
+
+# Run full test suite
+cd core_cli
+pytest tests/ -v
+
+# Test specific agent
+pytest tests/test_agents.py::TestIdeaAgent -v
+```
+
+---
+
+## 🐛 Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| **"No API key found"** | Set `OPENROUTER_API_KEY` env var or configure in `config/settings.yaml` |
+| **"Ollama unavailable"** | Non-blocking if primary provider is configured; install Ollama for offline mode |
+| **Import errors** | Ensure `pip install -r requirements.txt` completed successfully |
+| **Database locked** | Stop all TerraQore instances; remove `data/terraqore.db` to reset |
+| **Research tool warnings** | `pip install ddgs>=9.10.0` to update search dependency |
+
+---
+
+## 📊 System Requirements
+
+- **Python**: 3.10+ (tested on 3.14.2)
+- **Memory**: 4GB minimum, 8GB recommended
+- **Storage**: 500MB for installation + generated artifacts
+- **Network**: Required for OpenRouter API (optional for offline Ollama mode)
+
+### Python 3.14 Compatibility Notes
+- Core runtime fully compatible
+- Some dev tools (black, flake8, mypy) may require C++ compiler
+- Use wheel-only installs or downgrade to Python 3.12 if needed
+
+---
+
+## 🤝 Contributing
+
+Contributions welcome! See [CONTRIBUTING.md](core_cli/CONTRIBUTING.md) for guidelines.
+
+### Development Setup
+
+```powershell
+# Install dev dependencies
+pip install -r core_cli/requirements.txt
+
+# Run linters
+black core_cli/
+flake8 core_cli/
+
+# Run type checks
+mypy core_cli/
+```
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see [LICENSE](core_cli/LICENSE) for details.
+
+---
+
+## 📝 Release Notes
+
+### v1.1 — December 31, 2025
+
+**Agent Prompt System Unification & Stability Improvements**
+
+**🎯 Major Updates:**
+- **Unified Prompt Architecture**: All 9 agents migrated to dynamic `PROMPT_PROFILE` system
+  - Context-aware instruction injection
+  - Consistent guardrails across all agents
+  - Easier prompt tuning and experimentation
+- **Research Tool Modernization**: Migrated from deprecated `duckduckgo_search` to `ddgs==9.10.0`
+- **LLM Configuration Persistence**: API keys now persist in `config/settings.yaml`
+- **Dependency Updates**: 
+  - numpy 2.3.4, pandas 2.3.3 (Python 3.14 wheel support)
+  - Rust toolchain installed for native extensions
+
+**✅ Validated Workflows:**
+- Config loading from settings.yaml ✓
+- State management (project/task CRUD) ✓
+- LLM client with provider fallback ✓
+- Agent orchestration (9 agents registered) ✓
+- Full ideation pipeline (research → variations → refinement) ✓
+- Planning phase (task breakdown with dependencies) ✓
+
+**🔧 Known Limitations:**
+- Python 3.14: Some dev tools require C++ compiler or wheel-only installs
+- Ollama endpoint returns HTTP 500 (only impacts offline mode)
+- Alternative search providers documented (Tavily, Serper.dev, ContextualWeb)
+
+**📦 Breaking Changes:**
+- None - backward compatible with existing projects
+
+**Migration Notes:**
+- Existing projects work without modification
+- Update `config/settings.yaml` format if using old structure
+- Set `OPENROUTER_API_KEY` environment variable or persist in config
+
+---
+
+**TerraQore Studio** — Where AI Agents Build AI Systems
+
+For detailed architecture documentation, see [.github/copilot-instructions.md](.github/copilot-instructions.md)
+
