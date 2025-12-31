@@ -431,6 +431,7 @@ def setup_frontend_api(app: FastAPI):
             {"id": "gemini", "name": "Google Gemini", "requires_api_key": True, "default_model": "models/gemini-2.5-flash"},
             {"id": "groq", "name": "Groq", "requires_api_key": True, "default_model": "llama-3.1-70b-versatile"},
             {"id": "openrouter", "name": "OpenRouter", "requires_api_key": True, "default_model": "meta-llama/llama-3.1-70b-instruct"},
+            {"id": "xai", "name": "xAI Grok", "requires_api_key": True, "default_model": "grok-2-mini"},
             {"id": "ollama", "name": "Ollama (local)", "requires_api_key": False, "default_model": "llama3.2"},
         ]
         return {"providers": providers}
@@ -465,7 +466,7 @@ def setup_frontend_api(app: FastAPI):
         """Update LLM provider settings and refresh the in-memory client."""
         nonlocal llm_client
 
-        supported = {"gemini", "groq", "openrouter", "ollama"}
+        supported = {"gemini", "groq", "openrouter", "ollama", "xai"}
         if payload.primary_provider not in supported:
             raise HTTPException(status_code=400, detail="Unsupported primary provider")
         if payload.fallback_provider and payload.fallback_provider not in supported:
@@ -477,6 +478,7 @@ def setup_frontend_api(app: FastAPI):
             "gemini": "models/gemini-2.5-flash",
             "groq": "llama-3.1-70b-versatile",
             "openrouter": "meta-llama/llama-3.1-70b-instruct",
+            "xai": "grok-2-mini",
             "ollama": "phi3",
         }
 

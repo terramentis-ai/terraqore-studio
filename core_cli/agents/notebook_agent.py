@@ -134,80 +134,44 @@ class NotebookAgent(BaseAgent):
         }
     }
     
-    def __init__(self, llm_client: LLMClient, verbose: bool = True):
+    PROMPT_PROFILE = {
+        "role": "Notebook Agent — senior data scientist and storyteller",
+        "mission": "Produce fully executable Jupyter notebooks that mix markdown narrative with high-quality Python code for data science workflows.",
+        "objectives": [
+            "Select an appropriate notebook template (analysis, ML pipeline, visualization, or report)",
+            "Alternate markdown explanations with runnable code cells",
+            "Include setup, validation, visualization, and conclusion steps",
+            "List dependencies explicitly so downstream automation can install them"
+        ],
+        "guardrails": [
+            "No placeholder text (e.g., TODO) — provide concrete code",
+            "Use modern libraries (pandas, numpy, matplotlib, seaborn, plotly, scikit-learn)",
+            "Explain what each code block accomplishes before executing it"
+        ],
+        "response_format": (
+            "Use the NOTEBOOK/TITLE/DESCRIPTION/DEPENDENCIES header followed by repeated CELL blocks. "
+            "Each CELL block must specify 'markdown' or 'code' and include the exact content that should go into the notebook."
+        ),
+        "tone": "Educational and clear"
+    }
+
+    def __init__(self, llm_client: LLMClient, verbose: bool = True, retriever: object = None):
         """Initialize Notebook Agent.
         
         Args:
-            llm_client: LLM client for AI interactions.
+            llm_client: LLM client for code generation.
             verbose: Whether to log detailed execution info.
+            retriever: Optional RAG retriever for context.
         """
-            super().__init__(
-                name="NotebookAgent",
-                description="Generates Jupyter notebooks for data science and analysis",
-                llm_client=llm_client,
-                verbose=verbose,
-                retriever=retriever
-            )
+        super().__init__(
+            name="NotebookAgent",
+            description="Generates Jupyter notebooks for data science and analysis",
+            llm_client=llm_client,
+            verbose=verbose,
+            retriever=retriever,
+            prompt_profile=self.PROMPT_PROFILE
+        )
         self.state_mgr = get_state_manager()
-    
-    def get_system_prompt(self) -> str:
-        """Get the system prompt for Notebook Agent."""
-        return """You are the Notebook Agent - an expert data scientist and analyst who creates comprehensive Jupyter notebooks.
-
-Your role is to:
-1. Generate complete, executable Jupyter notebooks
-2. Create data analysis workflows
-3. Build machine learning pipelines
-4. Design effective visualizations
-5. Write clear explanatory markdown
-6. Ensure code is production-ready
-
-When generating notebooks:
-- Structure content with clear sections using markdown headers
-- Include explanatory text before each code cell
-- Write clean, well-documented code with comments
-- Use modern libraries (pandas, numpy, matplotlib, seaborn, plotly, scikit-learn)
-- Include data validation and error handling
-- Create meaningful visualizations
-- Add interpretation of results
-- Provide actionable insights
-
-Output Format:
-You must structure your response as follows:
-
-NOTEBOOK: path/to/notebook.ipynb
-TITLE: Notebook Title
-DESCRIPTION: Brief description
-DEPENDENCIES: pandas, numpy, matplotlib (comma-separated)
-
-CELL: markdown
-# Section Title
-
-Explanation text here. Describe what we're about to do and why.
-
-CELL: code
-```python
-# Code here
-import pandas as pd
-data = pd.read_csv('data.csv')
-```
-
-CELL: markdown
-## Results
-
-Interpretation of the results above.
-
-Continue with CELL: markdown or CELL: code blocks for the entire notebook.
-
-Best Practices:
-- Start with imports and setup
-- Use descriptive variable names
-- Add comments for complex operations
-- Include assertions and validation
-- Create clear, labeled plots
-- Explain findings in markdown cells
-- End with conclusions and next steps
-"""
     
     def execute(self, context: AgentContext) -> AgentResult:
         """Execute notebook generation workflow.
@@ -351,7 +315,7 @@ Use the specified output format with CELL: markers for each cell.
 Make the notebook complete and executable - no placeholders or TODOs.
 """
         
-        response = self._generate_response(prompt)
+        response = self._generate_response(prompt, context)
         
         if not response.success:
             raise Exception(f"Notebook generation failed: {response.error}")

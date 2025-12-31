@@ -13,6 +13,7 @@ python-multipart>=0.0.6
 click>=8.1.0
 pyyaml>=6.0
 python-dotenv>=1.0.0
+ddgs>=9.10.0
 
 # Web Server & Async
 starlette>=0.27.0
@@ -33,8 +34,8 @@ requests>=2.31.0
 urllib3>=2.0.0
 
 # ML & Data Science
-numpy>=1.24.0
-pandas>=2.0.0
+numpy>=2.3.0
+pandas>=2.3.0
 scikit-learn>=1.3.0
 scipy>=1.11.0
 

@@ -1,0 +1,488 @@
+// ============================================================================
+// FILE: src/hooks/useWebSocket.js
+// ============================================================================
+import { useEffect, useRef } from 'react';
+import { useAgentStore } from '../store/agentStore';
+import { useSettingsStore } from '../store/settingsStore';
+import { WS_EVENTS } from '../utils/constants';
+
+export const useWebSocket = () => {
+  const wsRef = useRef(null);
+  const reconnectTimeoutRef = useRef(null);
+  const { addLiveUpdate, setWsConnected } = useAgentStore();
+  const { wsEnabled, wsEndpoint } = useSettingsStore();
+
+  useEffect(() => {
+    if (!wsEnabled) {
+      disconnect();
+      return;
+    }
+
+    connect();
+
+    return () => {
+      disconnect();
+    };
+  }, [wsEnabled, wsEndpoint]);
+
+  const connect = () => {
+    try {
+      wsRef.current = new WebSocket(wsEndpoint);
+
+      wsRef.current.onopen = () => {
+        console.log('WebSocket connected');
+        setWsConnected(true);
+      };
+
+      wsRef.current.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          handleMessage(data);
+        } catch (err) {
+          console.error('Failed to parse WebSocket message:', err);
+        }
+      };
+
+      wsRef.current.onerror = (error) => {
+        console.error('WebSocket error:', error);
+      };
+
+      wsRef.current.onclose = () => {
+        console.log('WebSocket disconnected');
+        setWsConnected(false);
+        
+        // Attempt to reconnect after 5 seconds
+        reconnectTimeoutRef.current = setTimeout(() => {
+          if (wsEnabled) {
+            console.log('Attempting to reconnect...');
+            connect();
+          }
+        }, 5000);
+      };
+    } catch (err) {
+      console.error('Failed to connect WebSocket:', err);
+      setWsConnected(false);
+    }
+  };
+
+  const disconnect = () => {
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+    }
+    
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+    
+    setWsConnected(false);
+  };
+
+  const handleMessage = (data) => {
+    const { event, payload } = data;
+
+    switch (event) {
+      case WS_EVENTS.AGENT_STARTED:
+        addLiveUpdate({
+          message: `${payload.agent_name} started for project ${payload.project_id}`,
+        });
+        break;
+
+      case WS_EVENTS.AGENT_COMPLETED:
+        addLiveUpdate({
+          message: `${payload.agent_name} completed iteration #${payload.iteration} - Quality: ${payload.quality_score}/10`,
+        });
+        break;
+
+      case WS_EVENTS.AGENT_FAILED:
+        addLiveUpdate({
+          message: `${payload.agent_name} failed: ${payload.error}`,
+        });
+        break;
+
+      case WS_EVENTS.CONFLICT_DETECTED:
+        addLiveUpdate({
+          message: `PSMP conflict detected in project ${payload.project_id}: ${payload.conflict_type}`,
+        });
+        break;
+
+      case WS_EVENTS.PROJECT_UPDATED:
+        addLiveUpdate({
+          message: `Project ${payload.project_id} status: ${payload.status}`,
+        });
+        break;
+
+      case WS_EVENTS.ITERATION_COMPLETED:
+        addLiveUpdate({
+          message: `Iteration completed for ${payload.agent_name} - Score: ${payload.quality_score}/10`,
+        });
+        break;
+
+      default:
+        console.log('Unknown WebSocket event:', event);
+    }
+  };
+
+  return {
+    isConnected: useAgentStore.getState().wsConnected,
+    disconnect,
+    reconnect: connect,
+  };
+};
+
+// ============================================================================
+// FILE: src/hooks/useAuth.js
+// ============================================================================
+import { useEffect } from 'react';
+import { useAuthStore } from '../store/authStore';
+import { authAPI } from '../services/api';
+
+export const useAuth = () => {
+  const { isAuthenticated, user, token, login, logout } = useAuthStore();
+
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      // Verify token is still valid
+      verifyAuth();
+    }
+  }, []);
+
+  const verifyAuth = async () => {
+    try {
+      await authAPI.getUser();
+    } catch (err) {
+      if (err.response?.status === 401) {
+        logout();
+      }
+    }
+  };
+
+  const handleLogin = async (username, password) => {
+    try {
+      const response = await authAPI.login(username, password);
+      const { user, token } = response.data;
+      login(user, token);
+      return { success: true };
+    } catch (err) {
+      return {
+        success: false,
+        error: err.response?.data?.message || 'Authentication failed',
+      };
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await authAPI.logout();
+    } catch (err) {
+      console.error('Logout error:', err);
+    } finally {
+      logout();
+    }
+  };
+
+  return {
+    isAuthenticated,
+    user,
+    token,
+    login: handleLogin,
+    logout: handleLogout,
+    verifyAuth,
+  };
+};
+
+// ============================================================================
+// FILE: src/hooks/useProjects.js
+// ============================================================================
+import { useEffect } from 'react';
+import { useProjectStore } from '../store/projectStore';
+import { projectsAPI } from '../services/api';
+
+export const useProjects = () => {
+  const {
+    projects,
+    currentProject,
+    loading,
+    error,
+    setProjects,
+    addProject,
+    updateProject,
+    deleteProject,
+    setCurrentProject,
+    setLoading,
+    setError,
+    clearError,
+  } = useProjectStore();
+
+  useEffect(() => {
+    loadProjects();
+  }, []);
+
+  const loadProjects = async () => {
+    setLoading(true);
+    clearError();
+    try {
+      const response = await projectsAPI.getAll();
+      setProjects(response.data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createProject = async (projectData) => {
+    setLoading(true);
+    clearError();
+    try {
+      const response = await projectsAPI.create(projectData);
+      addProject(response.data);
+      return { success: true, project: response.data };
+    } catch (err) {
+      setError(err.message);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateProjectData = async (projectId, updates) => {
+    setLoading(true);
+    clearError();
+    try {
+      const response = await projectsAPI.update(projectId, updates);
+      updateProject(projectId, response.data);
+      return { success: true, project: response.data };
+    } catch (err) {
+      setError(err.message);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const removeProject = async (projectId) => {
+    setLoading(true);
+    clearError();
+    try {
+      await projectsAPI.delete(projectId);
+      deleteProject(projectId);
+      return { success: true };
+    } catch (err) {
+      setError(err.message);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const executeProject = async (projectId) => {
+    setLoading(true);
+    clearError();
+    try {
+      const response = await projectsAPI.execute(projectId);
+      return { success: true, result: response.data };
+    } catch (err) {
+      setError(err.message);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadProject = async (projectId) => {
+    setLoading(true);
+    clearError();
+    try {
+      const response = await projectsAPI.getById(projectId);
+      setCurrentProject(response.data);
+      return { success: true, project: response.data };
+    } catch (err) {
+      setError(err.message);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    projects,
+    currentProject,
+    loading,
+    error,
+    loadProjects,
+    createProject,
+    updateProject: updateProjectData,
+    deleteProject: removeProject,
+    executeProject,
+    loadProject,
+    setCurrentProject,
+    clearError,
+  };
+};
+
+// ============================================================================
+// FILE: src/services/websocket.js
+// ============================================================================
+export class WebSocketService {
+  constructor(url) {
+    this.url = url;
+    this.ws = null;
+    this.reconnectAttempts = 0;
+    this.maxReconnectAttempts = 5;
+    this.reconnectDelay = 5000;
+    this.listeners = new Map();
+  }
+
+  connect() {
+    return new Promise((resolve, reject) => {
+      try {
+        this.ws = new WebSocket(this.url);
+
+        this.ws.onopen = () => {
+          console.log('WebSocket connected');
+          this.reconnectAttempts = 0;
+          resolve();
+        };
+
+        this.ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            this.handleMessage(data);
+          } catch (err) {
+            console.error('Failed to parse message:', err);
+          }
+        };
+
+        this.ws.onerror = (error) => {
+          console.error('WebSocket error:', error);
+          reject(error);
+        };
+
+        this.ws.onclose = () => {
+          console.log('WebSocket disconnected');
+          this.handleReconnect();
+        };
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  handleReconnect() {
+    if (this.reconnectAttempts < this.maxReconnectAttempts) {
+      this.reconnectAttempts++;
+      console.log(`Reconnecting... (Attempt ${this.reconnectAttempts})`);
+      setTimeout(() => {
+        this.connect().catch(console.error);
+      }, this.reconnectDelay);
+    }
+  }
+
+  handleMessage(data) {
+    const { event, payload } = data;
+    const listeners = this.listeners.get(event) || [];
+    listeners.forEach((callback) => callback(payload));
+  }
+
+  on(event, callback) {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, []);
+    }
+    this.listeners.get(event).push(callback);
+  }
+
+  off(event, callback) {
+    const listeners = this.listeners.get(event);
+    if (listeners) {
+      const index = listeners.indexOf(callback);
+      if (index > -1) {
+        listeners.splice(index, 1);
+      }
+    }
+  }
+
+  send(event, payload) {
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify({ event, payload }));
+    } else {
+      console.error('WebSocket is not connected');
+    }
+  }
+
+  disconnect() {
+    if (this.ws) {
+      this.ws.close();
+      this.ws = null;
+    }
+  }
+
+  isConnected() {
+    return this.ws && this.ws.readyState === WebSocket.OPEN;
+  }
+}
+
+export default WebSocketService;
+
+// ============================================================================
+// FILE: src/services/auth.js
+// ============================================================================
+import apiClient from './api';
+
+export const authenticate = async (username, password) => {
+  try {
+    const response = await apiClient.post('/auth/login', {
+      username,
+      password,
+    });
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      error: err.response?.data?.message || 'Authentication failed',
+    };
+  }
+};
+
+export const validateToken = async (token) => {
+  try {
+    const response = await apiClient.get('/auth/validate', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      error: 'Invalid token',
+    };
+  }
+};
+
+export const refreshToken = async (refreshToken) => {
+  try {
+    const response = await apiClient.post('/auth/refresh', {
+      refresh_token: refreshToken,
+    });
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      error: 'Failed to refresh token',
+    };
+  }
+};
+
+export default {
+  authenticate,
+  validateToken,
+  refreshToken,
+};

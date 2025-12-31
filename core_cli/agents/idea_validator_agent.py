@@ -60,19 +60,41 @@ class IdeaValidatorAgent(BaseAgent):
     - Complexity assessment
     """
     
-    def __init__(self, llm_client=None, verbose: bool = False):
+    PROMPT_PROFILE = {
+        "role": "Idea Validator Agent — feasibility and risk analyst",
+        "mission": "Stress-test proposed initiatives before they enter planning by scoring feasibility, identifying risks, and outlining mitigation.",
+        "objectives": [
+            "Quantify technical, timeline, and resource feasibility on a 0-10 scale",
+            "Highlight top risks with severity, mitigation, and impact",
+            "Recommend viable technology stacks and scope boundaries",
+            "Return machine-readable JSON for downstream agents"
+        ],
+        "guardrails": [
+            "Stay realistic about constraints even if ideation was optimistic",
+            "Flag blocking risks explicitly and avoid sugar-coating feasibility",
+            "Prefer MVP-first recommendations"
+        ],
+        "response_format": (
+            "Return ONLY a valid JSON object with keys: project_name, is_feasible, feasibility_score, risks, scope_analysis, "
+            "technology_recommendations, estimated_effort, recommendation, validation_timestamp."
+        ),
+        "tone": "Objective, data-driven, and clear"
+    }
+
+    def __init__(self, llm_client=None, verbose: bool = False, retriever: object = None):
         """Initialize Idea Validator Agent.
         
         Args:
             llm_client: LLM client for AI interactions.
             verbose: Whether to log detailed execution info.
+            retriever: Optional RAG retriever for context.
         """
         super().__init__(
             name="IdeaValidatorAgent",
             description="Validates project feasibility, identifies risks, and assesses complexity",
             llm_client=llm_client,
             verbose=verbose,
-            retriever=retriever
+            prompt_profile=self.PROMPT_PROFILE
         )
         
         # Feasibility rubric
@@ -108,74 +130,6 @@ class IdeaValidatorAgent(BaseAgent):
             "Integration Challenges",
             "Performance Requirements"
         ]
-    
-    def get_system_prompt(self) -> str:
-        """Get the system prompt for Idea Validator Agent."""
-        return """You are the Idea Validator Agent - an expert in assessing project feasibility and identifying risks.
-
-Your role is to:
-1. Assess technical feasibility of the project idea
-2. Evaluate timeline and resource requirements
-3. Identify potential risks and mitigation strategies
-4. Recommend appropriate technology stacks
-5. Analyze scope (MVP vs full features)
-6. Estimate effort and complexity
-
-When validating ideas:
-- Be realistic about complexity
-- Consider dependencies and integrations
-- Flag scope creep risks
-- Suggest MVP approach where appropriate
-- Identify skill gaps and resource needs
-- Consider emerging technologies vs proven stacks
-
-Feasibility Scoring (0-10):
-- 9-10: Highly feasible with standard approaches
-- 7-8: Feasible with some challenges
-- 5-6: Moderate challenges, needs planning
-- 3-4: Significant challenges, high risk
-- 0-2: Not feasible or extremely high risk
-
-Risk Assessment should include:
-- Risk category (Technical, Timeline, Resources, Dependencies, Scope, Integration, Performance)
-- Description of the specific risk
-- Severity (Low, Medium, High, Critical)
-- Mitigation strategy
-- Estimated impact if risk occurs
-
-Output Format:
-Return ONLY a valid JSON object with this structure:
-{
-    "project_name": "Project Name",
-    "is_feasible": true,
-    "feasibility_score": {
-        "technical_feasibility": 8,
-        "timeline_feasibility": 7,
-        "resource_feasibility": 6,
-        "overall_score": 7
-    },
-    "risks": [
-        {
-            "risk_category": "Technical Complexity",
-            "risk_description": "Specific risk description",
-            "severity": "High",
-            "mitigation_strategy": "How to mitigate",
-            "estimated_impact": "What happens if risk occurs"
-        }
-    ],
-    "scope_analysis": {
-        "recommended_mvp": "What to build first",
-        "full_features": ["Feature list"],
-        "phases": ["Phase breakdown"]
-    },
-    "technology_recommendations": [
-        "Recommended tech/framework",
-        "Alternative option"
-    ],
-    "estimated_effort": "3-6 months with team of 2-3 developers",
-    "recommendation": "Clear recommendation on feasibility and next steps",
-    "validation_timestamp": "ISO format timestamp"
-}"""
     
     def execute(self, context: AgentContext) -> AgentResult:
         """Execute idea validation workflow.
@@ -282,7 +236,7 @@ Evaluate on a scale of 0-10:
 Respond with ONLY a JSON object:
 {{"technical_feasibility": <0-10>, "timeline_feasibility": <0-10>, "resource_feasibility": <0-10>}}"""
             
-            response = self.llm_client.generate(prompt)
+            response = self._generate_response(prompt, context)
             if response.success:
                 try:
                     scores = json.loads(response.content)

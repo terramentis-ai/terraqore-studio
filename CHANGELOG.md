@@ -55,6 +55,31 @@ All notable changes to FlyntCore are documented in this file.
 
 ---
 
+## [1.1.0] - 2025-12-29
+
+### Added
+- Orchestrator transactional task persistence (write-ahead logs and checkpointing) to prevent task loss on crashes
+- Dead-letter queue and retry policies with exponential backoff for failed subtasks
+- Global orchestration watchdog and heartbeat monitoring for liveliness detection
+- Fine-grained concurrency controls and resource guards per-agent to avoid noisy-neighbor issues
+
+### Changed
+- Executor scheduling: preemptive scheduling and priority inversion mitigation for high-priority tasks
+- Enhanced input validation and strict task schema enforcement to prevent malformed plans from executing
+- Improved observability: structured JSON logs, trace IDs, and Prometheus metrics for orchestration internals
+
+### Fixed
+- Race conditions and intermittent deadlocks in the orchestrator's task dispatcher
+- Stale-lock scenarios causing stuck workflows by introducing lock timeouts and auto-recovery
+
+### Security / Hardening
+- Hardened sandbox boundaries for code execution: stricter network and filesystem policies
+- Reduced attack surface by validating agent-generated code before execution and quarantining unsafe payloads
+
+### Notes
+- These changes focus on reliability and operational stability of the orchestration core; migrations are backward compatible but recommended to test on staging first.
+
+
 ## Version History
 
 ### v1.0.0
@@ -80,6 +105,7 @@ All notable changes to FlyntCore are documented in this file.
 ## Future Roadmap
 
 ### v1.1.0 (Q1 2026)
+- [x] Orchestrator core hardening: improved reliability, resilience, and observability
 - [ ] Database persistence for workflows and executions
 - [ ] Advanced analytics dashboard
 - [ ] Support for more LLM providers (Claude, Llama Cloud)

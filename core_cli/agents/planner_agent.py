@@ -28,6 +28,27 @@ class PlannerAgent(BaseAgent):
     - Create executable roadmaps
     """
     
+    PROMPT_PROFILE = {
+        "role": "Planner Agent — delivery-focused roadmap architect",
+        "mission": "Transform validated ideas into tightly scoped, dependency-aware task graphs that downstream agents can execute immediately.",
+        "objectives": [
+            "Produce 10-15 actionable tasks that cover setup → core features → testing → deployment",
+            "Clearly state dependencies, milestones, estimates, and responsible agent type",
+            "Keep each task 1-8 hours to maintain agility",
+            "Prefer MVP-first sequencing so value ships early"
+        ],
+        "guardrails": [
+            "Return ONLY valid JSON arrays (no markdown fences)",
+            "Ensure tasks reference dependencies by exact title for deterministic linking",
+            "Call out manual tasks explicitly via agent_type"
+        ],
+        "response_format": (
+            "Return a JSON array. Each object must include title, description, milestone, priority (0-2), estimated_hours (float), "
+            "dependencies (array of titles), and agent_type (e.g., CoderAgent, PlannerAgent, manual). Limit to 10-15 tasks."
+        ),
+        "tone": "Pragmatic program manager"
+    }
+
     def __init__(self, llm_client: LLMClient, verbose: bool = True, retriever: object = None):
         """Initialize Planner Agent.
         
@@ -40,47 +61,10 @@ class PlannerAgent(BaseAgent):
             description="Breaks projects into tasks with dependencies and milestones",
             llm_client=llm_client,
             verbose=verbose,
-            retriever=retriever
+            retriever=retriever,
+            prompt_profile=self.PROMPT_PROFILE
         )
         self.state_mgr = get_state_manager()
-    
-    def get_system_prompt(self) -> str:
-        """Get the system prompt for Planner Agent."""
-        return """You are the Planner Agent - an expert in breaking down agentic AI projects into actionable tasks.
-
-Your role is to:
-1. Analyze project goals and requirements
-2. Break work into concrete, achievable tasks
-3. Identify task dependencies and relationships
-4. Organize tasks into logical milestones/phases
-5. Estimate effort and set priorities
-6. Create clear, executable roadmaps
-
-When creating tasks:
-- Be specific and actionable (not vague like "Build the app")
-- Each task should be completable in 1-8 hours
-- Clearly state what "done" looks like
-- Identify dependencies between tasks
-- Consider MVP-first approach
-- Think about what can be parallelized
-
-When organizing milestones:
-- Group related tasks together
-- Each milestone should deliver value
-- Typical milestones: Setup, Core Features, Testing, Deployment
-- Consider incremental delivery
-
-Output Format:
-Provide tasks in structured JSON format with these fields:
-- title: Short, action-oriented title
-- description: What needs to be done and acceptance criteria
-- milestone: Which phase this belongs to
-- priority: 0 (low), 1 (medium), 2 (high)
-- estimated_hours: Realistic time estimate
-- dependencies: List of task titles this depends on
-- agent_type: Which agent should handle it (e.g., "CoderAgent", "ResearchAgent", "manual")
-
-Be practical and realistic. Focus on getting to a working MVP."""
     
     def execute(self, context: AgentContext) -> AgentResult:
         """Execute planning workflow.
@@ -224,7 +208,7 @@ Generate 10-20 tasks covering the full development lifecycle.
 Return ONLY valid JSON, no other text:
 """
         
-        response = self._generate_response(prompt)
+        response = self._generate_response(prompt, context)
         
         if response.success:
             return response.content
@@ -240,17 +224,18 @@ Return ONLY valid JSON, no other text:
         Returns:
             List of task dictionaries.
         """
-        # Try to extract JSON from response
-        json_match = re.search(r'\[[\s\S]*\]', task_plan)
+        # Remove all markdown code block markers
+        json_str = re.sub(r'```+\w*\s*', '', task_plan)  # Remove opening code blocks
+        json_str = re.sub(r'\s*```+', '', json_str)      # Remove closing code blocks
+        json_str = json_str.strip()
+        
+        # Try to extract JSON array from response
+        json_match = re.search(r'\[[\s\S]*\]', json_str)
         if json_match:
             json_str = json_match.group(0)
         else:
-            json_str = task_plan
-        
-        # Clean up control characters that might break JSON parsing
-        json_str = json_str.replace('\r', ' ').replace('\n', ' ').replace('\t', ' ')
-        # Remove multiple spaces
-        json_str = re.sub(r' +', ' ', json_str)
+            # If no array found, the whole string might be the JSON
+            pass
         
         try:
             tasks = json.loads(json_str)
@@ -278,7 +263,43 @@ Return ONLY valid JSON, no other text:
             
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse task JSON: {e}")
-            logger.debug(f"JSON content: {json_str[:500]}")
+            logger.error(f"JSON content (first 1000 chars): {json_str[:1000]}")
+            
+            # Try to repair truncated JSON
+            try:
+                # If JSON is cut off, try to close it properly
+                if not json_str.rstrip().endswith(']'):
+                    # Find the last complete task object
+                    last_brace = json_str.rfind('},')
+                    if last_brace > 0:
+                        repaired = json_str[:last_brace+1] + '\n]'
+                        logger.info("Attempting to repair truncated JSON")
+                        tasks = json.loads(repaired)
+                        if isinstance(tasks, list) and len(tasks) > 0:
+                            logger.warning(f"Successfully repaired JSON, recovered {len(tasks)} tasks (may be incomplete)")
+                            # Validate and clean up recovered tasks
+                            required = ['title', 'description', 'milestone']
+                            for i, task in enumerate(tasks):
+                                for field in required:
+                                    if field not in task:
+                                        task[field] = task.get(field, "Unknown")
+                                task['priority'] = int(task.get('priority', 1))
+                                task['estimated_hours'] = float(task.get('estimated_hours', 2.0))
+                                task['dependencies'] = task.get('dependencies', [])
+                                if not isinstance(task['dependencies'], list):
+                                    task['dependencies'] = []
+                                task['agent_type'] = task.get('agent_type', 'manual')
+                            return tasks
+            except Exception as repair_error:
+                logger.error(f"JSON repair failed: {repair_error}")
+            
+            # Try to save full response for debugging
+            try:
+                with open("failed_plan_response.txt", "w", encoding="utf-8") as f:
+                    f.write(task_plan)
+                logger.info("Full response saved to failed_plan_response.txt")
+            except:
+                pass
             raise Exception("Failed to parse task breakdown. Invalid JSON format.")
     
     def _create_tasks(self, project_id: int, tasks: List[Dict[str, Any]]) -> int:

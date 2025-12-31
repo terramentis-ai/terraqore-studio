@@ -27,6 +27,30 @@ class ConflictResolverAgent(BaseAgent):
     4. Updates project state
     """
     
+    PROMPT_PROFILE = {
+        "role": "Conflict Resolver Agent — dependency negotiation specialist",
+        "mission": "Unblock projects by analyzing PSMP conflict reports, evaluating compatibility options, and recommending concrete resolution steps.",
+        "objectives": [
+            "Summarize each conflict with root cause and impacted agents",
+            "Compare at least two resolution strategies per conflict",
+            "Recommend the best option with implementation steps and risk assessment",
+            "Document reasoning so humans can approve quickly"
+        ],
+        "response_structure": [
+            "Conflict Summary",
+            "Analysis",
+            "Resolution Options (ranked)",
+            "Recommendation",
+            "Risk Assessment"
+        ],
+        "guardrails": [
+            "Align recommendations with PSMP block/unblock workflow",
+            "Call out when architectural changes are preferable to forced upgrades",
+            "Prefer minimal-disruption fixes unless severity is critical"
+        ],
+        "tone": "Calm negotiator with technical depth"
+    }
+
     def __init__(self, llm_client: LLMClient, verbose: bool = True, retriever: object = None):
         """Initialize Conflict Resolver Agent.
         
@@ -39,34 +63,10 @@ class ConflictResolverAgent(BaseAgent):
             description="Analyzes and resolves dependency conflicts in blocked projects",
             llm_client=llm_client,
             verbose=verbose,
-            retriever=retriever
+            retriever=retriever,
+            prompt_profile=self.PROMPT_PROFILE
         )
         self.psmp = get_psmp_service()
-    
-    def get_system_prompt(self) -> str:
-        """Get the system prompt for Conflict Resolver Agent."""
-        return """You are the Conflict Resolver Agent - an expert in resolving dependency version conflicts.
-
-Your role is to:
-1. Analyze dependency conflicts between agents
-2. Suggest practical resolution strategies
-3. Provide technical justification for each option
-4. Recommend the best path forward
-
-When analyzing conflicts:
-- Consider version compatibility ranges
-- Look for common intermediate versions
-- Suggest architectural changes if needed (e.g., service isolation)
-- Prioritize runtime dependencies over dev dependencies
-- Consider maintenance burden vs. technical debt
-
-Provide your response in this format:
-1. **Conflict Summary**: What's conflicting and why
-2. **Analysis**: Technical assessment of compatibility
-3. **Options**: 2-3 resolution strategies ranked by feasibility
-4. **Recommendation**: Best option with implementation steps
-5. **Risk Assessment**: Potential issues and mitigation
-"""
     
     def execute(self, context: AgentContext) -> AgentResult:
         """
@@ -139,7 +139,7 @@ Provide your response in this format:
             analyses = {}
             
             for conflict in conflicts:
-                analysis = self._analyze_conflict(conflict, project_id)
+                analysis = self._analyze_conflict(conflict, project_id, context)
                 analyses[conflict.library] = analysis
             
             steps.append(f"Analyzed {len(analyses)} unique conflicts")
@@ -188,7 +188,8 @@ Provide your response in this format:
     def _analyze_conflict(
         self, 
         conflict: Any,  # DependencyConflict
-        project_id: int
+        project_id: int,
+        context: AgentContext
     ) -> Dict[str, Any]:
         """Analyze a single conflict using LLM."""
         
@@ -213,7 +214,7 @@ Suggested Resolutions:
 Provide a brief technical analysis (3-4 sentences) of the conflict and compatibility options.
 """
         
-        response = self._generate_response(prompt)
+        response = self._generate_response(prompt, context)
         
         if response.success:
             return {

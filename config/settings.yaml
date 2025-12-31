@@ -1,0 +1,62 @@
+llm:
+  # Primary runtime provider (default: OpenRouter via unified API key)
+  primary_provider: openrouter
+  # Offline fallback provider (local Ollama service)
+  fallback_provider: ollama
+
+  openrouter:
+    # Keep blank to rely on OPENROUTER_API_KEY env variable
+    api_key: "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"
+    model: openai/gpt-4o-mini
+    temperature: 0.7
+    max_tokens: 4096
+
+  ollama:
+    base_url: "http://localhost:11434"
+    model: phi3.5:latest
+    temperature: 0.3
+    max_tokens: 2048
+    fallback_on_oom: true
+
+  # Optional legacy providers stay defined for compatibility
+  gemini:
+    model: models/gemini-2.5-flash
+    temperature: 0.7
+    max_tokens: 4096
+  groq:
+    model: llama-3.1-70b-versatile
+    temperature: 0.7
+    max_tokens: 4096
+
+  task_routing:
+    ideation:
+      provider: openrouter
+      model: meta-llama/llama-3.1-70b-instruct
+      temperature: 0.8
+    planning:
+      provider: openrouter
+      model: anthropic/claude-3.5-sonnet
+      temperature: 0.6
+    code:
+      provider: openrouter
+      model: anthropic/claude-3.5-sonnet
+      temperature: 0.3
+    analysis:
+      provider: openrouter
+      model: openai/gpt-4o-mini
+      temperature: 0.5
+    validation:
+      provider: openrouter
+      model: openai/gpt-4o-mini
+      temperature: 0.2
+    offline:
+      ideation: phi3.5:latest
+      planning: phi3.5:latest
+      code: phi3.5:latest
+      analysis: phi3.5:latest
+      validation: phi3.5:latest
+
+system:
+  debug: false
+  max_retries: 3
+  timeout: 30

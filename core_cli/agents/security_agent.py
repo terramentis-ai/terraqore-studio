@@ -78,6 +78,28 @@ class SecurityVulnerabilityAgent(BaseAgent):
     - Security hardening recommendations
     """
     
+    PROMPT_PROFILE = {
+        "role": "Security Vulnerability Agent — red-team style reviewer",
+        "mission": "Identify code and dependency weaknesses before release and map them to OWASP/CWE standards.",
+        "objectives": [
+            "Prioritize high/critical risks and block unsafe code",
+            "Check code, configs, and dependencies for OWASP Top 10 issues",
+            "Provide remediation guidance tied to best practices",
+            "Report in strict JSON so orchestrator can enforce quality gates"
+        ],
+        "guardrails": [
+            "Never assume missing context — request it via context metadata",
+            "Flag suspected secrets immediately",
+            "If unsure about severity, err toward higher risk"
+        ],
+        "response_format": (
+            "Return ONLY JSON with keys total_vulnerabilities, critical_vulnerabilities, high_vulnerabilities, "
+            "medium_vulnerabilities, low_vulnerabilities, vulnerabilities (array), dependency_vulnerabilities (array), "
+            "compliance_issues (array), risk_score, scan_passed, recommendations (array)."
+        ),
+        "tone": "Direct, incident-response ready"
+    }
+
     def __init__(self, llm_client=None, verbose: bool = False, retriever: object = None):
         """Initialize Security Vulnerability Agent.
         
@@ -90,7 +112,8 @@ class SecurityVulnerabilityAgent(BaseAgent):
             description="Scans code for security vulnerabilities, dependency issues, and compliance risks",
             llm_client=llm_client,
             verbose=verbose,
-            retriever=retriever
+            retriever=retriever,
+            prompt_profile=self.PROMPT_PROFILE
         )
         
         # OWASP Top 10 (2021)
@@ -143,72 +166,7 @@ class SecurityVulnerabilityAgent(BaseAgent):
             "pyyaml": {"vulnerable": ["<5.4"], "fixed": "5.4+"}
         }
     
-    def get_system_prompt(self) -> str:
-        """Get the system prompt for Security Vulnerability Agent."""
-        return """You are the Security Vulnerability Agent - an expert in code security and vulnerability detection.
-
-Your role is to:
-1. Identify security vulnerabilities in code
-2. Detect vulnerable dependencies
-3. Check for OWASP Top 10 violations
-4. Map vulnerabilities to CWE/CVE
-5. Assess supply chain risks
-6. Detect credential leaks
-7. Provide security hardening recommendations
-
-Vulnerability Severity Levels:
-- low: Nice to fix, minimal risk
-- medium: Should fix, moderate risk
-- high: Must fix, significant security risk
-- critical: Immediate action required, severe risk
-
-When scanning code:
-- Look for hardcoded credentials
-- Check for injection vulnerabilities
-- Verify input validation
-- Check authentication/authorization
-- Assess cryptographic practices
-- Identify insecure dependencies
-- Check for sensitive data exposure
-
-Common Vulnerability Categories:
-- Broken Access Control
-- Injection (SQL, Command, etc.)
-- Cryptographic Failures
-- Insecure Deserialization
-- Missing Input Validation
-- Hardcoded Secrets
-- Vulnerable Dependencies
-- Insecure Randomization
-- SSRF/XXE attacks
-- Security Misconfiguration
-
-Output Format:
-Return ONLY a valid JSON object:
-{
-    "total_vulnerabilities": 3,
-    "critical_vulnerabilities": 1,
-    "high_vulnerabilities": 1,
-    "medium_vulnerabilities": 1,
-    "low_vulnerabilities": 0,
-    "vulnerabilities": [
-        {
-            "vulnerability_id": "SEC-001",
-            "title": "Hardcoded API Key",
-            "description": "API key found hardcoded in source",
-            "risk_level": "critical",
-            "affected_code": "api_key = 'sk-...'",
-            "remediation": "Move to environment variables",
-            "owasp_category": "Cryptographic Failures",
-            "cwe_id": "CWE-798"
-        }
-    ],
-    "dependency_vulnerabilities": [],
-    "compliance_issues": [],
-    "risk_score": 7.5,
-    "scan_passed": false,
-    "recommendations": ["Move secrets to environment", "Use secure key management"]
-}"""
+    
     
     def execute(self, context: AgentContext) -> AgentResult:
         """Execute security scanning workflow.

@@ -1,0 +1,290 @@
+// ============================================================================
+// FILE: src/components/settings/SettingsPanel.jsx
+// ============================================================================
+import React from 'react';
+import UserAccountSection from './UserAccountSection';
+import LLMProviderSection from './LLMProviderSection';
+import SecuritySection from './SecuritySection';
+import PSMPSection from './PSMPSection';
+import BuildDataSection from './BuildDataSection';
+import CollaborationSection from './CollaborationSection';
+import RAGSection from './RAGSection';
+import WebSocketSection from './WebSocketSection';
+import { useSettingsStore } from '../../store/settingsStore';
+import { settingsAPI } from '../../services/api';
+
+const SettingsPanel = () => {
+  const settings = useSettingsStore();
+
+  const handleSave = async () => {
+    try {
+      await settingsAPI.update(settings);
+      alert('Settings saved successfully!');
+    } catch (err) {
+      alert('Failed to save settings: ' + err.message);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <UserAccountSection />
+      <LLMProviderSection />
+      <SecuritySection />
+      <PSMPSection />
+      <BuildDataSection />
+      <CollaborationSection />
+      <RAGSection />
+      <WebSocketSection />
+
+      <button
+        onClick={handleSave}
+        className="w-full bg-white text-black py-3 px-4 rounded font-medium hover:bg-white/90 transition"
+      >
+        SAVE CONFIGURATION
+      </button>
+    </div>
+  );
+};
+
+export default SettingsPanel;
+
+// ============================================================================
+// FILE: src/components/settings/UserAccountSection.jsx
+// ============================================================================
+import React from 'react';
+import { User, Key } from 'lucide-react';
+import { useAuthStore } from '../../store/authStore';
+
+const UserAccountSection = () => {
+  const { user, updateUser } = useAuthStore();
+
+  return (
+    <div className="border border-white/10 bg-white/5 rounded p-4">
+      <div className="text-sm font-medium mb-4 flex items-center gap-2">
+        <User className="w-4 h-4" />
+        USER ACCOUNT
+      </div>
+      <div className="space-y-3">
+        <div>
+          <label className="text-xs text-white/60 block mb-1">USERNAME</label>
+          <input
+            type="text"
+            value={user?.username || ''}
+            className="w-full bg-black border border-white/20 rounded p-2 text-sm"
+            readOnly
+          />
+        </div>
+        <div>
+          <label className="text-xs text-white/60 block mb-1">EMAIL</label>
+          <input
+            type="email"
+            value={user?.email || ''}
+            onChange={(e) => updateUser({ email: e.target.value })}
+            className="w-full bg-black border border-white/20 rounded p-2 text-sm"
+          />
+        </div>
+        <div>
+          <label className="text-xs text-white/60 block mb-1">ROLE</label>
+          <input
+            type="text"
+            value={user?.role || ''}
+            className="w-full bg-black border border-white/20 rounded p-2 text-sm"
+            readOnly
+          />
+        </div>
+        <button className="w-full border border-white/20 bg-white/5 py-2 rounded text-sm font-medium hover:bg-white/10 transition flex items-center justify-center gap-2">
+          <Key className="w-4 h-4" />
+          CHANGE PASSWORD
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default UserAccountSection;
+
+// ============================================================================
+// FILE: src/components/settings/LLMProviderSection.jsx
+// ============================================================================
+import React from 'react';
+import { Sparkles, Eye, EyeOff } from 'lucide-react';
+import { useSettingsStore } from '../../store/settingsStore';
+import { OLLAMA_MODELS } from '../../utils/constants';
+
+const LLMProviderSection = () => {
+  const {
+    llmProvider,
+    ollamaEndpoint,
+    ollamaModel,
+    openrouterApiKey,
+    updateLLMSettings,
+  } = useSettingsStore();
+
+  const [showApiKey, setShowApiKey] = React.useState(false);
+
+  return (
+    <div className="border border-white/10 bg-white/5 rounded p-4">
+      <div className="text-sm font-medium mb-4 flex items-center gap-2">
+        <Sparkles className="w-4 h-4" />
+        LLM PROVIDER
+      </div>
+      <div className="space-y-3">
+        <label className="flex items-center gap-3 p-2 hover:bg-white/5 rounded cursor-pointer">
+          <input
+            type="radio"
+            name="llm"
+            checked={llmProvider === 'ollama'}
+            onChange={() => updateLLMSettings({ llmProvider: 'ollama' })}
+            className="w-4 h-4"
+          />
+          <div className="flex-1">
+            <div className="text-sm">Ollama (Local)</div>
+            <div className="text-xs text-white/60">Primary - Local inference engine</div>
+          </div>
+        </label>
+
+        <label className="flex items-center gap-3 p-2 hover:bg-white/5 rounded cursor-pointer">
+          <input
+            type="radio"
+            name="llm"
+            checked={llmProvider === 'openrouter'}
+            onChange={() => updateLLMSettings({ llmProvider: 'openrouter' })}
+            className="w-4 h-4"
+          />
+          <div className="flex-1">
+            <div className="text-sm">OpenRouter</div>
+            <div className="text-xs text-white/60">Secondary - Cloud API gateway</div>
+          </div>
+        </label>
+
+        <div className="pt-3 border-t border-white/10">
+          <label className="text-xs text-white/60 block mb-2">OLLAMA ENDPOINT</label>
+          <input
+            type="text"
+            value={ollamaEndpoint}
+            onChange={(e) => updateLLMSettings({ ollamaEndpoint: e.target.value })}
+            className="w-full bg-black border border-white/20 rounded p-2 text-sm mb-2"
+          />
+          <label className="text-xs text-white/60 block mb-2">MODEL</label>
+          <select
+            value={ollamaModel}
+            onChange={(e) => updateLLMSettings({ ollamaModel: e.target.value })}
+            className="w-full bg-black border border-white/20 rounded p-2 text-sm"
+          >
+            {OLLAMA_MODELS.map((model) => (
+              <option key={model} value={model}>
+                {model}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="pt-3 border-t border-white/10">
+          <label className="text-xs text-white/60 block mb-2">OPENROUTER API KEY</label>
+          <div className="flex gap-2">
+            <input
+              type={showApiKey ? 'text' : 'password'}
+              value={openrouterApiKey}
+              onChange={(e) => updateLLMSettings({ openrouterApiKey: e.target.value })}
+              placeholder="sk-or-..."
+              className="flex-1 bg-black border border-white/20 rounded p-2 text-sm"
+            />
+            <button
+              onClick={() => setShowApiKey(!showApiKey)}
+              className="border border-white/20 bg-white/5 p-2 rounded hover:bg-white/10 transition"
+            >
+              {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default LLMProviderSection;
+
+// ============================================================================
+// FILE: src/components/settings/SecuritySection.jsx
+// ============================================================================
+import React from 'react';
+import { Shield } from 'lucide-react';
+import { useSettingsStore } from '../../store/settingsStore';
+
+const SecuritySection = () => {
+  const {
+    promptInjectionProtection,
+    contextValidation,
+    conversationMonitoring,
+    apiKeyEncryption,
+    updateSecuritySettings,
+  } = useSettingsStore();
+
+  const toggleSetting = (key) => {
+    updateSecuritySettings({ [key]: !useSettingsStore.getState()[key] });
+  };
+
+  return (
+    <div className="border border-white/10 bg-white/5 rounded p-4">
+      <div className="text-sm font-medium mb-4 flex items-center gap-2">
+        <Shield className="w-4 h-4" />
+        SECURITY & PRIVACY
+      </div>
+      <div className="space-y-3">
+        <label className="flex items-center justify-between p-2 hover:bg-white/5 rounded cursor-pointer">
+          <div>
+            <div className="text-sm">Prompt Injection Protection</div>
+            <div className="text-xs text-white/60">Validate all user inputs for injection attacks</div>
+          </div>
+          <input
+            type="checkbox"
+            checked={promptInjectionProtection}
+            onChange={() => toggleSetting('promptInjectionProtection')}
+            className="w-4 h-4"
+          />
+        </label>
+
+        <label className="flex items-center justify-between p-2 hover:bg-white/5 rounded cursor-pointer">
+          <div>
+            <div className="text-sm">Context Validation</div>
+            <div className="text-xs text-white/60">Validate context fields for malicious content</div>
+          </div>
+          <input
+            type="checkbox"
+            checked={contextValidation}
+            onChange={() => toggleSetting('contextValidation')}
+            className="w-4 h-4"
+          />
+        </label>
+
+        <label className="flex items-center justify-between p-2 hover:bg-white/5 rounded cursor-pointer">
+          <div>
+            <div className="text-sm">Conversation Monitoring</div>
+            <div className="text-xs text-white/60">Monitor conversation history for violations</div>
+          </div>
+          <input
+            type="checkbox"
+            checked={conversationMonitoring}
+            onChange={() => toggleSetting('conversationMonitoring')}
+            className="w-4 h-4"
+          />
+        </label>
+
+        <label className="flex items-center justify-between p-2 hover:bg-white/5 rounded cursor-pointer">
+          <div>
+            <div className="text-sm">API Key Encryption</div>
+            <div className="text-xs text-white/60">Encrypt API keys at rest</div>
+          </div>
+          <input
+            type="checkbox"
+            checked={apiKeyEncryption}
+            onChange={() => toggleSetting('apiKeyEncryption')}
+            className="w-4 h-4"
+          />
+        </label>
+      </div>
+    </div>
+  );
+};
+
+export default SecuritySection;

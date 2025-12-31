@@ -81,6 +81,26 @@ class CodeValidationAgent(BaseAgent):
     - Complexity analysis
     """
     
+    PROMPT_PROFILE = {
+        "role": "Code Validation Agent — quality and compliance reviewer",
+        "mission": "Score generated code, detect critical defects, and advise whether it can proceed to deployment gates.",
+        "objectives": [
+            "Evaluate syntax, documentation, error handling, style, performance, and security",
+            "Detect hallucinations before they slip to production",
+            "Summarize issues with severity and remediation suggestions",
+            "Return structured JSON for orchestrator quality gates"
+        ],
+        "guardrails": [
+            "Be conservative: block deployment if critical issues remain",
+            "Cite exact files/lines when possible",
+            "Align severity vocabulary with INFO/WARNING/ERROR/CRITICAL"
+        ],
+        "response_format": (
+            "Return ONLY a JSON object with keys overall_score, status, metrics (array), issues (array), recommendations (array), can_deploy."
+        ),
+        "tone": "Direct QA lead"
+    }
+
     def __init__(self, llm_client=None, verbose: bool = False, retriever=None):
         """Initialize Code Validation Agent.
         
@@ -93,7 +113,8 @@ class CodeValidationAgent(BaseAgent):
             description="Validates generated code quality, runs unit tests, and checks style/formatting",
             llm_client=llm_client,
             verbose=verbose,
-            retriever=retriever
+            retriever=retriever,
+            prompt_profile=self.PROMPT_PROFILE
         )
         
         # Initialize hallucination detector
@@ -120,71 +141,7 @@ class CodeValidationAgent(BaseAgent):
             "typescript": self._get_typescript_rules()
         }
     
-    def get_system_prompt(self) -> str:
-        """Get the system prompt for Code Validation Agent."""
-        return """You are the Code Validation Agent - an expert in code quality assurance.
-
-Your role is to:
-1. Validate code structure and syntax compliance
-2. Check error handling and edge cases
-3. Verify documentation completeness
-4. Assess code style and conventions
-5. Identify performance issues
-6. Evaluate code readability
-7. Check for security vulnerabilities
-8. Verify test coverage
-
-Code Quality Scoring (0-10):
-- 9-10: Production ready, excellent quality
-- 7-8: Good quality, minor improvements
-- 5-6: Acceptable, should address issues
-- 3-4: Poor quality, needs significant work
-- 0-2: Not ready for deployment
-
-Issue Severity Levels:
-- info: Nice to have improvement
-- warning: Should address before deploy
-- error: Must fix before deploy
-- critical: Major issue, security/functionality risk
-
-When validating code:
-- Check for proper error handling
-- Verify type hints (Python/TypeScript)
-- Ensure documentation exists
-- Follow language conventions
-- Identify performance bottlenecks
-- Look for security issues
-- Assess code readability
-
-Output Format:
-Return ONLY a valid JSON object with this structure:
-{
-    "overall_score": 7.5,
-    "status": "acceptable",
-    "metrics": [
-        {
-            "metric_name": "Type Hints Coverage",
-            "score": 8,
-            "status": "Good",
-            "details": "90% of functions have type hints"
-        }
-    ],
-    "issues": [
-        {
-            "category": "Error Handling",
-            "severity": "warning",
-            "line_number": 45,
-            "description": "Function lacks try-except block",
-            "suggestion": "Wrap database calls in try-except",
-            "example": "try:\\n    result = db.query()\\nexcept DatabaseError as e:\\n    handle_error(e)"
-        }
-    ],
-    "recommendations": [
-        "Add docstrings to all public functions",
-        "Implement logging for debugging"
-    ],
-    "can_deploy": true
-}"""
+    
     
     def execute(self, context: AgentContext) -> AgentResult:
         """Execute code validation workflow.

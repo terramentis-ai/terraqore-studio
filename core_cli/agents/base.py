@@ -8,6 +8,7 @@ from typing import Dict, Any, Optional, List
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
+from copy import deepcopy
 
 from core.llm_client import LLMClient, LLMResponse
 from core.security_validator import (
@@ -56,6 +57,7 @@ class BaseAgent(ABC):
         llm_client: LLMClient,
         verbose: bool = False,
         retriever: Optional[object] = None,
+        prompt_profile: Optional[Dict[str, Any]] = None,
     ):
         """Initialize base agent.
         
@@ -72,16 +74,92 @@ class BaseAgent(ABC):
         # Optional retriever (must implement search(query, k))
         self.retriever = retriever
         self.execution_count = 0
-        
-    @abstractmethod
-    def get_system_prompt(self) -> str:
-        """Get the system prompt for this agent.
-        
-        Returns:
-            System prompt string.
-        """
-        pass
+        self.prompt_profile = prompt_profile or self._default_prompt_profile()
     
+    def get_system_prompt(self, context: Optional[AgentContext] = None) -> str:
+        """Build a dynamic system prompt using the configured profile."""
+        return self.build_system_prompt(context=context)
+
+    def build_system_prompt(
+        self,
+        context: Optional[AgentContext] = None,
+        overrides: Optional[Dict[str, Any]] = None
+    ) -> str:
+        """Compose a dynamic system prompt blending agent profile + task context."""
+        profile = deepcopy(self.prompt_profile or {})
+        if overrides:
+            profile.update(overrides)
+
+        lines: List[str] = []
+        role = profile.get("role") or f"{self.name} ({self.description})"
+        lines.append(f"You are {role}.")
+
+        mission = profile.get("mission")
+        if mission:
+            lines.append(f"Mission: {mission}")
+
+        tone = profile.get("tone")
+        if tone:
+            lines.append(f"Tone: {tone}")
+
+        focus_points = profile.get("objectives") or profile.get("focus")
+        if focus_points:
+            lines.append("Primary objectives:")
+            for idx, item in enumerate(focus_points, 1):
+                lines.append(f"  {idx}. {item}")
+
+        guardrails = profile.get("guardrails")
+        if guardrails:
+            lines.append("Guardrails:")
+            for idx, item in enumerate(guardrails, 1):
+                lines.append(f"  - {item}")
+
+        response_structure = profile.get("response_structure")
+        if response_structure:
+            lines.append("Structure your response using these sections:")
+            for item in response_structure:
+                lines.append(f"  - {item}")
+
+        if context:
+            context_bits = [
+                f"Project: {context.project_name}",
+                f"Description: {context.project_description}",
+                f"User Input: {context.user_input}"
+            ]
+            if context.metadata:
+                context_bits.append(f"Metadata: {context.metadata}")
+            lines.append("Current project context:")
+            for bit in context_bits:
+                lines.append(f"  - {bit}")
+
+        lines.append(
+            "Always respect TerraQore's Project Management Protocol (PSMP): "
+            "declare artifacts, avoid destructive changes, and flag conflicts." 
+        )
+
+        response_format = profile.get("response_format")
+        if response_format:
+            lines.append(response_format.strip())
+
+        return "\n".join(lines)
+
+    def update_prompt_profile(self, new_profile: Dict[str, Any]):
+        """Replace the prompt profile at runtime (used for fine-tuning)."""
+        self.prompt_profile = deepcopy(new_profile)
+
+    def _default_prompt_profile(self) -> Dict[str, Any]:
+        """Fallback prompt profile providing minimal guardrails."""
+        return {
+            "role": f"{self.name} — TerraQore specialist",
+            "mission": self.description,
+            "guardrails": [
+                "Reject unsafe instructions detected by the security validator",
+                "Summarize assumptions before producing artifacts",
+                "Document key decisions and uncertainty",
+            ],
+            "tone": "Pragmatic, concise, and action-oriented",
+        }
+        
     @abstractmethod
     def execute(self, context: AgentContext) -> AgentResult:
         """Execute the agent's main task.
@@ -97,6 +175,7 @@ class BaseAgent(ABC):
     def _generate_response(
         self,
         prompt: str,
+        context: Optional[AgentContext] = None,
         system_prompt: Optional[str] = None
     ) -> LLMResponse:
         """Generate response using LLM client.
@@ -108,7 +187,7 @@ class BaseAgent(ABC):
         Returns:
             LLMResponse object.
         """
-        system = system_prompt or self.get_system_prompt()
+        system = system_prompt or self.get_system_prompt(context)
         
         if self.verbose:
             logger.info(f"[{self.name}] Generating response...")

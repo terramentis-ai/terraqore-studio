@@ -116,7 +116,7 @@ class ConfigManager:
         primary_api_key = primary_settings.get("api_key") or os.getenv(f"{primary_provider.upper()}_API_KEY", "")
         
         # Validate primary provider is supported
-        supported_providers = ["gemini", "groq", "openrouter", "ollama"]
+        supported_providers = ["gemini", "groq", "openrouter", "ollama", "xai"]
         if primary_provider not in supported_providers:
             logger.warning(f"Unknown primary provider: {primary_provider}. Expected one of {supported_providers}")
         

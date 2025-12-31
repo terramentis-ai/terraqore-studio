@@ -308,6 +308,153 @@ class OpenRouterProvider(LLMProvider):
             return False
 
 
+class XAIProvider(LLMProvider):
+    """xAI Grok provider implementation."""
+
+    def __init__(self, api_key: str, model: str = "grok-2-mini", **kwargs):
+        super().__init__(api_key, model, **kwargs)
+        self._client = None
+        self._httpx = None
+
+    def _init_client(self):
+        """Lazy initialization using httpx for xAI API."""
+        if self._client is None:
+            try:
+                import httpx
+                self._httpx = httpx
+                self._client = True
+                logger.info(f"Initialized xAI Grok client with model {self.model}")
+            except ImportError:
+                logger.error("httpx package not installed. Run: pip install httpx")
+                raise
+            except Exception as e:
+                logger.error(f"Failed to initialize xAI Grok client: {e}")
+                raise
+
+    def generate(self, prompt: str, system_prompt: Optional[str] = None) -> LLMResponse:
+        """Generate completion using xAI Grok API."""
+        self._init_client()
+
+        try:
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json",
+            }
+
+            messages: List[Dict[str, Any]] = []
+            if system_prompt:
+                messages.append({"role": "system", "content": system_prompt})
+            messages.append({"role": "user", "content": prompt})
+
+            data = {
+                "model": self.model,
+                "messages": messages,
+                "temperature": self.temperature,
+                "max_tokens": self.max_tokens,
+                "stream": False,
+                "top_p": 1,
+                "stop": None,
+                # Some APIs use max_output_tokens; mirror value if supported
+                "max_output_tokens": self.max_tokens,
+            }
+
+            url = "https://api.x.ai/v1/chat/completions"
+            resp = self._httpx.post(url, headers=headers, json=data, timeout=30)
+
+            if resp.status_code != 200:
+                error_msg = f"Error code: {resp.status_code} - {resp.text}"
+                logger.error(f"xAI Grok generation failed: {error_msg}")
+                # Attempt alternative responses endpoint on non-auth related errors
+                if "Incorrect API key" not in resp.text:
+                    alt_url = "https://api.x.ai/v1/responses"
+                    alt_payload = {
+                        "model": self.model,
+                        "input": [
+                            {"role": "system", "content": system_prompt} if system_prompt else None,
+                            {"role": "user", "content": prompt},
+                        ],
+                        "temperature": self.temperature,
+                        "max_output_tokens": self.max_tokens,
+                    }
+                    alt_payload["input"] = [x for x in alt_payload["input"] if x is not None]
+                    try:
+                        alt_resp = self._httpx.post(alt_url, headers=headers, json=alt_payload, timeout=30)
+                        if alt_resp.status_code == 200:
+                            result = alt_resp.json()
+                            # Try to extract text from responses format
+                            content = ""
+                            try:
+                                content = result.get("output", [{}])[0].get("content", [{}])[0].get("text", "")
+                            except Exception:
+                                content = str(result)
+                            usage = result.get("usage", {}) if isinstance(result, dict) else {}
+                            return LLMResponse(
+                                content=content,
+                                provider="xai",
+                                model=self.model,
+                                usage={
+                                    "prompt_tokens": usage.get("input_tokens", 0),
+                                    "completion_tokens": usage.get("output_tokens", 0),
+                                    "total_tokens": usage.get("output_tokens", 0) + usage.get("input_tokens", 0),
+                                },
+                                success=True,
+                            )
+                    except Exception:
+                        pass
+                return LLMResponse(
+                    content="",
+                    provider="xai",
+                    model=self.model,
+                    usage={},
+                    success=False,
+                    error=error_msg,
+                )
+
+            result = resp.json()
+            # xAI API is OpenAI-compatible; try to read usage if present
+            usage = {
+                "prompt_tokens": result.get("usage", {}).get("prompt_tokens", 0),
+                "completion_tokens": result.get("usage", {}).get("completion_tokens", 0),
+                "total_tokens": result.get("usage", {}).get("total_tokens", 0),
+            }
+
+            content = ""
+            try:
+                content = result["choices"][0]["message"]["content"]
+            except Exception:
+                # Fallback for potential non-standard response shapes
+                content = result.get("choices", [{}])[0].get("text", "")
+
+            return LLMResponse(
+                content=content,
+                provider="xai",
+                model=self.model,
+                usage=usage,
+                success=True,
+            )
+
+        except Exception as e:
+            error_msg = str(e)
+            logger.error(f"xAI Grok generation failed: {error_msg}")
+            return LLMResponse(
+                content="",
+                provider="xai",
+                model=self.model,
+                usage={},
+                success=False,
+                error=error_msg,
+            )
+
+    def is_available(self) -> bool:
+        """Check if xAI Grok is available."""
+        if not self.api_key or self.api_key == "":
+            return False
+        try:
+            import httpx  # noqa: F401
+            return True
+        except ImportError:
+            return False
+
 class OllamaProvider(LLMProvider):
     """Ollama local model provider implementation."""
     
@@ -414,6 +561,31 @@ class LLMClient:
         self.primary = primary_provider
         self.fallback = fallback_provider
         self.total_usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+    
+    @property
+    def primary_provider(self) -> str:
+        """Get primary provider name."""
+        return self.primary.model if self.primary else "none"
+    
+    @property
+    def primary_model(self) -> str:
+        """Get primary model name."""
+        return self.primary.model if self.primary else "none"
+    
+    def complete(self, prompt: str, system_prompt: Optional[str] = None) -> str:
+        """Simple completion method that returns just the text content.
+        
+        Args:
+            prompt: User prompt.
+            system_prompt: Optional system prompt.
+            
+        Returns:
+            Generated text content.
+        """
+        response = self.generate(prompt, system_prompt)
+        if response.success:
+            return response.content
+        raise Exception(response.error or "Generation failed")
         
     def generate(
         self, 
@@ -658,6 +830,13 @@ def create_llm_client_from_config(config) -> LLMClient:
             temperature=primary_config.temperature,
             max_tokens=primary_config.max_tokens
         )
+    elif primary_config.provider == "xai":
+        primary = XAIProvider(
+            api_key=primary_config.api_key,
+            model=primary_config.model,
+            temperature=primary_config.temperature,
+            max_tokens=primary_config.max_tokens,
+        )
     elif primary_config.provider == "openrouter":
         primary = OpenRouterProvider(
             api_key=primary_config.api_key,
@@ -692,6 +871,13 @@ def create_llm_client_from_config(config) -> LLMClient:
                 model=fallback_config.model,
                 temperature=fallback_config.temperature,
                 max_tokens=fallback_config.max_tokens
+            )
+        elif fallback_config.provider == "xai":
+            fallback = XAIProvider(
+                api_key=fallback_config.api_key,
+                model=fallback_config.model,
+                temperature=fallback_config.temperature,
+                max_tokens=fallback_config.max_tokens,
             )
         elif fallback_config.provider == "openrouter":
             fallback = OpenRouterProvider(

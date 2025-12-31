@@ -1,7 +1,7 @@
 """
 TerraQore Research Tool
 Provides web search capabilities for agents to research topics.
-Uses DuckDuckGo for free, no-API-key web searching.
+Uses the ddgs (DuckDuckGo Search) package for free, no-API-key web searching.
 """
 
 import logging
@@ -38,12 +38,12 @@ class ResearchTool:
     def _check_dependencies(self):
         """Check if required dependencies are available."""
         try:
-            from duckduckgo_search import DDGS
+            from ddgs import DDGS
             self._ddgs_available = True
-            logger.info("DuckDuckGo search available")
+            logger.info("ddgs search provider available")
         except ImportError:
             self._ddgs_available = False
-            logger.warning("duckduckgo-search not installed. Run: pip install duckduckgo-search")
+            logger.warning("ddgs package not installed. Run: pip install ddgs")
     
     def search(self, query: str, max_results: Optional[int] = None) -> List[SearchResult]:
         """Search the web for information.
@@ -56,14 +56,14 @@ class ResearchTool:
             List of SearchResult objects.
         """
         if not self._ddgs_available:
-            logger.error("DuckDuckGo search not available. Install with: pip install duckduckgo-search")
+            logger.error("ddgs search not available. Install with: pip install ddgs")
             return []
         
         max_res = max_results or self.max_results
         results = []
         
         try:
-            from duckduckgo_search import DDGS
+            from ddgs import DDGS
             
             logger.info(f"Searching for: {query}")
             

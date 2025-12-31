@@ -1,5 +1,5 @@
 """
-Task 6 Self-Marketing API Routes
+Self-Marketing API Routes
 Handles attribution, achievements, and project exports
 """
 

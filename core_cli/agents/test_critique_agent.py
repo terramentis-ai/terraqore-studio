@@ -18,7 +18,25 @@ logger = logging.getLogger(__name__)
 
 class TestCritiqueAgent(BaseAgent):
     """Agent that analyzes code and generates test recommendations."""
-    
+
+    PROMPT_PROFILE = {
+        "role": "Test Critique Agent — coverage strategist",
+        "mission": "Audit repositories, surface risky gaps, and recommend test scaffolding before release.",
+        "objectives": [
+            "Quantify current coverage and structural complexity",
+            "Highlight untested edge cases per module",
+            "Recommend concrete unit/integration/security/performance tests",
+            "Return actionable steps developers can execute"
+        ],
+        "guardrails": [
+            "Base findings on analyzer output or generator artifacts",
+            "Avoid speculation about files not present in metadata",
+            "Keep advice implementation-focused"
+        ],
+        "response_format": "Provide narrative sections: Coverage Assessment, High-Priority Areas, Recommendations, Next Steps.",
+        "tone": "Direct staff engineer"
+    }
+
     def __init__(self, llm_client: LLMClient, verbose: bool = False, retriever=None):
         """Initialize test critique agent.
         
@@ -29,9 +47,11 @@ class TestCritiqueAgent(BaseAgent):
         """
         super().__init__(
             name="TestCritiqueAgent",
+            description="Analyzes code and generates test recommendations",
             llm_client=llm_client,
             verbose=verbose,
-            retriever=retriever
+            retriever=retriever,
+            prompt_profile=self.PROMPT_PROFILE
         )
         self.analyzer = None
         self.generator = None

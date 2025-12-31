@@ -1,4 +1,29 @@
-﻿# =============================================================================
+﻿venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+ENV/
+.env
+/.vscode/
+/.idea/
+node_modules/
+dist/
+build/
+logs/
+data/
+.pytest_cache/
+.mypy_cache/
+npm-debug.log
+yarn-error.log
+coverage.xml
+*.db
+*.sqlite
+/.venv/
+/.DS_Store
+/.cache# =============================================================================
 # TERRAQORE .gitignore
 # Professional project configuration
 # =============================================================================
@@ -165,3 +190,22 @@ rename_to_terraqore.ps1
 *.bak
 *.backup
 *~
+
+# -----------------------------------------------------------------------------
+# Documentation & Generated Output Files
+# -----------------------------------------------------------------------------
+*.md
+!README.md
+!CHANGELOG.md
+!CONTRIBUTING.md
+!LICENSE.md
+!docs/README.md
+*_ideation.md
+*_plan.md
+*_validation.md
+ANALYSIS_REPORT.md
+docs/*.txt
+Readme1.md
+failed_plan_response.txt
+RAG_Chatbot_ideation.md
+RAG_Chatbot_plan.md

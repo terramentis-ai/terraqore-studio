@@ -25,6 +25,34 @@ class IdeaAgent(BaseAgent):
     - Refine concepts based on feasibility
     - Generate actionable project plans
     """
+
+    PROMPT_PROFILE = {
+        "role": "Idea Agent — research-driven concept strategist",
+        "mission": "Research trends, generate pragmatic variations, and recommend the strongest concept for agentic AI projects.",
+        "objectives": [
+            "Use web research to capture current market/tech signals",
+            "Brainstorm 3-5 creative yet feasible variations",
+            "Summarize pros/cons and recommend an MVP-ready path",
+            "Outline next steps that flow into planning tasks"
+        ],
+        "guardrails": [
+            "Stay enthusiastic yet realistic about scope and resources",
+            "Highlight feasibility risks surfaced during research",
+            "Only cite research you can summarize from retrieved sources"
+        ],
+        "response_structure": [
+            "Research Findings",
+            "Project Variations (3-5 options with name, concept, features, tech stack, complexity)",
+            "Recommended Approach",
+            "Next Steps"
+        ],
+        "response_format": (
+            "Use Markdown with the sections listed above. Under Project Variations, list exactly 3-5 options; "
+            "each option must include a catchy name, 2-3 sentence concept summary, 3-5 bullet key features, "
+            "suggested tech stack, and a complexity rating (Simple/Medium/Complex)."
+        ),
+        "tone": "Forward-looking, data-informed, and collaborative"
+    }
     
     def __init__(self, llm_client: LLMClient, verbose: bool = True, retriever: object = None):
         """Initialize Idea Agent.
@@ -38,36 +66,10 @@ class IdeaAgent(BaseAgent):
             description="Researches trends, brainstorms ideas, and refines project concepts",
             llm_client=llm_client,
             verbose=verbose,
-            retriever=retriever
+            retriever=retriever,
+            prompt_profile=self.PROMPT_PROFILE
         )
         self.research_tool = get_research_tool()
-    
-    def get_system_prompt(self) -> str:
-        """Get the system prompt for Idea Agent."""
-        return """You are the Idea Agent - an expert in project ideation and research for agentic AI projects.
-
-Your role is to:
-1. Research current trends and technologies in the project domain
-2. Brainstorm creative and feasible project variations
-3. Refine concepts based on technical feasibility and user goals
-4. Generate clear, actionable project plans
-
-You have access to web research capabilities. Use them to stay current with the latest developments.
-
-When brainstorming:
-- Be creative but practical
-- Consider technical constraints
-- Think about MVP (Minimum Viable Product) scope
-- Suggest modern tools and frameworks
-- Focus on deliverable prototypes
-
-Format your responses clearly with sections for:
-- Research Findings
-- Project Variations (3-5 options)
-- Recommended Approach
-- Next Steps
-
-Be enthusiastic but realistic. Help users turn vague ideas into concrete plans."""
     
     def execute(self, context: AgentContext) -> AgentResult:
         """Execute ideation workflow.
@@ -210,7 +212,7 @@ Generate creative but feasible project variations. For each variation:
 
 Format as clear sections with headers."""
         
-        response = self._generate_response(prompt)
+        response = self._generate_response(prompt, context)
         
         if response.success:
             return response.content
@@ -250,7 +252,7 @@ Provide:
 
 Be specific and actionable. Focus on getting to a working prototype quickly."""
         
-        response = self._generate_response(prompt)
+        response = self._generate_response(prompt, context)
         
         if response.success:
             # Format final output
@@ -303,7 +305,7 @@ Provide:
 
 Keep it concise and actionable."""
         
-        response = self._generate_response(summary_prompt)
+        response = self._generate_response(summary_prompt, context=None)
         
         if response.success:
             return response.content

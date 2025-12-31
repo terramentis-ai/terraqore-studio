@@ -9,8 +9,12 @@ import json
 from pathlib import Path
 from typing import Optional
 import sys
+import os
 
-from ..core.config import get_config_manager, ConfigManager
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from core.config import get_config_manager, ConfigManager
 from core.state import get_state_manager, Project, ProjectStatus
 from core.llm_client import create_llm_client_from_config
 
@@ -66,8 +70,10 @@ def init():
     config_mgr = get_config_manager()
     config = config_mgr.load()
     
-    # Check if API keys are set
-    if not config.primary_llm.api_key:
+    # Check if using Ollama (which doesn't need API key) or if API keys are set
+    using_ollama = config.primary_llm.provider == "ollama"
+    
+    if not using_ollama and not config.primary_llm.api_key:
         click.echo(click.style("⚠️  No API keys detected!", fg='yellow', bold=True))
         click.echo(config_mgr.get_api_key_instructions())
         click.echo("\nAfter setting API keys, run 'TerraQore init' again.")
@@ -78,7 +84,7 @@ def init():
     
     click.echo(click.style("✓", fg='green') + " Configuration loaded")
     click.echo(click.style("✓", fg='green') + " Database initialized")
-    click.echo(click.style("✓", fg='green') + f" Primary LLM: {config.primary_llm.model}")
+    click.echo(click.style("✓", fg='green') + f" Primary LLM: {config.primary_llm.model} ({config.primary_llm.provider})")
     
     if config.fallback_llm and config.fallback_llm.api_key:
         click.echo(click.style("✓", fg='green') + f" Fallback LLM: {config.fallback_llm.model}")
@@ -104,7 +110,9 @@ def new(name: str, description: Optional[str]):
     config_mgr = get_config_manager()
     config = config_mgr.load()
     
-    if not config.primary_llm.api_key:
+    # Check if using Ollama or if API keys are set
+    using_ollama = config.primary_llm.provider == "ollama"
+    if not using_ollama and not config.primary_llm.api_key:
         click.echo(click.style("⚠️  TerraQore not initialized. Run 'TerraQore init' first.", fg='yellow'))
         return
     
