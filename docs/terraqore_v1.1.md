@@ -1,5 +1,5 @@
 TerraQore Studio Is Revolutionizing AI Development with Intelligent Meta-Agentic Orchestration!!
-(https://github.com/terramentis-ai/terraqore-studio/tree/docs/terraqore_banner2.jpeg)
+(https://github.com/terramentis-ai/terraqore-studio/blob/master/docs/terraqore_nanner3.jpeg)
 In the fast-evolving world of AI, developers and data scientists face a daunting challenge: turning innovative ideas into production-ready systems without drowning in manual tasks, security pitfalls, or integration headaches. Enter **TerraQore Studio**, an open-source, enterprise-grade meta-agentic AI orchestration platform designed to automate the entire end-to-end (E2E) AI project lifecycle. Built by Terramentis AI, this powerful tool coordinates nine specialized agents to handle everything from ideation and planning to code generation, testing, security scanning, and deployment—all while ensuring reliability, compliance, and efficiency.
 
 As we wrap up 2025, TerraQore Studio's latest release, v1.1 (dropped on December 31), marks a pivotal moment. Fresh off a rebrand from Flynt/FlyntCore, it's poised to dominate the agentic orchestration space with cutting-edge features like the Project State Management Protocol (PSMP) and a Dynamic Prompt Injection Protocol(DPIP). Whether you're a solo developer prototyping ML models or an enterprise team scaling AI pipelines, TerraQore Studio empowers you to build faster, safer, and smarter. Let's dive into what makes it exceptional today—and where it's headed tomorrow.
@@ -32,7 +32,7 @@ This setup reduces manual effort by up to 80%, letting you focus on innovation w
 
 Just days after rebranding to TerraQore on December 27, 2025, v1.1 landed with game-changing enhancements. The unified Dynamic Prompt Profile system now injects context-aware instructions across all agents, boosting consistency and guardrails without code changes. Other highlights include an upgraded research tool (using the latest ddgs library), persistent LLM configs in YAML, dependency bumps for Python 3.14 compatibility, and overall stability tweaks—no breaking changes, so your existing projects stay intact.
 
-These updates build on the [PSMP](https://github.com/terramentis-ai/terraqore-studio/tree/docs/PSMP) whitepaper (added December 28), which outlines a finite-state machine for conflict-free orchestration—perfect for scaling from prototypes to enterprise deployments.
+These updates build on the [PSMP](https://github.com/terramentis-ai/terraqore-studio/blob/master/docs/PSMP_whitaper.md) whitepaper (added December 28), which outlines a finite-state machine for conflict-free orchestration—perfect for scaling from prototypes to enterprise deployments.
 
 ## Standing Out in the Agentic Space: Comparisons and Integrations
 
@@ -50,6 +50,4 @@ Long-term, a rebrand to TerraQore OS could expand it into a full AI development 
 
 TerraQore Studio isn't just a tool—it's a partner in AI innovation, delivering speed, security, and scalability in an open-source package under MIT license. Whether you're automating ML pipelines, securing DevOps, or exploring agentic frontiers, it's ready to supercharge your projects today while evolving intelligently tomorrow.
 
-Head to [github.com/terramentis-ai/terraqore-studio](https://github.com/terramentis-ai/terraqore-studio) to clone, star, and contribute. Try the CLI with a simple `python -m cli.main new "Your AI Project"` and watch the magic unfold.<grok:render card_id="6922bf" card_type="citation_card" type="render_inline_citation">
-<argument name="citation_id">0</argument>
-</grok:render> Questions? Dive into the docs or join the community discussions. Let's build the future of AI orchestration together—2026 starts now! 🚀
+Head to [github.com/terramentis-ai/terraqore-studio](https://github.com/terramentis-ai/terraqore-studio) to clone, star, and contribute. Try the CLI with a simple `python -m cli.main new "Your AI Project"` and watch the magic unfold.          Questions? Dive into the docs or join the community discussions. Let's build the future of AI orchestration together—2026 starts now! 🚀
