@@ -1,6 +1,6 @@
 # 🚀 TERRAQORE Studio
 
-![TerraQore Banner](https://github.com/terramentis-ai/terraqore-studio/docs/terraqore_banner.jpeg)
+![TerraQore Banner](https://github.com/terramentis-ai/terraqore-studio/blob/master/docs/terraqore_banner.jpeg)
 
 > Enterprise-Grade Meta-Agentic AI Development Platform
 
