@@ -9,7 +9,6 @@ All notable changes to FlyntCore are documented in this file.
 - **Backend LLM Abstraction Layer**: Unified API endpoints for chat, task planning, and agent execution
 - **Frontend Provider-Agnostic Architecture**: Decoupled from Gemini SDK; routes all LLM calls through backend API
 - **Production-Grade Error Handling**: React ErrorBoundary component prevents blank screens; comprehensive logging
-- **Settings UI Enhancements**: Provider descriptions, setup instructions, and connection status indicators
 - **GitHub Actions CI/CD**: Automated testing and building for backend and frontend
 - **Docker Support**: Dockerfile for API containerization
 - **Multi-Agent System**: Specialized agents (Researcher, Engineer, Data Analyst, QA) with role-specific prompts
