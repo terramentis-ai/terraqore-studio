@@ -1,0 +1,113 @@
+name: Update status.json and deploy to GitHub Pages
+on:
+  schedule:
+    - cron: '*/30 * * * *'    # every 30 minutes (adjust as needed)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  issues: read
+  pull-requests: read
+
+jobs:
+  update-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (master)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          ref: master
+          fetch-depth: 0
+
+      - name: Generate docs/status.json
+        uses: actions/github-script@v6
+        id: gen_status
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const query = `
+              query {
+                openP0: search(query: "repo:terramentis-ai/terraqore-studio is:issue is:open label:P0", type: ISSUE, first: 1) { issueCount }
+                openReview: search(query: "repo:terramentis-ai/terraqore-studio is:pr is:open review-requested:terramentis-ai", type: ISSUE, first: 1) { issueCount }
+                blocked: search(query: "repo:terramentis-ai/terraqore-studio is:issue is:open label:blocked", type: ISSUE, first: 1) { issueCount }
+                repo: repository(owner: "terramentis-ai", name: "terraqore-studio") {
+                  issues(first: 5, orderBy: {field: UPDATED_AT, direction: DESC}) {
+                    nodes { number title url updatedAt }
+                  }
+                  pullRequests(first: 5, orderBy: {field: UPDATED_AT, direction: DESC}) {
+                    nodes { number title url updatedAt state }
+                  }
+                }
+              }`;
+            const result = await github.graphql(query);
+
+            const p0count = result.openP0?.issueCount ?? 0;
+            const reviewCount = result.openReview?.issueCount ?? 0;
+            const blockedCount = result.blocked?.issueCount ?? 0;
+
+            const recentIssues = (result.repo.issues.nodes || []).map(i => ({
+              number: i.number,
+              title: i.title,
+              url: i.url,
+              updatedAt: i.updatedAt
+            }));
+            const recentPRs = (result.repo.pullRequests.nodes || []).map(p => ({
+              number: p.number,
+              title: p.title,
+              url: p.url,
+              updatedAt: p.updatedAt,
+              state: p.state
+            }));
+
+            const status = {
+              lastUpdated: (new Date()).toISOString(),
+              p0count,
+              reviewCount,
+              blockedCount,
+              projects: [
+                { name: "Core Orchestration Engine", status: "Active", phase: "stabilizing", desc: "Retries, durability, tracing." },
+                { name: "Local Agent Runtime", status: "Alpha", phase: "expanding-adapters", desc: "Local/private runtimes and sandbox support." },
+                { name: "State Management & Event Store", status: "Beta", phase: "scaling", desc: "Event-sourcing, retention policies." }
+              ],
+              recentIssues,
+              recentPRs,
+              roadmapSummary: "Core engine hardening → Adapters → Ops UI"
+            };
+
+            const fs = require('fs');
+            if (!fs.existsSync('docs')) fs.mkdirSync('docs');
+            fs.writeFileSync('docs/status.json', JSON.stringify(status, null, 2));
+            core.info('docs/status.json created/updated');
+            return { path: 'docs/status.json' };
+
+      - name: Commit docs/status.json to master (attempt with GITHUB_TOKEN)
+        env:
+          REPO: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/status.json || true
+          git commit -m "chore: update status.json [ci skip]" || echo "No changes to commit"
+          # Try pushing using the injected GITHUB_TOKEN (works unless branch protection blocks workflow pushes)
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO}.git
+          git push origin HEAD:master || echo "Push with GITHUB_TOKEN failed (branch protection or permissions). If it fails, create a PAT and set ACTIONS_PUSH_PAT secret; the workflow will attempt PAT next."
+
+      - name: Commit docs/status.json to master (fallback using PAT if provided)
+        if: ${{ secrets.ACTIONS_PUSH_PAT != '' }}
+        env:
+          REPO: ${{ github.repository }}
+        run: |
+          # If GITHUB_TOKEN push failed because of branch protection, you can provide a PAT stored in ACTIONS_PUSH_PAT secret
+          git remote set-url origin https://x-access-token:${{ secrets.ACTIONS_PUSH_PAT }}@github.com/${REPO}.git
+          git push origin HEAD:master || echo "Push with PAT failed (check PAT scopes and secret)."
+
+      - name: Upload docs/ to Pages artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: docs
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v1

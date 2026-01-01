@@ -1,0 +1,70 @@
+name: Update Status JSON
+on:
+  schedule:
+    - cron: '*/30 * * * *'    # every 30 minutes
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: read
+  pull-requests: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Generate status.json
+        uses: actions/github-script@v6
+        id: gen
+        with:
+          script: |
+            // Query basic counts using search (adjust queries for your needs)
+            const query = `
+              query {
+                openP0: search(query: "repo:terramentis-ai/terraqore-studio is:issue is:open label:P0", type: ISSUE, first: 1) { issueCount }
+                openReview: search(query: "repo:terramentis-ai/terraqore-studio is:pr is:open review-requested:terramentis-ai", type: ISSUE, first: 1) { issueCount }
+                blocked: search(query: "repo:terramentis-ai/terraqore-studio is:issue is:open label:blocked", type: ISSUE, first: 1) { issueCount }
+                recentIssues: repository(owner: "terramentis-ai", name: "terraqore-studio") {
+                  issues(first: 5, orderBy: {field: UPDATED_AT, direction: DESC}) {
+                    nodes { number title url updatedAt }
+                  }
+                }
+              }
+            `;
+            const result = await github.graphql(query);
+            const p0count = result.openP0.issueCount || 0;
+            const reviewCount = result.openReview.issueCount || 0;
+            const blockedCount = result.blocked.issueCount || 0;
+            const recent = (result.recentIssues.issues.nodes || []).map(i => `#${i.number} ${i.title}`);
+
+            const status = {
+              lastUpdated: (new Date()).toISOString(),
+              p0count: p0count,
+              reviewCount: reviewCount,
+              blockedCount: blockedCount,
+              projects: [
+                {name: "Core Orchestration Engine", status: "Active", phase: "stabilizing", desc: "Retries, durability, tracing."},
+                {name: "Local Agent Runtime", status: "Alpha", phase: "expanding-adapters", desc: "Local/private runtimes and sandbox support."},
+                {name: "State Management & Event Store", status: "Beta", phase: "scaling", desc: "Event-sourcing, retention policies."}
+              ],
+              recent: recent,
+              roadmapSummary: "Core engine hardening → Adapters → Ops UI"
+            };
+
+            const fs = require('fs');
+            if (!fs.existsSync('docs')) fs.mkdirSync('docs');
+            fs.writeFileSync('docs/status.json', JSON.stringify(status, null, 2));
+            return {path: 'docs/status.json'};
+
+      - name: Commit and push status.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/status.json
+          git commit -m "chore: update status.json [ci skip]" || echo "No changes to commit"
+          git push || echo "Push failed (maybe no changes or permissions)"

@@ -1,6 +1,6 @@
 # 🚀 TERRAQORE Studio
 
-![TerraQore Banner](terraqore_banner.jpeg)
+![TerraQore Banner](https://github.com/terramentis-ai/terraqore-studio/blob/master/docs/terraqore_banner.jpeg)
 
 > Enterprise-Grade Meta-Agentic AI Development Platform
 
@@ -116,8 +116,8 @@ Each agent operates with a dynamic **PROMPT_PROFILE** system that injects contex
 
 ```powershell
 # Clone and setup environment
-git clone <repository-url>
-cd terraqore_studio
+git clone https://github.com/terramentis-ai/terraqore-studio.git
+cd terraqore-studio
 python -m venv .venv
 .\\.venv\\Scripts\\Activate.ps1
 pip install -r requirements.txt

@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TerraMentis AI — Status</title>
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1220; --muted:#9aa6b2; --accent:#5eead4; --danger:#fb7185;
+      --glass: rgba(255,255,255,0.03);
+    }
+    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;color:#e6eef3;background:linear-gradient(180deg,#061024 0%, #081428 100%);}
+    .wrap{max-width:1100px;margin:36px auto;padding:24px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;box-shadow:0 6px 30px rgba(2,6,23,0.6);}
+    header{display:flex;align-items:flex-start;gap:16px}
+    header h1{margin:0;font-size:20px}
+    header p{margin:4px 0 0;color:var(--muted);font-size:13px}
+    .meta{margin-left:auto;text-align:right;color:var(--muted);font-size:13px}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
+    .card{background:var(--card);padding:16px;border-radius:10px;min-height:88px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02);}
+    .card h3{margin:0 0 8px;font-size:14px}
+    .big{font-weight:700;font-size:28px;color:var(--accent)}
+    .muted{color:var(--muted);font-size:13px}
+    .projects{margin-top:20px}
+    .project-row{display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:8px;margin-bottom:8px;background:var(--glass)}
+    .status-pill{padding:6px 10px;border-radius:999px;font-weight:600;font-size:12px}
+    .status-active{background:rgba(94,234,212,0.12);color:var(--accent)}
+    .status-beta{background:rgba(59,130,246,0.08);color:#93c5fd}
+    .status-planned{background:rgba(124,58,237,0.06);color:#c4b5fd}
+    .footer{margin-top:22px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;gap:12px;align-items:center}
+    .list{margin:0;padding:0;list-style:none}
+    .small{font-size:12px;color:var(--muted)}
+    pre{background:transparent;color:var(--muted);white-space:pre-wrap}
+    a.link { color: var(--accent); text-decoration: none; }
+    a.link:hover { text-decoration: underline; }
+    @media (max-width:900px){
+      .grid{grid-template-columns:repeat(1,1fr)}
+      header{flex-direction:column;align-items:flex-start}
+      .meta{margin-left:0;text-align:left}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="app">
+    <header>
+      <div>
+        <h1>TerraQore Studio — Status</h1>
+        <p>Meta-Agentic AI Orchestration — snapshot of active projects, pipeline health, and next roadmap steps.</p>
+        <p class="small">Repository: <a href="https://github.com/terramentis-ai/terraqore-studio" target="_blank" rel="noopener" class="link">terramentis-ai/terraqore-studio</a></p>
+      </div>
+      <div class="meta">
+        <div id="lastUpdated" class="small">Last updated: —</div>
+        <div class="small">Public status page</div>
+      </div>
+    </header>
+
+    <section class="grid" aria-label="Top metrics">
+      <div class="card">
+        <h3>Active incidents / P0s</h3>
+        <div class="big" id="p0count">0</div>
+        <div class="muted small">Open P0 / P1 incidents</div>
+      </div>
+      <div class="card">
+        <h3>Open PRs requiring review</h3>
+        <div class="big" id="reviewCount">0</div>
+        <div class="muted small">PRs review-requested or awaiting approval</div>
+      </div>
+      <div class="card">
+        <h3>Blocked items</h3>
+        <div class="big" id="blockedCount">0</div>
+        <div class="muted small">Open issues labeled "blocked"</div>
+      </div>
+    </section>
+
+    <section class="projects" aria-label="Projects and status">
+      <h3 style="margin:8px 0 12px">Active projects</h3>
+      <div id="projectsList"></div>
+    </section>
+
+    <section style="margin-top:18px;">
+      <h3 style="margin:8px 0 8px">Recent issues</h3>
+      <div id="recentIssues" style="font-size:13px;color:var(--muted)"></div>
+
+      <h3 style="margin:12px 0 8px">Recent pull requests</h3>
+      <div id="recentPRs" style="font-size:13px;color:var(--muted)"></div>
+    </section>
+
+    <div class="footer">
+      <div>
+        <strong>Roadmap focus:</strong>
+        <span class="small" id="roadmapSummary">Core engine hardening → Adapters → Ops UI</span>
+      </div>
+      <div class="small">Status data from <code>docs/status.json</code></div>
+    </div>
+  </div>
+
+  <script>
+    const fallback = {
+      lastUpdated: null,
+      p0count: 0,
+      reviewCount: 0,
+      blockedCount: 0,
+      projects: [
+        {name: "Core Orchestration Engine", status: "Active", phase: "stabilizing", desc: "Retries, durability, tracing."},
+        {name: "Local Agent Runtime", status: "Alpha", phase: "expanding-adapters", desc: "Local/private runtimes and sandbox support."},
+        {name: "State Management & Event Store", status: "Beta", phase: "scaling", desc: "Event-sourcing, retention policies."},
+      ],
+      recentIssues: [],
+      recentPRs: [],
+      roadmapSummary: "Core engine hardening → Adapters → Ops UI"
+    };
+
+    function render(data) {
+      document.getElementById('lastUpdated').textContent = 'Last updated: ' + (data.lastUpdated ? new Date(data.lastUpdated).toLocaleString() : '—');
+      document.getElementById('p0count').textContent = data.p0count ?? 0;
+      document.getElementById('reviewCount').textContent = data.reviewCount ?? 0;
+      document.getElementById('blockedCount').textContent = data.blockedCount ?? 0;
+      document.getElementById('roadmapSummary').textContent = data.roadmapSummary ?? fallback.roadmapSummary;
+
+      const container = document.getElementById('projectsList');
+      container.innerHTML = '';
+      (data.projects || []).forEach(p=>{
+        const row = document.createElement('div');
+        row.className = 'project-row';
+        const left = document.createElement('div');
+        left.innerHTML = `<div style="font-weight:700">${p.name}</div><div class="small" style="margin-top:4px">${p.desc ?? ''}</div>`;
+        const right = document.createElement('div');
+        const pill = document.createElement('span');
+        pill.className = 'status-pill ' + (p.status.toLowerCase().includes('alpha')? 'status-planned' : (p.status.toLowerCase().includes('beta')? 'status-beta' : 'status-active'));
+        pill.textContent = p.status + (p.phase ? ' • ' + p.phase : '');
+        right.appendChild(pill);
+        row.appendChild(left);
+        row.appendChild(right);
+        container.appendChild(row);
+      });
+
+      const recentIssuesEl = document.getElementById('recentIssues');
+      recentIssuesEl.innerHTML = '';
+      (data.recentIssues || []).slice(0,10).forEach(i=>{
+        const div = document.createElement('div');
+        const a = document.createElement('a');
+        a.href = i.url;
+        a.textContent = `#${i.number} ${i.title}`;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.className = 'link';
+        div.appendChild(a);
+        const time = document.createElement('span');
+        time.className = 'small';
+        time.style.marginLeft = '8px';
+        time.textContent = `• ${new Date(i.updatedAt).toLocaleString()}`;
+        div.appendChild(time);
+        recentIssuesEl.appendChild(div);
+      });
+
+      const recentPRsEl = document.getElementById('recentPRs');
+      recentPRsEl.innerHTML = '';
+      (data.recentPRs || []).slice(0,10).forEach(p=>{
+        const div = document.createElement('div');
+        const a = document.createElement('a');
+        a.href = p.url;
+        a.textContent = `#${p.number} ${p.title}`;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.className = 'link';
+        div.appendChild(a);
+        const meta = document.createElement('span');
+        meta.className = 'small';
+        meta.style.marginLeft = '8px';
+        meta.textContent = `• ${p.state} • ${new Date(p.updatedAt).toLocaleString()}`;
+        div.appendChild(meta);
+        recentPRsEl.appendChild(div);
+      });
+    }
+
+    async function loadStatus() {
+      try {
+        const resp = await fetch('status.json', {cache: "no-store"});
+        if (!resp.ok) throw new Error('no-json');
+        const json = await resp.json();
+        render(json);
+      } catch(e) {
+        console.warn('Could not load status.json; using fallback', e);
+        render(fallback);
+      }
+    }
+
+    loadStatus();
+    setInterval(loadStatus, 1000 * 60 * 5);
+  </script>
+</body>
+</html>
