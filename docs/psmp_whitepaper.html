@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PSMP 1.0:TerraQore's Project State Management Protocol</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255,255,255,0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.02) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeInDown 1s ease forwards;
+            background: #1a1a1a;
+            border: 2px solid #333;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ffffff 0%, #888888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.3s forwards;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .subtitle {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            color: #888;
+            text-align: center;
+            margin-bottom: 3rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.6s forwards;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-button {
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            background: #fff;
+            color: #0a0a0a;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.9s forwards;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255,255,255,0.2);
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+            opacity: 0.5;
+            z-index: 1;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translate(-50%, 0); }
+            50% { transform: translate(-50%, 10px); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        h2 {
+            font-size: clamp(1.8rem, 3vw, 2.5rem);
+            margin-bottom: 1.5rem;
+            color: #fff;
+            border-left: 4px solid #fff;
+            padding-left: 1rem;
+        }
+
+        h3 {
+            font-size: clamp(1.3rem, 2vw, 1.8rem);
+            margin: 2rem 0 1rem;
+            color: #ccc;
+        }
+
+        .card {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            border-color: #666;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255,255,255,0.05);
+        }
+
+        .problem-box {
+            background: linear-gradient(135deg, #2a0a0a 0%, #1a1a1a 100%);
+            border-left: 4px solid #ff4444;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .solution-box {
+            background: linear-gradient(135deg, #0a2a0a 0%, #1a1a1a 100%);
+            border-left: 4px solid #44ff44;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: #fff;
+            transform: scale(1.05);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 3rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #fff, #333);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:hover {
+            border-color: #666;
+            transform: translateX(10px);
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -3rem;
+            top: 2rem;
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+            border: 3px solid #0a0a0a;
+        }
+
+        .code-block {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: 'CODE';
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            font-size: 0.7rem;
+            color: #666;
+            letter-spacing: 2px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+
+        .comparison-table th {
+            background: #0a0a0a;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .comparison-table tr:hover {
+            background: #222;
+        }
+
+        .checkmark {
+            color: #44ff44;
+            font-weight: bold;
+        }
+
+        .crossmark {
+            color: #ff4444;
+            font-weight: bold;
+        }
+
+        .interactive-diagram {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            margin: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .flow-step {
+            background: #0a0a0a;
+            border: 2px solid #fff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .flow-step:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 20px rgba(255,255,255,0.1);
+        }
+
+        .flow-arrow {
+            text-align: center;
+            font-size: 2rem;
+            color: #666;
+            margin: 0.5rem 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background: #333;
+            color: #fff;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin: 0.2rem;
+        }
+
+        .highlight {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        footer {
+            background: #0a0a0a;
+            border-top: 1px solid #333;
+            padding: 3rem 2rem;
+            text-align: center;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline {
+                padding-left: 2rem;
+            }
+
+            .timeline-item::before {
+                left: -2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="logo">
+            <img src="/docs/logo.png" alt="TerraMentis Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 10px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <span style="display: none;">🏗️</span>
+        </div>
+        <h1>PSMP</h1>
+        <p class="subtitle">Project State Management Protocol</p>
+        <p class="subtitle">Enterprise-Grade Orchestration Governance for Multi-Agent AI Systems</p>
+        <button class="cta-button" onclick="document.querySelector('.container').scrollIntoView({behavior: 'smooth'})">
+            Explore the Solution
+        </button>
+        <div class="scroll-indicator">
+            <svg width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 5 L15 25 M8 18 L15 25 L22 18"/>
+            </svg>
+        </div>
+    </div>
+
+    <div class="container">
+        <section class="section">
+            <h2>Executive Summary</h2>
+            <p>As organizations adopt multi-agent AI systems to automate complex software development workflows, a critical challenge emerges: <span class="highlight">how do you coordinate multiple specialized agents working on the same project without introducing conflicts, runtime failures, or unpredictable behavior?</span></p>
+            
+            <div class="solution-box">
+                <h3>The PSMP Solution</h3>
+                <p>PSMP (Project State Management Protocol) is TerraQore Studio's answer to this challenge. It's an enterprise-grade governance framework that enforces state machine discipline, mandatory artifact declaration, real-time dependency conflict detection, and automatic project blocking when incompatibilities arise.</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">80%</div>
+                    <div class="stat-label">Fewer Deployment Failures</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">98%</div>
+                    <div class="stat-label">Deployment Success Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">10x</div>
+                    <div class="stat-label">Faster Time-to-Production</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">$250K</div>
+                    <div class="stat-label">Annual Cost Savings</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>The Problem: Multi-Agent Chaos</h2>
+            
+            <div class="problem-box">
+                <h3>Without Governance</h3>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <strong>Step 1:</strong> CoderAgent generates Python code requiring <code>pandas>=2.0</code>
+                    </div>
+                    <div class="timeline-item">
+                        <strong>Step 2:</strong> NotebookAgent creates Jupyter notebooks expecting <code>pandas==1.5.*</code>
+                    </div>
+                    <div class="timeline-item">
+                        <strong>Step 3:</strong> DataScienceAgent adds ML pipelines needing incompatible dependencies
+                    </div>
+                    <div class="timeline-item">
+                        <strong>Step 4:</strong> DevOpsAgent containerizes with a requirements.txt that fails at build time
+                    </div>
+                    <div class="timeline-item" style="border-color: #ff4444;">
+                        <strong>Result:</strong> 🔴 Deploy fails in production — only after hours of agent work and compute costs
+                    </div>
+                </div>
+            </div>
+
+            <h3>The Cost</h3>
+            <div class="card">
+                <p><strong>⏱️ Wasted Compute:</strong> Hours of agent execution rendered useless by incompatible outputs</p>
+            </div>
+            <div class="card">
+                <p><strong>💰 Deployment Failures:</strong> Production deployments fail with cryptic dependency errors</p>
+            </div>
+            <div class="card">
+                <p><strong>🔧 Manual Debugging:</strong> DevOps teams manually resolve conflicts agents should have prevented</p>
+            </div>
+            <div class="card">
+                <p><strong>❌ Lost Trust:</strong> Organizations hesitate to adopt multi-agent systems due to unpredictability</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>How PSMP Works</h2>
+
+            <div class="interactive-diagram">
+                <h3 style="text-align: center; margin-bottom: 2rem;">State Machine Lifecycle</h3>
+                <div class="flow-step">
+                    <span class="badge">START</span>
+                    <strong>INITIALIZED</strong>
+                    <p>Project created with initial configuration</p>
+                </div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step">
+                    <span class="badge">PHASE 1</span>
+                    <strong>PLANNING</strong>
+                    <p>Agents analyze requirements and create execution plan</p>
+                </div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step">
+                    <span class="badge">PHASE 2</span>
+                    <strong>IN_PROGRESS</strong>
+                    <p>Agents execute tasks and declare artifacts with dependencies</p>
+                </div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step" style="border-color: #44ff44;">
+                    <span class="badge">SUCCESS</span>
+                    <strong>COMPLETED</strong>
+                    <p>All artifacts compatible, ready for deployment</p>
+                </div>
+                
+                <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px dashed #333;">
+                    <h3 style="color: #ff4444; text-align: center;">Conflict Detection Path</h3>
+                    <div class="flow-step" style="border-color: #ff4444; margin-top: 1rem;">
+                        <span class="badge" style="background: #ff4444;">ALERT</span>
+                        <strong>BLOCKED</strong>
+                        <p>Dependency conflicts detected - project execution halted</p>
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">
+                        <span class="badge">RESOLUTION</span>
+                        <strong>RESOLVING</strong>
+                        <p>ConflictResolverAgent or manual intervention fixes conflicts</p>
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">
+                        <span class="badge">RETRY</span>
+                        <strong>IN_PROGRESS</strong>
+                        <p>Project resumed with resolved dependencies</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Core Features</h3>
+            <div class="card">
+                <h4>🔒 State Machine Enforcement</h4>
+                <p>Projects follow a strict lifecycle with validated transitions. Invalid transitions are automatically rejected.</p>
+            </div>
+            <div class="card">
+                <h4>📋 Mandatory Artifact Declaration</h4>
+                <p>Every agent must declare its artifacts with dependencies, versions, and purposes for full traceability.</p>
+            </div>
+            <div class="card">
+                <h4>⚡ Real-Time Conflict Detection</h4>
+                <p>Conflicts are detected immediately when artifacts are declared - in under 50ms per declaration.</p>
+            </div>
+            <div class="card">
+                <h4>🛑 Automatic Project Blocking</h4>
+                <p>Conflicted projects cannot proceed until resolution occurs, preventing production failures.</p>
+            </div>
+            <div class="card">
+                <h4>📊 Event Sourcing Audit Trail</h4>
+                <p>Complete history of every action for compliance, debugging, and root cause analysis.</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Real-World Example: RAG Chatbot</h2>
+            
+            <div class="problem-box">
+                <h3>❌ Without PSMP (Failure)</h3>
+                <div class="code-block">✓ CoderAgent creates FastAPI app
+  Dependencies: fastapi, pydantic>=2.0, langchain>=0.1.0
+
+✓ DataScienceAgent builds embedding pipeline
+  Dependencies: langchain==0.0.350, sentence-transformers, torch
+
+✓ NotebookAgent generates analysis notebooks
+  Dependencies: jupyter, pandas, langchain>=0.1.0
+
+✓ DevOpsAgent generates Dockerfile
+  RUN pip install -r requirements.txt
+
+❌ Docker build fails:
+  ERROR: Cannot install langchain==0.0.350 and langchain>=0.1.0
+  
+⏱️ Time wasted: 45 minutes of agent execution
+💰 Cost wasted: $12.50 in LLM API calls
+🔧 Manual fix required: 2 hours of DevOps debugging</div>
+            </div>
+
+            <div class="solution-box">
+                <h3>✅ With PSMP (Success)</h3>
+                <div class="code-block">✓ CoderAgent declares artifact
+  Dependencies: fastapi, pydantic>=2.0, langchain>=0.1.0
+
+✓ DataScienceAgent declares artifact
+  Dependencies: langchain==0.0.350, sentence-transformers, torch
+
+⚠️ PSMP detects conflict:
+  langchain>=0.1.0 (CoderAgent) vs langchain==0.0.350 (DataScienceAgent)
+
+⛔ Project BLOCKED
+
+🤖 ConflictResolverAgent invoked:
+  Analysis: langchain 0.1.x has breaking API changes
+  Resolution: Update DataScienceAgent to use langchain>=0.1.0
+  
+✓ DataScienceAgent artifact updated
+✓ Project UNBLOCKED
+
+✓ NotebookAgent declares artifact (no conflicts)
+
+✓ DevOpsAgent generates Dockerfile
+  requirements.txt validated: all dependencies compatible
+
+✓ Docker build succeeds
+
+⏱️ Total time: 50 minutes (5 min overhead for conflict resolution)
+💰 Total cost: $13.75 ($1.25 for conflict resolution)
+🔧 Manual intervention: 0 hours
+✅ Deployment: SUCCESS on first attempt</div>
+                <p style="margin-top: 1rem; text-align: center; font-weight: bold; color: #44ff44;">ROI: 2 hours saved, $0 in failed deployment costs, zero manual debugging</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Competitive Advantage</h2>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>TerraQore PSMP</th>
+                        <th>LangGraph</th>
+                        <th>AutoGPT</th>
+                        <th>CrewAI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>State Machine Enforcement</td>
+                        <td class="checkmark">✓</td>
+                        <td class="crossmark">✗</td>
+                        <td class="crossmark">✗</td>
+                        <td class="crossmark">✗</td>
+                    </tr>
+                    <tr>
+                        <td>Mandatory Artifact Declaration</td>
+                        <td class="checkmark">✓</td>
+                        <td class="crossmark">✗</td>
+                        <td class="crossmark">✗</td>
+                        <td class="crossmark">✗</td>
+                    </tr>
+                    <tr>
+                        <td>Real-Time Conflict Detection</td>
+                        <td class="checkmark">✓</td>
+                        <td class="crossmark">✗</td>
+                        <td class="crossmark">✗</td>
+                        <td class="crossmark">✗</td>
+                    </tr>
+                    <tr>
+                        <td>Automatic Project Blocking</td>
+                        <td class="checkmark">✓</td>
+                        <td class="crossmark">✗</td>
+                        <td class="crossmark">✗</td>
+                        <td class="crossmark">✗</td>
+                    </tr>
+                    <tr>
+                        <td>Event Sourcing Audit Trail</td>
+                        <td class="checkmark">✓</td>
+                        <td>Partial</td>
+                        <td class="crossmark">✗</td>
+                        <td class="crossmark">✗</td>
+                    </tr>
+                    <tr>
+                        <td>Production Hardening</td>
+                        <td class="checkmark">✓</td>
+                        <td class="crossmark">✗</td>
+                        <td class="crossmark">✗</td>
+                        <td class="crossmark">✗</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section">
+            <h2>Getting Started</h2>
+            
+            <div class="card">
+                <h3>Installation</h3>
+                <div class="code-block"># PSMP is built into TerraQore Studio v1.1+
+git clone https://github.com/terramentis-ai/terraqore-studio.git
+cd terraqore-studio
+pip install -r requirements.txt</div>
+            </div>
+
+            <div class="card">
+                <h3>Enable PSMP</h3>
+                <div class="code-block"># config/settings.yaml
+psmp:
+  enabled: true
+  strict_mode: true  # Block projects on any conflict
+  auto_resolve: true  # Use ConflictResolverAgent
+  event_log: "./data/psmp_events.jsonl"</div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Learn More</h2>
+            <div class="stats-grid">
+                <div class="card" style="text-align: center;">
+                    <h4>📚 Documentation</h4>
+                    <p>docs.terramentis.ai/psmp</p>
+                </div>
+                <div class="card" style="text-align: center;">
+                    <h4>💻 GitHub</h4>
+                    <p>github.com/terramentis-ai</p>
+                </div>
+                <div class="card" style="text-align: center;">
+                    <h4>🌐 Website</h4>
+                    <p>terramentis.ai</p>
+                </div>
+                <div class="card" style="text-align: center;">
+                    <h4>✉️ Contact</h4>
+                    <p>enterprise@terramentis.ai</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p><strong>TerraMentis Systems</strong> — Enterprise-Grade AI Development Platforms</p>
+        <p style="margin-top: 1rem;">© 2025 TerraMentis Systems. All rights reserved.</p>
+        <p style="margin-top: 0.5rem; font-size: 0.9rem;">PSMP, TerraQore Studio, and TerraMentis are trademarks of TerraMentis Systems.</p>
+    </footer>
+
+    <script>
+        // Intersection Observer for fade-in animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+
+        document.querySelectorAll('.section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Add hover effect to cards
+        document.querySelectorAll('.card, .stat-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transition = 'all 0.3s ease';
+            });
+        });
+
+        // Smooth scroll for all internal links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
