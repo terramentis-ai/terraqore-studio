@@ -59,21 +59,32 @@ class CoderAgent(BaseAgent):
         "role": "Coder Agent — full-stack implementation specialist",
         "mission": "Convert approved tasks into production-ready, syntactically correct code with tests and documentation.",
         "objectives": [
-            "Generate complete, idiomatic source files with deterministic folder layout",
+            "Generate complete, idiomatic source files with proper syntax and valid Python/JavaScript",
+            "Every function, class, if/else, try/except block MUST have concrete implementation (no empty bodies)",
             "Include tests, dependencies, and run instructions",
-            "Avoid placeholders or incomplete control blocks",
-            "Return artifacts as machine-readable JSON"
+            "Return artifacts as machine-readable JSON with valid code strings",
+            "Ensure all generated code passes basic syntax validation"
         ],
         "guardrails": [
-            "Every block (if/else/try/loop/class/function) must have a concrete body",
-            "Prefer secure patterns and explicit error handling",
-            "Document non-trivial logic with concise comments"
+            "CRITICAL: Never generate empty try blocks, except blocks, function bodies, or if statements",
+            "CRITICAL: All blocks must have at least a pass statement (Python) or implementation",
+            "Prefer secure patterns and explicit error handling with real logic",
+            "Document non-trivial logic with concise comments",
+            "Test code must be complete and runnable, not stubs"
         ],
         "response_format": (
-            "Return ONLY a JSON object with keys task_title, language, files, summary, execution_notes, validation_tips. "
-            "Each files[n] entry must include path, description, content, optional test_code, and dependencies."
+            "Return ONLY a valid JSON object with exactly these keys:\n"
+            "{\n"
+            '  "task_title": "string",\n'
+            '  "language": "python|javascript|typescript",\n'
+            '  "files": [{"path": "src/main.py", "description": "...", "content": "complete code here", "test_code": "..."}, ...],\n'
+            '  "summary": "string",\n'
+            '  "execution_notes": "string",\n'
+            '  "validation_tips": "string"\n'
+            "}\n"
+            "Each file's content must be complete, syntactically valid code without placeholders."
         ),
-        "tone": "Precise senior engineer"
+        "tone": "Precise senior engineer - prioritize code correctness and completeness"
     }
 
     def __init__(self, llm_client=None, description: str = "Generates production-ready code from task specifications", test_mode: bool = False, verbose: bool = False, retriever: object = None):
@@ -358,7 +369,8 @@ class CoderAgent(BaseAgent):
         
         lang_info = self._get_language_info(language)
         
-        prompt = f"""Generate production-ready code for this task:
+        # Enhanced prompt with explicit requirements for complete, valid code
+        prompt = f"""Generate COMPLETE, SYNTACTICALLY VALID production-ready code for this task:
 
 Task Title: {task_info['title']}
 Description: {task_info['description']}
@@ -374,21 +386,48 @@ Project Context:
 - Project Name: {context.project_name}
 - Project Description: {context.project_description}
 
-Requirements:
-- Generate complete, working code
-- Include proper error handling
-- Add input validation
+CRITICAL REQUIREMENTS - DO NOT SKIP:
+1. Generate COMPLETE code - NO empty functions, classes, if blocks, or try/except blocks
+2. Every function MUST have a real implementation (not just 'pass' or '...')
+3. Every try/except block MUST have actual error handling logic
+4. Every if/else must have complete branches with logic, not empty placeholders
+5. All imports must be accurate and needed
+6. Test code must be complete and runnable
+7. Code must pass Python/JavaScript syntax validation
+8. Include docstrings for all functions
+9. Add proper error handling with specific exceptions
+10. Use meaningful variable names and comments
+
+Code Quality Standards:
+- Follow {language} best practices and PEP 8 (Python) or airbnb (JS)
+- Include proper error handling with try/except blocks (Python) or try/catch (JS)
+- Add input validation for all user-facing functions
 - Include type hints/types where applicable
-- Add comprehensive comments
-- Generate test code
-- List all required dependencies
-- Follow {language} best practices
-- Ensure code is secure and maintainable
+- Generate comprehensive unit tests that actually test the code
+- List all required dependencies (no made-up packages)
 
 Directory Structure to Use:
 {lang_info['directory_structure']}
 
-Provide the code in valid JSON format as specified in the system prompt."""
+Output Format - Return ONLY valid JSON (no markdown, no code blocks):
+{{
+  "task_title": "{task_info['title']}",
+  "language": "{language}",
+  "files": [
+    {{
+      "path": "file path here",
+      "description": "what this file does",
+      "content": "COMPLETE, VALID {language} code here - must be syntactically correct",
+      "test_code": "optional complete test code",
+      "dependencies": ["list", "of", "packages"]
+    }}
+  ],
+  "summary": "brief summary of what was generated",
+  "execution_notes": "how to run the code",
+  "validation_tips": "tips for testing the generated code"
+}}
+
+Remember: Return ONLY the JSON object. No explanations, no code blocks. Ensure all code in the 'content' fields is syntactically valid and complete."""
         
         return prompt
     

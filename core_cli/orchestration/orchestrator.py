@@ -106,6 +106,21 @@ class AgentOrchestrator:
         test_critique = TestCritiqueAgent(self.llm_client, verbose=True, retriever=retriever)
         self.agent_registry.register(test_critique)
         
+        # Register Data Science Agent
+        from agents.ds_agent import DSAgent
+        ds_agent = DSAgent(self.llm_client, verbose=True, retriever=retriever)
+        self.agent_registry.register(ds_agent)
+        
+        # Register MLOps Agent
+        from agents.mlo_agent import MLOAgent
+        mlo_agent = MLOAgent(self.llm_client, verbose=True, retriever=retriever)
+        self.agent_registry.register(mlo_agent)
+        
+        # Register DevOps Agent
+        from agents.do_agent import DOAgent
+        do_agent = DOAgent(self.llm_client, verbose=True, retriever=retriever)
+        self.agent_registry.register(do_agent)
+        
         logger.info(f"Registered {len(self.agent_registry.list_agents())} agents")
     
     def run_ideation(
