@@ -82,14 +82,27 @@ jobs:
             core.info('docs/status.json created/updated');
             return { path: 'docs/status.json' };
 
-      - name: Commit docs/status.json to master
+      - name: Commit docs/status.json to master (attempt with GITHUB_TOKEN)
+        env:
+          REPO: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/status.json || true
           git commit -m "chore: update status.json [ci skip]" || echo "No changes to commit"
-          # push back to master; if branch protection blocks pushes from GITHUB_TOKEN you may need to use a PAT
-          git push origin HEAD:master || echo "Push failed (check branch protection / permissions)"
+          # Try pushing using the injected GITHUB_TOKEN (works unless branch protection blocks workflow pushes)
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO}.git
+          git push origin HEAD:master || echo "Push with GITHUB_TOKEN failed (branch protection or permissions). If it fails, create a PAT and set ACTIONS_PUSH_PAT secret; the workflow will attempt PAT next."
+
+      - name: Commit docs/status.json to master (fallback using PAT if provided)
+        if: ${{ secrets.ACTIONS_PUSH_PAT != '' }}
+        env:
+          REPO: ${{ github.repository }}
+        run: |
+          # If GITHUB_TOKEN push failed because of branch protection, you can provide a PAT stored in ACTIONS_PUSH_PAT secret
+          git remote set-url origin https://x-access-token:${{ secrets.ACTIONS_PUSH_PAT }}@github.com/${REPO}.git
+          git push origin HEAD:master || echo "Push with PAT failed (check PAT scopes and secret)."
 
       - name: Upload docs/ to Pages artifact
         uses: actions/upload-pages-artifact@v1
