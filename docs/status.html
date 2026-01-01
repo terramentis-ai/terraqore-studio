@@ -30,6 +30,8 @@
     .list{margin:0;padding:0;list-style:none}
     .small{font-size:12px;color:var(--muted)}
     pre{background:transparent;color:var(--muted);white-space:pre-wrap}
+    a.link { color: var(--accent); text-decoration: none; }
+    a.link:hover { text-decoration: underline; }
     @media (max-width:900px){
       .grid{grid-template-columns:repeat(1,1fr)}
       header{flex-direction:column;align-items:flex-start}
@@ -43,7 +45,7 @@
       <div>
         <h1>TerraQore Studio — Status</h1>
         <p>Meta-Agentic AI Orchestration — snapshot of active projects, pipeline health, and next roadmap steps.</p>
-        <p class="small">Repository: <a href="https://github.com/terramentis-ai/terraqore-studio" target="_blank" rel="noopener" style="color:var(--accent)">terramentis-ai/terraqore-studio</a></p>
+        <p class="small">Repository: <a href="https://github.com/terramentis-ai/terraqore-studio" target="_blank" rel="noopener" class="link">terramentis-ai/terraqore-studio</a></p>
       </div>
       <div class="meta">
         <div id="lastUpdated" class="small">Last updated: —</div>
@@ -71,14 +73,15 @@
 
     <section class="projects" aria-label="Projects and status">
       <h3 style="margin:8px 0 12px">Active projects</h3>
-      <div id="projectsList">
-        <!-- project rows injected here -->
-      </div>
+      <div id="projectsList"></div>
     </section>
 
     <section style="margin-top:18px;">
-      <h3 style="margin:8px 0 8px">Recent activity</h3>
-      <div id="recentActivity" style="font-size:13px;color:var(--muted)"></div>
+      <h3 style="margin:8px 0 8px">Recent issues</h3>
+      <div id="recentIssues" style="font-size:13px;color:var(--muted)"></div>
+
+      <h3 style="margin:12px 0 8px">Recent pull requests</h3>
+      <div id="recentPRs" style="font-size:13px;color:var(--muted)"></div>
     </section>
 
     <div class="footer">
@@ -91,7 +94,6 @@
   </div>
 
   <script>
-    // Default / fallback data
     const fallback = {
       lastUpdated: null,
       p0count: 0,
@@ -102,7 +104,8 @@
         {name: "Local Agent Runtime", status: "Alpha", phase: "expanding-adapters", desc: "Local/private runtimes and sandbox support."},
         {name: "State Management & Event Store", status: "Beta", phase: "scaling", desc: "Event-sourcing, retention policies."},
       ],
-      recent: ["No recent activity available."],
+      recentIssues: [],
+      recentPRs: [],
       roadmapSummary: "Core engine hardening → Adapters → Ops UI"
     };
 
@@ -130,12 +133,42 @@
         container.appendChild(row);
       });
 
-      const recentEl = document.getElementById('recentActivity');
-      recentEl.innerHTML = '';
-      (data.recent || []).slice(0,5).forEach(item=>{
+      const recentIssuesEl = document.getElementById('recentIssues');
+      recentIssuesEl.innerHTML = '';
+      (data.recentIssues || []).slice(0,10).forEach(i=>{
         const div = document.createElement('div');
-        div.textContent = '• ' + item;
-        recentEl.appendChild(div);
+        const a = document.createElement('a');
+        a.href = i.url;
+        a.textContent = `#${i.number} ${i.title}`;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.className = 'link';
+        div.appendChild(a);
+        const time = document.createElement('span');
+        time.className = 'small';
+        time.style.marginLeft = '8px';
+        time.textContent = `• ${new Date(i.updatedAt).toLocaleString()}`;
+        div.appendChild(time);
+        recentIssuesEl.appendChild(div);
+      });
+
+      const recentPRsEl = document.getElementById('recentPRs');
+      recentPRsEl.innerHTML = '';
+      (data.recentPRs || []).slice(0,10).forEach(p=>{
+        const div = document.createElement('div');
+        const a = document.createElement('a');
+        a.href = p.url;
+        a.textContent = `#${p.number} ${p.title}`;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.className = 'link';
+        div.appendChild(a);
+        const meta = document.createElement('span');
+        meta.className = 'small';
+        meta.style.marginLeft = '8px';
+        meta.textContent = `• ${p.state} • ${new Date(p.updatedAt).toLocaleString()}`;
+        div.appendChild(meta);
+        recentPRsEl.appendChild(div);
       });
     }
 
@@ -151,7 +184,6 @@
       }
     }
 
-    // Auto refresh every 5 minutes
     loadStatus();
     setInterval(loadStatus, 1000 * 60 * 5);
   </script>
