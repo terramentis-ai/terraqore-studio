@@ -1,0 +1,28 @@
+{
+  "lastUpdated": "2026-01-01T09:51:42.409Z",
+  "p0count": 0,
+  "reviewCount": 0,
+  "blockedCount": 0,
+  "projects": [
+    {
+      "name": "Core Orchestration Engine",
+      "status": "Active",
+      "phase": "stabilizing",
+      "desc": "Retries, durability, tracing."
+    },
+    {
+      "name": "Local Agent Runtime",
+      "status": "Alpha",
+      "phase": "expanding-adapters",
+      "desc": "Local/private runtimes and sandbox support."
+    },
+    {
+      "name": "State Management & Event Store",
+      "status": "Beta",
+      "phase": "scaling",
+      "desc": "Event-sourcing, retention policies."
+    }
+  ],
+  "recent": [],
+  "roadmapSummary": "Core engine hardening → Adapters → Ops UI"
+}
