@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/) [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
 
-**TerraQore Studio** is a comprehensive meta-agentic orchestration platform that coordinates 9 specialized AI agents through a complete project lifecycle: ideation → validation → planning → code generation → quality validation → security scanning → deployment.
+**TerraQore Studio** is a comprehensive meta-agentic orchestration platform that coordinates **12 specialized AI agents** through a complete project lifecycle: ideation → validation → planning → code generation → quality validation → security scanning → deployment. Now featuring advanced **Data Science (DSAgent)**, **MLOps (MLOAgent)**, and **DevOps (DOAgent)** capabilities.
 
 ---
 
@@ -26,7 +26,7 @@
 └──────────────────────┬──────────────────────────────────────┘
                        │
 ┌──────────────────────▼──────────────────────────────────────┐
-│                  9 Specialized AI Agents                     │
+│                 12 Specialized AI Agents                     │
 │  ┌────────────┐  ┌────────────┐  ┌────────────┐            │
 │  │   Idea     │  │  Validator │  │  Planner   │            │
 │  └────────────┘  └────────────┘  └────────────┘            │
@@ -35,6 +35,9 @@
 │  └────────────┘  └────────────┘  └────────────┘            │
 │  ┌────────────┐  ┌────────────┐  ┌────────────┐            │
 │  │  Notebook  │  │  Conflict  │  │   Test     │            │
+│  └────────────┘  └────────────┘  └────────────┘            │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐            │
+│  │DataScience │  │   MLOps    │  │  DevOps    │  ✨ NEW  │
 │  └────────────┘  └────────────┘  └────────────┘            │
 └──────────────────────┬──────────────────────────────────────┘
                        │
@@ -70,6 +73,9 @@ Each agent operates with a dynamic **PROMPT_PROFILE** system that injects contex
 | **NotebookAgent** | Jupyter specialist | ML/DS tasks | Interactive notebooks |
 | **ConflictResolverAgent** | Merge coordinator | Artifact conflicts | Resolution strategy |
 | **TestCritiqueAgent** | Coverage strategist | Code repository | Test recommendations |
+| **DSAgent** ✨ | Data science architect | ML project requirements | Framework selection, pipeline design |
+| **MLOAgent** ✨ | MLOps specialist | Model deployment needs | Serving, monitoring, drift detection |
+| **DOAgent** ✨ | DevOps engineer | Infrastructure requirements | IaC, Kubernetes, CI/CD pipelines |
 
 ---
 
@@ -87,9 +93,10 @@ Each agent operates with a dynamic **PROMPT_PROFILE** system that injects contex
 - **Vulnerability Scanning**: Automated OWASP Top 10 & CWE mapping
 
 ### 🌐 Multi-Provider LLM Support
-- **Primary**: OpenRouter (300+ models via unified API)
+- **Primary**: Groq (llama-3.3-70b-versatile) or OpenRouter (300+ models)
 - **Fallback**: Ollama (offline-capable local models)
 - **Smart Routing**: Automatic provider selection based on availability and task type
+- **Single API Key**: OpenRouter key unlocks all cloud providers (Groq, Gemini, Anthropic, etc.)
 - **Cost Optimization**: Configurable per-agent model selection
 
 ### 📊 Production ML Lifecycle
@@ -131,11 +138,16 @@ copy core_cli\\config\\settings.example.yaml config\\settings.yaml
 
 ```yaml
 llm:
-  primary_provider: openrouter
+  primary_provider: groq  # or openrouter
   fallback_provider: ollama
 
+  groq:
+    api_key: ""  # Set GROQ_API_KEY env var (recommended)
+    model: llama-3.3-70b-versatile
+    temperature: 0.7
+
   openrouter:
-    api_key: "sk-or-v1-..."  # Or set OPENROUTER_API_KEY env var
+    api_key: ""  # Set OPENROUTER_API_KEY env var (recommended)
     model: openai/gpt-4o-mini
     temperature: 0.7
 
@@ -146,8 +158,8 @@ llm:
 
   task_routing:
     ideation:
-      provider: openrouter
-      model: meta-llama/llama-3.1-70b-instruct
+      provider: groq
+      model: llama-3.3-70b-versatile
     code:
       provider: openrouter
       model: anthropic/claude-3.5-sonnet
@@ -200,11 +212,14 @@ npm run dev
 ```
 terraqore_studio/
 ├── core_cli/                 # Primary backend & CLI
-│   ├── agents/              # 9 specialized AI agents
+│   ├── agents/              # 12 specialized AI agents
 │   │   ├── base.py         # BaseAgent with PROMPT_PROFILE system
 │   │   ├── idea_agent.py
 │   │   ├── planner_agent.py
 │   │   ├── coder_agent.py
+│   │   ├── data_science_agent.py  # ✨ ML architecture
+│   │   ├── mlops_agent.py         # ✨ Model deployment
+│   │   ├── devops_agent.py        # ✨ Infrastructure
 │   │   └── ...
 │   ├── core/                # Core services
 │   │   ├── llm_client.py   # Multi-provider LLM abstraction
@@ -264,8 +279,17 @@ terraqore_studio/
 ## 🧪 Testing
 
 ```powershell
-# Run regression tests
+# Run full system regression test
 python test_terraqore.py
+
+# Test code validation pipeline
+python test_code_validation.py
+
+# Test security vulnerability scanning
+python test_security_scan.py
+
+# Test specialized agents (DS, MLOps, DevOps)
+python test_specialized_agents.py
 
 # Run full test suite
 cd core_cli
@@ -331,41 +355,61 @@ This project is licensed under the MIT License - see [LICENSE](core_cli/LICENSE)
 
 ## 📝 Release Notes
 
-### v1.1 — December 31, 2025
+### v1.2.0-STABLE — January 2, 2026
 
-**Agent Prompt System Unification & Stability Improvements**
+**Production-Ready Release: Full Pipeline Validation & Specialized Agents**
 
 **🎯 Major Updates:**
-- **Unified Prompt Architecture**: All 9 agents migrated to dynamic `PROMPT_PROFILE` system
-  - Context-aware instruction injection
-  - Consistent guardrails across all agents
-  - Easier prompt tuning and experimentation
-- **Research Tool Modernization**: Migrated from deprecated `duckduckgo_search` to `ddgs==9.10.0`
-- **LLM Configuration Persistence**: API keys now persist in `config/settings.yaml`
-- **Dependency Updates**: 
-  - numpy 2.3.4, pandas 2.3.3 (Python 3.14 wheel support)
-  - Rust toolchain installed for native extensions
+- **3 New Specialized Agents**: 
+  - **DSAgent**: ML architecture design (framework selection, data pipelines, training strategies)
+  - **MLOAgent**: Production MLOps (deployment, monitoring, drift detection, CI/CD)
+  - **DOAgent**: Infrastructure-as-Code (Terraform, Kubernetes, multi-cloud deployment)
+- **Enhanced Security**: Environment variable-based API key management (no hardcoded secrets)
+- **Fixed JSON Parsing**: CoderAgent now successfully generates code on first iteration
+- **LLM Provider Updates**: 
+  - Groq SDK 1.0.0 support (llama-3.3-70b-versatile)
+  - Improved OpenRouter integration
+  - Automatic fallback handling
 
-**✅ Validated Workflows:**
-- Config loading from settings.yaml ✓
-- State management (project/task CRUD) ✓
-- LLM client with provider fallback ✓
-- Agent orchestration (9 agents registered) ✓
-- Full ideation pipeline (research → variations → refinement) ✓
-- Planning phase (task breakdown with dependencies) ✓
+**✅ Fully Validated Workflows:**
+- **Ideation**: 35.77s (6 research sources, multi-variation generation) ✓
+- **Planning**: 25.98s (13 tasks, 4 milestones, dependency graph) ✓
+- **Code Generation**: First-iteration success (4 files, production-ready) ✓
+- **Code Validation**: Hallucination detector operational (24 findings detected) ✓
+- **Security Scanning**: 0 vulnerabilities (OWASP/CWE compliance) ✓
+- **Specialized Agents**: All 3 tested and operational ✓
+  - DSAgent: 25.55s (sentiment analysis architecture)
+  - MLOAgent: 22.85s (fraud detection MLOps pipeline)
+  - DOAgent: 35.68s (e-commerce microservices infrastructure)
 
-**🔧 Known Limitations:**
-- Python 3.14: Some dev tools require C++ compiler or wheel-only installs
-- Ollama endpoint returns HTTP 500 (only impacts offline mode)
-- Alternative search providers documented (Tavily, Serper.dev, ContextualWeb)
+**🔧 Bug Fixes:**
+- Fixed CoderAgent JSON parsing (escape sequence handling)
+- Fixed specialized agent context attribute errors
+- Fixed AgentResult creation in all 3 new agents
+- Corrected execution_time calculation in agent responses
+
+**🔐 Security Improvements:**
+- Removed hardcoded API keys from config files
+- Added environment variable support (GROQ_API_KEY, OPENROUTER_API_KEY)
+- Enhanced prompt injection detection
 
 **📦 Breaking Changes:**
-- None - backward compatible with existing projects
+- API keys must now be set via environment variables (recommended) or config files
+- Groq model updated to llama-3.3-70b-versatile (llama-3.1-70b-versatile deprecated)
 
 **Migration Notes:**
+- Set environment variables: `GROQ_API_KEY` and/or `OPENROUTER_API_KEY`
+- Update `config/settings.yaml` if using file-based configuration
 - Existing projects work without modification
-- Update `config/settings.yaml` format if using old structure
-- Set `OPENROUTER_API_KEY` environment variable or persist in config
+
+---
+
+### v1.1 — December 31, 2025
+
+**Agent Prompt System Unification**
+- Migrated all 9 agents to dynamic `PROMPT_PROFILE` system
+- Research tool modernization (ddgs 9.10.0)
+- Python 3.14 compatibility updates
 
 ---
 
