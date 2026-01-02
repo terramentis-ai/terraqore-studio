@@ -488,11 +488,18 @@ README.md""",
         return language_config.get(language, language_config["python"])
     
     def _parse_code_response(self, response: str, language: str) -> List[CodeFile]:
-        """Parse the LLM response into CodeFile objects."""
+        """Parse the LLM response into CodeFile objects with robust error handling."""
         
         try:
             json_str = self._extract_json_block(response)
-            data = json.loads(json_str)
+            
+            # Try to parse the JSON, with auto-fixing on failure
+            try:
+                data = json.loads(json_str)
+            except json.JSONDecodeError as e:
+                logger.warning(f"Initial JSON parse failed: {e}. Attempting auto-fix...")
+                json_str = self._fix_invalid_json(json_str)
+                data = json.loads(json_str)
             
             files = []
             for file_data in data.get("files", []):
@@ -510,16 +517,81 @@ README.md""",
             
             return files
             
-        except json.JSONDecodeError as e:
+        except Exception as e:
             logger.error(f"Failed to parse code response: {str(e)}")
             return []
 
+    def _fix_invalid_json(self, json_str: str) -> str:
+        """Auto-fix common JSON parsing errors from LLM responses."""
+        
+        # Fix invalid escape sequences - replace single backslash before invalid chars with double backslash
+        json_str = re.sub(r'\\(?!["\\\\/bfnrtu])', r'\\\\', json_str)
+        
+        # Fix line breaks inside string values (ensure they're properly escaped)
+        # This is a bit tricky - we need to find newlines within quoted strings and escape them
+        def escape_newlines_in_strings(match):
+            quote = match.group(1)  # The quote character used
+            content = match.group(2)  # The string content
+            # Replace actual newlines with escaped newlines
+            content = content.replace('\n', '\\n').replace('\r', '\\r')
+            return f'{quote}{content}{quote}'
+        
+        # Match strings enclosed in quotes (handles both single and double quotes in JSON)
+        json_str = re.sub(r'"([^"\\]*(?:\\.[^"\\]*)*)"', 
+                         lambda m: m.group(0).replace('\n', '\\n').replace('\r', '\\r'), 
+                         json_str)
+        
+        # Fix raw content blocks that weren't properly quoted
+        # Look for patterns like: "content": ```python...``` and convert to proper JSON
+        json_str = re.sub(
+            r'"(content|test_code)"\s*:\s*```[\w]*\n([\s\S]*?)\n```',
+            lambda m: f'"{m.group(1)}": "{json.dumps(m.group(2))[1:-1]}"',
+            json_str
+        )
+        
+        # Fix common patterns where LLM returned unquoted multiline content
+        # This handles cases where the LLM put raw code without proper JSON escaping
+        def fix_multiline_content(text):
+            # Find fields that have raw code blocks
+            pattern = r'"(content|test_code)"\s*:\s*([^,\}]+?)(?=,\s*"|\})'
+            
+            def replacer(match):
+                field_name = match.group(1)
+                field_value = match.group(2).strip()
+                
+                # If already quoted and doesn't have obvious escape issues, keep it
+                if field_value.startswith('"') and field_value.endswith('"'):
+                    return match.group(0)
+                
+                # Otherwise, properly escape and quote it
+                # Remove any existing triple quotes
+                field_value = field_value.strip('"`').strip()
+                # Escape special characters
+                escaped = (
+                    field_value
+                    .replace('\\', '\\\\')
+                    .replace('"', '\\"')
+                    .replace('\n', '\\n')
+                    .replace('\r', '\\r')
+                    .replace('\t', '\\t')
+                )
+                return f'"{field_name}": "{escaped}"'
+            
+            return re.sub(pattern, replacer, text, flags=re.MULTILINE)
+        
+        json_str = fix_multiline_content(json_str)
+        
+        return json_str.strip()
+
     def _extract_json_block(self, response: str) -> str:
-        """Extract and sanitize the JSON payload from an LLM response."""
+        """Extract and sanitize the JSON payload from an LLM response with robust error handling."""
+        
+        # Try to find JSON in code blocks first
         code_block = re.search(r"```(?:json)?\s*({[\s\S]*?})```", response, re.IGNORECASE)
         if code_block:
             json_str = code_block.group(1)
         else:
+            # Fall back to finding any JSON object
             json_match = re.search(r"\{[\s\S]*\}", response)
             if not json_match:
                 raise ValueError("No JSON found in response")
@@ -528,14 +600,19 @@ README.md""",
         # Normalize triple-quoted content/test_code blocks to valid JSON strings
         json_str = self._normalize_json_with_triple_quotes(json_str)
 
+        # Clean up whitespace and line endings
         json_str = json_str.strip()
-        json_str = json_str.replace('\r', '\n')
+        json_str = json_str.replace('\r\n', '\n').replace('\r', '\n')
+        
+        # Fix multiple consecutive newlines
         json_str = re.sub(r"\n+", "\n", json_str)
-        json_str = re.sub(r"\s+\n", "\n", json_str)
-        json_str = re.sub(r"\n\s+", "\n", json_str)
-        json_str = re.sub(r"\s{2,}", " ", json_str)
-        json_str = re.sub(r"\\(?![\"\\/bfnrtu])", r"\\\\", json_str)
-        return json_str
+        
+        # Remove trailing whitespace on each line (but keep leading for proper JSON formatting)
+        lines = json_str.split('\n')
+        lines = [line.rstrip() for line in lines]
+        json_str = '\n'.join(lines)
+        
+        return json_str.strip()
 
     def _normalize_json_with_triple_quotes(self, text: str) -> str:
         """Convert invalid triple-quoted values into properly escaped JSON strings.
