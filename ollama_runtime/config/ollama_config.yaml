@@ -1,0 +1,22 @@
+# Ollama Runtime Configuration
+
+# Server settings
+host: "127.0.0.1"
+port: 11434
+
+# Model storage
+models_dir: "./models"
+
+# Auto-load models on startup
+preload_models:
+  - "phi3:latest"
+  - "llama3:8b"
+  - "gemma2:9b"
+
+# Resource limits
+max_concurrent_requests: 4
+context_size: 2048
+
+# Logging
+log_level: "info"
+log_file: "../logs/ollama_runtime.log"

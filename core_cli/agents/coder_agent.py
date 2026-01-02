@@ -148,6 +148,15 @@ class CoderAgent(BaseAgent):
             start_time = time.time()
             steps = []
             
+            # Classify task sensitivity (Phase 5)
+            task_sensitivity = self.classify_task_sensitivity(
+                task_type="code_generation",
+                has_private_data=False,
+                has_sensitive_data=False,
+                is_security_task=False
+            )
+            self._log_step(f"Task classified as: {task_sensitivity}")
+            
             # Step 1: Extract task requirements
             self._log_step("Extracting task requirements")
             task_info = self._extract_task_info(context)

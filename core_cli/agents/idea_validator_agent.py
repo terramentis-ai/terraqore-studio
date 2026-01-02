@@ -150,6 +150,15 @@ class IdeaValidatorAgent(BaseAgent):
         start_time = time.time()
         steps = []
         
+        # Classify task sensitivity (Phase 5)
+        task_sensitivity = self.classify_task_sensitivity(
+            task_type="idea_validation",
+            has_private_data=False,
+            has_sensitive_data=False,
+            is_security_task=False
+        )
+        self._log_step(f"Task classified as: {task_sensitivity}")
+        
         try:
             # Step 1: Extract idea information
             self._log_step("Extracting project idea details")

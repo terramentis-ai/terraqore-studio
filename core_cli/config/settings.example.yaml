@@ -1,26 +1,108 @@
 llm:
+  # Primary provider for offline operation
+  primary_provider: ollama
+  
+  # Fallback provider for cloud operation
   fallback_provider: null
-  gemini:
-    api_key: ""  # Set via environment variable: GEMINI_API_KEY
-    max_tokens: 4096
-    model: models/gemini-2.5-flash
-    temperature: 0.7
-  groq:
-    api_key: ""  # Set via environment variable: GROQ_API_KEY
-    max_tokens: 4096
-    model: llama-3.3-70b-versatile
-    temperature: 0.7
+  
+  # Gateway Configuration (Phase 3 - Offline & Self-Hosting)
+  gateway:
+    enabled: true
+    mode: secure_first  # Options: offline, online, secure_first, auto
+    offline_first: true  # Prefer Ollama when available
+    health_check_interval: 60  # seconds
+    request_timeout: 30  # seconds
+    max_retries: 2
+    
+    # Provider priorities (lower = higher priority)
+    # Consolidated: Groq accessible via OpenRouter, no standalone provider needed
+    provider_priorities:
+      ollama: 1
+      openrouter: 2
+    
+    # Cloud model → Ollama model mappings
+    model_mappings:
+      "openrouter/groq/llama-3.3-70b-versatile": "llama3:8b"
+      "groq/llama-3.3-70b": "llama3:8b"
+      "openrouter/anthropic/claude-3.5-sonnet": "llama3:8b"
+      "openrouter/google/gemini-2.0-pro": "gemma2:9b"
+      "gpt-4": "llama3:8b"
+      "gpt-3.5-turbo": "phi3:latest"
+    
+    # Models to preload on startup (for offline operation)
+    preload_models:
+      - "phi3:latest"       # Fast, small (3.8GB) - basic tasks
+      - "llama3:8b"         # Balanced (4.7GB) - general purpose
+      - "gemma2:9b"         # High quality (5.4GB) - complex tasks
+    
+    # Task sensitivity classification (for security-first routing)
+    sensitive_tasks:
+      - "security_analysis"
+      - "code_review_private"
+      - "data_processing"
+      - "compliance_check"
+      - "internal_documentation"
+  
+  # Ollama configuration (local offline provider)
   ollama:
-    max_tokens: 2048
+    api_key: ""  # Ollama doesn't require API key
     model: phi3:latest
     temperature: 0.3
+    max_tokens: 2048
+    base_url: "http://localhost:11434"
+    fallback_on_oom: true  # Fall back to cloud if model OOM
+  
+  # OpenRouter configuration (unified cloud provider)
+  # Single API key provides access to 300+ models including Groq
   openrouter:
     api_key: ""  # Set via environment variable: OPENROUTER_API_KEY
-    max_tokens: 2048
-    model: meta-llama/llama-3.1-70b-instruct
+    model: openai/gpt-4o-mini
     temperature: 0.7
-  primary_provider: ollama
-
+    max_tokens: 4096
+    # Note: Groq models accessible via openrouter/groq/* prefix
+  
+  # Legacy providers (kept for backward compatibility, not used by gateway)
+  gemini:
+    api_key: ""  # Set via environment variable: GEMINI_API_KEY
+    model: models/gemini-2.5-flash
+    temperature: 0.7
+    max_tokens: 4096
+  
+  xai:
+    api_key: ""  # Set via environment variable: XAI_API_KEY
+    model: grok-2-mini
+    temperature: 0.7
+    max_tokens: 2048
+  
+  # Task-based model routing for OpenRouter (legacy, maintained for backward compatibility)
+  task_routing:
+    ideation:
+      provider: openrouter
+      model: meta-llama/llama-3.1-70b-instruct
+      temperature: 0.8
+    code:
+      provider: openrouter
+      model: anthropic/claude-3.5-sonnet
+      temperature: 0.3
+    analysis:
+      provider: openrouter
+      model: openai/gpt-4o-mini
+      temperature: 0.5
+    validation:
+      provider: openrouter
+      model: openai/gpt-4o-mini
+      temperature: 0.2
+    planning:
+      provider: openrouter
+      model: anthropic/claude-3.5-sonnet
+      temperature: 0.6
+    # Offline fallbacks per task (when Ollama used)
+    offline:
+      ideation: phi3:latest
+      code: phi3:latest
+      analysis: phi3:latest
+      validation: phi3:latest
+      planning: phi3:latest
 system:
   debug: false
   max_retries: 3

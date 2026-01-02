@@ -106,6 +106,15 @@ class DOAgent(BaseAgent):
             # Security validation
             validate_agent_input(context.user_input)
             
+            # Classify task sensitivity (Phase 5)
+            task_sensitivity = self.classify_task_sensitivity(
+                task_type="devops_planning",
+                has_private_data=False,
+                has_sensitive_data=False,
+                is_security_task=False
+            )
+            self._log_step(f"Task classified as: {task_sensitivity}")
+            
             # Step 1: Analyze infrastructure requirements
             analysis_prompt = f"""
 Given this infrastructure requirement:

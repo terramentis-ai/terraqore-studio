@@ -80,6 +80,15 @@ class ConflictResolverAgent(BaseAgent):
         Returns:
             AgentResult with resolution analysis and recommendations.
         """
+        # Classify task sensitivity (Phase 5)
+        task_sensitivity = self.classify_task_sensitivity(
+            task_type="conflict_resolution",
+            has_private_data=False,
+            has_sensitive_data=False,
+            is_security_task=False
+        )
+        self._log_step(f"Task classified as: {task_sensitivity}")
+        
         # Validate input for security violations
         try:
             validate_agent_input(lambda self, ctx: None)(self, context)

@@ -78,7 +78,7 @@ def create_app() -> FastAPI:
         )
     
     # Include routers
-    from terraqore_api.routers import projects, tasks, workflows
+    from terraqore_api.routers import projects, tasks, workflows, metrics, websocket
     
     app.include_router(
         projects.router,
@@ -96,6 +96,16 @@ def create_app() -> FastAPI:
         workflows.router,
         prefix="/api/workflows",
         tags=["workflows"]
+    )
+    
+    app.include_router(
+        metrics.router,
+        tags=["metrics"]
+    )
+    
+    app.include_router(
+        websocket.router,
+        tags=["websocket"]
     )
     
     app.include_router(

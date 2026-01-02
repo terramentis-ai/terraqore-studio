@@ -1112,6 +1112,83 @@ def manifest(project):
         click.echo(click.style(f"❌ Error: {str(e)}", fg='red'))
 
 
+@cli.command()
+@click.option('--organization', '-o', help='Organization / tenant for audit logs')
+@click.option('--agent', '-a', help='Filter entries by agent name')
+@click.option('--limit', '-n', default=20, show_default=True, type=int,
+              help='Number of most recent entries to display (0 = all)')
+@click.option('--report', is_flag=True, help='Show aggregated compliance report')
+@click.option('--json-output', is_flag=True, help='Print raw JSON for each entry')
+@click.option('--log-path', help='Override path to audit log file')
+def audit(organization, agent, limit, report, json_output, log_path):
+    """Inspect SecureGateway compliance audit logs (Phase 5)."""
+
+    org = organization or os.getenv('TERRAQORE_ORGANIZATION', 'default')
+    log_file = Path(log_path) if log_path else Path('core_cli') / 'logs' / f'compliance_audit_{org}.jsonl'
+
+    click.echo(click.style("\n🔐 SecureGateway Compliance Audit", fg='cyan', bold=True))
+    click.echo(f"Organization: {org}")
+    click.echo(f"Audit file: {log_file}\n")
+
+    if not log_file.exists():
+        click.echo(click.style("No audit log found yet. Run agent workflows to generate entries.", fg='yellow'))
+        return
+
+    try:
+        from core.secure_gateway import ComplianceAuditor
+
+        auditor = ComplianceAuditor(organization=org, log_file=str(log_file))
+        logs = auditor.get_logs(agent_name=agent)
+    except Exception as e:
+        logger.error(f"Failed to load compliance audit: {e}", exc_info=True)
+        click.echo(click.style(f"❌ Error opening audit log: {e}", fg='red'))
+        return
+
+    if not logs:
+        if agent:
+            click.echo(click.style(f"No audit entries recorded for agent '{agent}'.", fg='yellow'))
+        else:
+            click.echo(click.style("Audit log is empty.", fg='yellow'))
+        return
+
+    limit = max(0, limit or 0)
+    selected_entries = logs if limit == 0 else logs[-limit:]
+    selected_entries = list(reversed(selected_entries))  # Show newest first
+
+    click.echo(click.style(f"Displaying {len(selected_entries)} entries", fg='green'))
+
+    if json_output:
+        for entry in selected_entries:
+            click.echo(json.dumps(entry, indent=2))
+    else:
+        for entry in selected_entries:
+            ts = entry.get('timestamp', 'unknown')
+            agent_name = entry.get('agent_name', 'unknown')
+            task = entry.get('task_type', 'unknown')
+            provider = entry.get('selected_provider', 'unknown')
+            sensitivity = entry.get('sensitivity', 'unknown')
+            decision = entry.get('policy_decision', '')
+            residency = entry.get('data_residency', 'unknown')
+            click.echo(f"[{ts}] {agent_name} → {provider} ({sensitivity})")
+            click.echo(f"  Task: {task}")
+            click.echo(f"  Decision: {decision}")
+            click.echo(f"  Data Residency: {residency}")
+            click.echo(f"  Policy: {entry.get('policy_name', 'unknown')}\n")
+
+    if report:
+        summary = auditor.generate_compliance_report()
+        click.echo(click.style("📊 Compliance Summary", fg='cyan', bold=True))
+        click.echo(f"Total tasks: {summary.get('total_tasks', 0)}")
+        click.echo(f"Local tasks: {summary.get('local_tasks', 0)}")
+        click.echo(f"Cloud tasks: {summary.get('cloud_tasks', 0)}")
+        click.echo(f"Critical tasks: {summary.get('critical_tasks', 0)}")
+        click.echo(f"Sensitive tasks: {summary.get('sensitive_tasks', 0)}")
+        if summary.get('by_agent'):
+            click.echo("\nBy agent:")
+            for agent_name, counts in summary['by_agent'].items():
+                click.echo(f"  {agent_name}: local={counts.get('local', 0)}, cloud={counts.get('cloud', 0)}")
+
+
 def main():
     """Main entry point."""
     try:

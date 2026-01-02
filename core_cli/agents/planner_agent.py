@@ -103,6 +103,15 @@ class PlannerAgent(BaseAgent):
         self._log_step("Starting planning workflow")
         steps.append("Planning workflow started")
         
+        # Classify task sensitivity (Phase 5)
+        task_sensitivity = self.classify_task_sensitivity(
+            task_type="planning",
+            has_private_data=False,
+            has_sensitive_data=False,
+            is_security_task=False
+        )
+        self._log_step(f"Task classified as: {task_sensitivity}")
+        
         try:
             # Get ideation results if available
             ideation_result = self.state_mgr.get_memory(context.project_id, "ideation_result")

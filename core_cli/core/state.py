@@ -1121,6 +1121,188 @@ class StateManager:
                 "last_updated": row[6]
             }
         return None
+    
+    def log_execution_metric(
+        self,
+        project_id: int,
+        agent_name: str,
+        task_type: str,
+        execution_time_ms: float,
+        success: bool,
+        quality_score: Optional[float] = None,
+        output_tokens: Optional[int] = None,
+        input_tokens: Optional[int] = None,
+        cost_usd: Optional[float] = None
+    ) -> int:
+        """Log execution metrics for agent performance tracking.
+        
+        Args:
+            project_id: Project ID.
+            agent_name: Name of the agent that executed.
+            task_type: Type of task (e.g., 'ideation', 'planning', 'code_generation').
+            execution_time_ms: Execution time in milliseconds.
+            success: Whether execution was successful.
+            quality_score: Optional quality score (0-10).
+            output_tokens: Optional output token count.
+            input_tokens: Optional input token count.
+            cost_usd: Optional cost in USD.
+            
+        Returns:
+            ID of the inserted metric record.
+        """
+        from datetime import datetime
+        
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            INSERT INTO execution_metrics (
+                project_id, agent_name, task_type, execution_time_ms, success,
+                quality_score, output_tokens, input_tokens, cost_usd, timestamp
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            project_id,
+            agent_name,
+            task_type,
+            int(execution_time_ms),
+            success,
+            quality_score,
+            output_tokens,
+            input_tokens,
+            cost_usd,
+            datetime.now().isoformat()
+        ))
+        
+        metric_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
+        
+        return metric_id
+    
+    def get_execution_metrics(
+        self,
+        project_id: int,
+        agent_name: Optional[str] = None,
+        limit: int = 100,
+        order_by: str = "DESC"
+    ) -> List[Dict[str, Any]]:
+        """Retrieve execution metrics for analysis.
+        
+        Args:
+            project_id: Project ID.
+            agent_name: Optional filter by agent name.
+            limit: Maximum number of records to return.
+            order_by: Sort order (DESC for newest first).
+            
+        Returns:
+            List of execution metric records.
+        """
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        if agent_name:
+            cursor.execute("""
+                SELECT id, project_id, agent_name, task_type, execution_time_ms,
+                       success, quality_score, output_tokens, input_tokens,
+                       cost_usd, timestamp
+                FROM execution_metrics
+                WHERE project_id = ? AND agent_name = ?
+                ORDER BY timestamp {} LIMIT ?
+            """.format(order_by), (project_id, agent_name, limit))
+        else:
+            cursor.execute("""
+                SELECT id, project_id, agent_name, task_type, execution_time_ms,
+                       success, quality_score, output_tokens, input_tokens,
+                       cost_usd, timestamp
+                FROM execution_metrics
+                WHERE project_id = ?
+                ORDER BY timestamp {} LIMIT ?
+            """.format(order_by), (project_id, limit))
+        
+        rows = cursor.fetchall()
+        conn.close()
+        
+        return [
+            {
+                "id": row[0],
+                "project_id": row[1],
+                "agent_name": row[2],
+                "task_type": row[3],
+                "execution_time_ms": row[4],
+                "success": row[5],
+                "quality_score": row[6],
+                "output_tokens": row[7],
+                "input_tokens": row[8],
+                "cost_usd": row[9],
+                "timestamp": row[10]
+            }
+            for row in rows
+        ]
+    
+    def get_execution_metrics_summary(self, project_id: int) -> Dict[str, Any]:
+        """Get aggregate execution metrics for a project.
+        
+        Args:
+            project_id: Project ID.
+            
+        Returns:
+            Dictionary with summary metrics.
+        """
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        # Total metrics
+        cursor.execute("""
+            SELECT COUNT(*), SUM(execution_time_ms), AVG(execution_time_ms),
+                   SUM(CASE WHEN success = 1 THEN 1 ELSE 0 END),
+                   AVG(quality_score), SUM(cost_usd)
+            FROM execution_metrics
+            WHERE project_id = ?
+        """, (project_id,))
+        
+        row = cursor.fetchone()
+        total_count = row[0] or 0
+        total_time_ms = row[1] or 0
+        avg_time_ms = row[2] or 0
+        success_count = row[3] or 0
+        avg_quality_score = row[4] or 0
+        total_cost = row[5] or 0
+        
+        # Metrics by agent
+        cursor.execute("""
+            SELECT agent_name, COUNT(*) as count, AVG(execution_time_ms) as avg_time,
+                   SUM(CASE WHEN success = 1 THEN 1 ELSE 0 END) as successes,
+                   AVG(quality_score) as avg_quality
+            FROM execution_metrics
+            WHERE project_id = ?
+            GROUP BY agent_name
+            ORDER BY count DESC
+        """, (project_id,))
+        
+        agent_metrics = []
+        for row in cursor.fetchall():
+            agent_metrics.append({
+                "agent_name": row[0],
+                "execution_count": row[1],
+                "avg_execution_time_ms": row[2],
+                "success_count": row[3],
+                "success_rate": (row[3] / row[1] * 100) if row[1] > 0 else 0,
+                "avg_quality_score": row[4]
+            })
+        
+        conn.close()
+        
+        return {
+            "total_executions": total_count,
+            "total_execution_time_ms": total_time_ms,
+            "avg_execution_time_ms": avg_time_ms,
+            "successful_executions": success_count,
+            "success_rate": (success_count / total_count * 100) if total_count > 0 else 0,
+            "avg_quality_score": avg_quality_score,
+            "total_cost_usd": total_cost,
+            "metrics_by_agent": agent_metrics
+        }
 
 
 # Singleton instance

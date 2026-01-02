@@ -75,6 +75,7 @@ class BaseAgent(ABC):
         self.retriever = retriever
         self.execution_count = 0
         self.prompt_profile = prompt_profile or self._default_prompt_profile()
+        self._task_security_context: Dict[str, Any] = {}
     
     def get_system_prompt(self, context: Optional[AgentContext] = None) -> str:
         """Build a dynamic system prompt using the configured profile."""
@@ -194,15 +195,21 @@ class BaseAgent(ABC):
             logger.debug(f"System prompt: {system[:200]}...")
             logger.debug(f"User prompt: {prompt[:200]}...")
         
+        security_kwargs = self._build_security_kwargs()
         # Prefer retrieval-augmented generation when retriever is available
         if getattr(self, 'retriever', None) is not None and hasattr(self.llm_client, 'generate_with_retrieval'):
             response = self.llm_client.generate_with_retrieval(
                 prompt=prompt,
                 retriever=self.retriever,
-                system_prompt=system
+                system_prompt=system,
+                **security_kwargs,
             )
         else:
-            response = self.llm_client.generate(prompt, system)
+            response = self.llm_client.generate(
+                prompt,
+                system,
+                **security_kwargs,
+            )
         
         if self.verbose:
             if response.success:
@@ -276,6 +283,70 @@ class BaseAgent(ABC):
             return False
         
         return True
+    
+    def classify_task_sensitivity(
+        self,
+        task_type: str,
+        has_private_data: bool = False,
+        has_sensitive_data: bool = False,
+        is_security_task: bool = False
+    ) -> str:
+        """Classify task by sensitivity for security-first routing (Phase 5).
+        
+        Uses SecureGateway to determine if task should stay local or can use cloud.
+        
+        Args:
+            task_type: Type of task (e.g., 'ideation', 'code_generation', 'security_analysis')
+            has_private_data: Contains private/internal data
+            has_sensitive_data: Contains sensitive data (PII, credentials, etc.)
+            is_security_task: Is security/compliance related
+            
+        Returns:
+            Task sensitivity level ('public', 'internal', 'sensitive', 'critical')
+        """
+        try:
+            from core.secure_gateway import get_secure_gateway
+            gateway = get_secure_gateway()
+            
+            sensitivity = gateway.classify_task(
+                agent_name=self.name,
+                task_type=task_type,
+                has_private_data=has_private_data,
+                has_sensitive_data=has_sensitive_data,
+                is_security_task=is_security_task
+            )
+            self._task_security_context = {
+                "task_type": task_type,
+                "task_sensitivity": sensitivity.value,
+                "has_private_data": has_private_data,
+                "has_sensitive_data": has_sensitive_data,
+                "is_security_task": is_security_task,
+            }
+            
+            logger.info(f"[{self.name}] Task '{task_type}' classified as: {sensitivity.value}")
+            return sensitivity.value
+            
+        except Exception as e:
+            logger.warning(f"[{self.name}] Task classification failed: {e}. Defaulting to 'internal'")
+            self._task_security_context = {
+                "task_type": task_type,
+                "task_sensitivity": "internal",
+                "has_private_data": has_private_data,
+                "has_sensitive_data": has_sensitive_data,
+                "is_security_task": is_security_task,
+            }
+            return "internal"
+
+    def _build_security_kwargs(self) -> Dict[str, Any]:
+        """Construct kwargs for secure routing metadata."""
+        context = getattr(self, "_task_security_context", None) or {}
+        return {
+            "agent_type": self.name,
+            "task_type": context.get("task_type"),
+            "task_sensitivity": context.get("task_sensitivity"),
+            "has_private_data": context.get("has_private_data", False),
+            "has_sensitive_data": context.get("has_sensitive_data", False),
+        }
     
     def create_result(
         self,

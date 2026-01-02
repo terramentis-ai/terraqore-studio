@@ -187,6 +187,15 @@ class SecurityVulnerabilityAgent(BaseAgent):
         start_time = time.time()
         steps = []
         
+        # Classify task sensitivity (Phase 5) - Security tasks are CRITICAL
+        task_sensitivity = self.classify_task_sensitivity(
+            task_type="security_analysis",
+            has_private_data=True,
+            has_sensitive_data=True,
+            is_security_task=True  # Security analysis is always CRITICAL
+        )
+        self._log_step(f"Task classified as: {task_sensitivity} (CRITICAL - stays local)")
+        
         try:
             # Step 1: Extract code information
             self._log_step("Extracting code for security analysis")

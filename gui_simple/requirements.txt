@@ -1,0 +1,5 @@
+# TerraQore Streamlit UI Requirements
+# Install with: pip install -r requirements.txt
+
+streamlit>=1.29.0
+streamlit-option-menu>=0.3.6
