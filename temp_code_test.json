@@ -1,0 +1,39 @@
+﻿```
+{
+  "task_title": "Set up Python environment",
+  "language": "python",
+  "files": [
+    {
+      "path": "src/main.py",
+      "description": "Main application entry point",
+      "content": "import os\nimport sys\nfrom utils import create_virtual_environment, verify_python_installation\n\ndef main():\n    try:\n        create_virtual_environment()\n        verify_python_installation()\n        print(\"Python environment set up successfully\")\n    except Exception as e:\n        print(f\"An error occurred: {e}\")\n        sys.exit(1)\n\nif __name__ == '__main__':\n    main()",
+      "test_code": "",
+      "dependencies": ["python", "pip"]
+    },
+    {
+      "path": "src/utils.py",
+      "description": "Utility functions for setting up the Python environment",
+      "content": "import os\nimport subprocess\n\ndef create_virtual_environment():\n    try:\n        subprocess.run([\"python\", \"-m\", \"venv\", \"venv\"], check=True)\n    except subprocess.CalledProcessError as e:\n        raise Exception(f\"Failed to create virtual environment: {e}\")\n\ndef verify_python_installation():\n    try:\n        subprocess.run([\"python\", \"--version\"], check=True, stdout=subprocess.DEVNULL)\n    except subprocess.CalledProcessError as e:\n        raise Exception(f\"Python installation not found: {e}\")",
+      "test_code": "",
+      "dependencies": ["python", "pip"]
+    },
+    {
+      "path": "tests/test_main.py",
+      "description": "Unit tests for the main application",
+      "content": "import unittest\nfrom unittest.mock import patch\nfrom src.main import main\n\nclass TestMain(unittest.TestCase):\n    @patch(\"src.utils.create_virtual_environment\")\n    @patch(\"src.utils.verify_python_installation\")\n    def test_main(self, mock_verify_python_installation, mock_create_virtual_environment):\n        main()\n        mock_create_virtual_environment.assert_called_once()\n        mock_verify_python_installation.assert_called_once()\n\nif __name__ == '__main__':\n    unittest.main()",
+      "test_code": "",
+      "dependencies": ["python", "pip", "unittest"]
+    },
+    {
+      "path": "requirements.txt",
+      "description": "Project dependencies",
+      "content": "fastapi\nuvicorn",
+      "test_code": "",
+      "dependencies": ["fastapi", "uvicorn"]
+    }
+  ],
+  "summary": "Generated code for setting up a Python environment, including a virtual environment and verification of Python installation",
+  "execution_notes": "Run the application using \"python src/main.py\". Run the tests using \"python -m unittest discover -s tests\"",
+  "validation_tips": "Verify that the virtual environment is created and Python is installed correctly by checking the output of the application and the test results"
+}
+```
