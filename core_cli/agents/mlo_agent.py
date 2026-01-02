@@ -91,12 +91,12 @@ class MLOAgent(BaseAgent):
         """
         try:
             # Security validation
-            validate_agent_input(context.task)
+            validate_agent_input(context.user_input)
             
             # Build comprehensive prompt
             prompt = f"""
 Project Requirements:
-{context.task}
+{context.user_input}
 
 Model Information:
 {context.metadata.get('model_info', 'To be determined')}
@@ -147,28 +147,29 @@ Focus on:
                 "provider": response.provider
             }
             
-            return AgentResult(
+            execution_time = response.usage.get("total_time", 0.0) if response.usage else 0.0
+            return self.create_result(
                 success=True,
                 output=mlops_plan,
-                metadata=metadata,
-                execution_time=response.usage.get("total_time", 0.0) if response.usage else 0.0
+                execution_time=execution_time,
+                metadata=metadata
             )
             
         except SecurityViolation as e:
             logger.error(f"Security violation in MLOAgent: {e}")
-            return AgentResult(
+            return self.create_result(
                 success=False,
                 output="",
+                execution_time=0.0,
                 error=f"Security violation: {str(e)}",
-                metadata={"security_error": True},
-                execution_time=0.0
+                metadata={"security_error": True}
             )
         except Exception as e:
             logger.error(f"MLOAgent execution failed: {e}", exc_info=True)
-            return AgentResult(
+            return self.create_result(
                 success=False,
                 output="",
+                execution_time=0.0,
                 error=f"Execution failed: {str(e)}",
-                metadata={"exception_type": type(e).__name__},
-                execution_time=0.0
+                metadata={"exception_type": type(e).__name__}
             )
