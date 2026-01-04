@@ -9,16 +9,19 @@
 
 ## 🎯 Project Vision
 
-**MetaQore** is a standalone governance engine that:
+**MetaQore** is a completely standalone governance engine that:
 - Enforces PSMP (Project State Management Protocol) for all artifact management
 - Provides configurable strictness modes (STRICT/ADAPTIVE/PLAYGROUND)
 - Manages state, conflicts, and compliance across multi-agent systems
-- Serves TerraQore Studio as a privileged API client while remaining open to external agents
+- Can be used by TerraQore Studio or any other multi-agent system as an API client
 - Maintains complete audit trails for compliance (GDPR, SOC2, HIPAA ready)
 
-**Key Difference from TerraQore**:
-- **TerraQore**: Orchestrates 12+ specialized agents (Idea, Planner, Coder, etc.) through workflow stages
-- **MetaQore**: Enforces governance rules that TerraQore agents must follow via REST API
+**Important**: MetaQore is a separate, independent project. It has NO dependencies on TerraQore code. It can be deployed, tested, and used independently of TerraQore.
+
+**Integration Model**:
+- TerraQore (separate project) calls MetaQore via REST API
+- MetaQore doesn't know about TerraQore; it only knows about artifacts and governance
+- This separation allows MetaQore to serve multiple orchestration systems
 
 ---
 

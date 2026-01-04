@@ -217,7 +217,7 @@ MetaQore is a **standalone governance engine** that TerraQore agents call via RE
 
 MetaQore can serve **any multi-agent system**—LangChain, AutoGen, custom systems, etc. It only requires HTTP access to the REST API.
 
-See [../TerraQore_vs_MetaQore.md](../TerraQore_vs_MetaQore.md) for complete separation & integration guide.
+For integration with TerraQore or other multi-agent systems, see integration documentation.
 
 ---
 
