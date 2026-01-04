@@ -1,11 +1,11 @@
-"""Mock LLM client used for MetaQore and TerraQore development testing.
+"""Mock LLM client used for MetaQore development and testing.
 
-The goal is to provide a deterministic yet flexible stand-in for real LLM
-providers so that we can run local workflows, unit tests, and integration tests
-without talking to OpenRouter, Ollama, or any other external service. When the
-infra is ready (for example, once an Oracle Cloud Ollama cluster is reachable)
-we can swap in the production client without touching the calling code.
-"""
+Provides a deterministic, flexible stand-in for real LLM providers so that
+MetaQore can run local workflows, unit tests, and integration tests without
+talking to external services (OpenRouter, Ollama, etc.).
+
+Optional integration: Can mimic TerraQore's LLMResponse format if TerraQore
+is available, but this is NOT required—MetaQore works completely standalone.
 
 from __future__ import annotations
 
