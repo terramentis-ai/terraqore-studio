@@ -7,7 +7,50 @@
 
 ---
 
-## 🎯 Project Vision
+## �️ CRITICAL: Three-Repo Workspace Structure
+
+**This workspace contains THREE independent projects with separate repositories:**
+
+1. **TerraQore Studio** (root: `c:\Users\user\Desktop\terraqore_studio`)
+   - **Code**: `core_cli/`, `terraqore_api/`, `docs/`, root configs
+   - **Repo**: `https://github.com/terramentis-ai/terraqore-studio.git`
+   - **Remote**: `origin`
+   - **Purpose**: Multi-agent orchestration system (12+ agents, 6-stage pipeline)
+   - **Instructions**: `.github/copilot-instructions.md` (root)
+
+2. **MetaQore** (subfolder: `metaqore/`) ⬅️ **YOU ARE HERE**
+   - **Code**: `metaqore/metaqore/`, `metaqore/tests/`, `metaqore/docs/`
+   - **Repo**: `https://github.com/terramentis-ai/metaqore.git`
+   - **Remote**: `terramentis`
+   - **Purpose**: Governance engine for multi-agent systems (PSMP, state, compliance)
+   - **Instructions**: `metaqore/.github/copilot-instructions.md` (THIS FILE)
+   - **ZERO DEPENDENCIES on TerraQore code** — completely standalone
+
+3. **GUI Frontend** (subfolder: `gui_simple/`)
+   - **Code**: `gui_simple/src/`, `gui_simple/package.json`, React app
+   - **Repo**: To be created (separate repo for frontend)
+   - **Remote**: TBD
+   - **Purpose**: React-based UI for TerraQore/MetaQore interaction
+   - **Note**: Streamlit (if present) is deprecated
+
+**Git Workflow Rules**:
+- When working on **MetaQore**: Stage only `metaqore/**` files, push to `terramentis` remote
+- When working on **TerraQore**: Stage only root/core_cli files, push to `origin` remote  
+- When working on **GUI**: Stage only `gui_simple/**` files, push to GUI remote
+- **NEVER mix commits across projects** — each repo is independent
+
+**Why This Structure?**
+All three projects work together as an ecosystem, but each can be:
+- Developed independently
+- Deployed separately
+- Used by other systems
+- Versioned on own schedule
+
+Keeping them in one workspace provides "wholesome context" for development while maintaining clean separation.
+
+---
+
+## �🎯 Project Vision
 
 **MetaQore** is a completely standalone governance engine that:
 - Enforces PSMP (Project State Management Protocol) for all artifact management
