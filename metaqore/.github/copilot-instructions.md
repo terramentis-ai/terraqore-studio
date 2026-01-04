@@ -7,468 +7,166 @@
 
 ---
 
-## �️ CRITICAL: Three-Repo Workspace Structure
+## 🎯 Project Vision
 
-**This workspace contains THREE independent projects with separate repositories:**
-
-1. **TerraQore Studio** (root: `c:\Users\user\Desktop\terraqore_studio`)
-   - **Code**: `core_cli/`, `terraqore_api/`, `docs/`, root configs
-   - **Repo**: `https://github.com/terramentis-ai/terraqore-studio.git`
-   - **Remote**: `origin`
-   - **Purpose**: Multi-agent orchestration system (12+ agents, 6-stage pipeline)
-   - **Instructions**: `.github/copilot-instructions.md` (root)
-
-2. **MetaQore** (subfolder: `metaqore/`) ⬅️ **YOU ARE HERE**
-   - **Code**: `metaqore/metaqore/`, `metaqore/tests/`, `metaqore/docs/`
-   - **Repo**: `https://github.com/terramentis-ai/metaqore.git`
-   - **Remote**: `terramentis`
-   - **Purpose**: Governance engine for multi-agent systems (PSMP, state, compliance)
-   - **Instructions**: `metaqore/.github/copilot-instructions.md` (THIS FILE)
-   - **ZERO DEPENDENCIES on TerraQore code** — completely standalone
-
-3. **GUI Frontend** (subfolder: `gui_simple/`)
-   - **Code**: `gui_simple/src/`, `gui_simple/package.json`, React app
-   - **Repo**: To be created (separate repo for frontend)
-   - **Remote**: TBD
-   - **Purpose**: React-based UI for TerraQore/MetaQore interaction
-   - **Note**: Streamlit (if present) is deprecated
-
-**Git Workflow Rules**:
-- When working on **MetaQore**: Stage only `metaqore/**` files, push to `terramentis` remote
-- When working on **TerraQore**: Stage only root/core_cli files, push to `origin` remote  
-- When working on **GUI**: Stage only `gui_simple/**` files, push to GUI remote
-- **NEVER mix commits across projects** — each repo is independent
-
-**Why This Structure?**
-All three projects work together as an ecosystem, but each can be:
-- Developed independently
-- Deployed separately
-- Used by other systems
-- Versioned on own schedule
-
-Keeping them in one workspace provides "wholesome context" for development while maintaining clean separation.
-
----
-
-## �🎯 Project Vision
-
-**MetaQore** is a completely standalone governance engine that:
+**MetaQore** is a standalone governance engine that:
 - Enforces PSMP (Project State Management Protocol) for all artifact management
 - Provides configurable strictness modes (STRICT/ADAPTIVE/PLAYGROUND)
 - Manages state, conflicts, and compliance across multi-agent systems
-- Can be used by TerraQore Studio or any other multi-agent system as an API client
+- Serves TerraQore Studio as a privileged API client while remaining open to external agents
 - Maintains complete audit trails for compliance (GDPR, SOC2, HIPAA ready)
 
-**Important**: MetaQore is a separate, independent project. It has NO dependencies on TerraQore code. It can be deployed, tested, and used independently of TerraQore.
+---
 
-**Integration Model**:
-- TerraQore (separate project) calls MetaQore via REST API
-- MetaQore doesn't know about TerraQore; it only knows about artifacts and governance
-- This separation allows MetaQore to serve multiple orchestration systems
+## 📊 Current Status (January 4, 2026)
+
+**Phase 1**: ✅ COMPLETE (Core models, PSMP engine, StateManager, SecurityGateway, Audit)  
+**Phase 2 Week 5-6**: 🟡 IN PROGRESS (API scaffold + CRUD endpoints with pagination/filtering live)
+
+### Latest Milestones
+
+- FastAPI app factory with middleware, dependency injection, health routes deployed.
+- Full CRUD routers for `/api/v1/projects`, `/api/v1/tasks`, `/api/v1/artifacts` with pagination & status/role filtering.
+- Shared response metadata envelopes and pagination utilities reduce code duplication.
+- 9 unit tests covering project/task/artifact routes (pytest all passing).
+- Storage + StateManager expose delete operations; PSMP guards all artifact creation.
+- `TODO_UPDATED.md` is the authoritative task checklist; `.github/copilot-instructions.md` documents TerraQore separation.
 
 ---
 
 ## 📁 Project Structure
 
 ```
-metaqore/                          # Standalone Python package
-├── DEVELOPMENT_GUIDE.md          # Development roadmap
-├── ARCHITECTURE.md               # Design document (v1 extraction plan)
-├── ARCHITECTURE_ENHANCEMENT_MAP.md # Enhancement analysis
-├── API_REFERENCE.md              # REST API specification (needs v2 update)
-├── TODO_UPDATED.md               # Current task checklist (most accurate)
-├── PROGRESS.md                   # Weekly progress tracking
-├── REVIEW_RECONCILIATION.md      # This week's status analysis
-│
+metaqore/
 ├── metaqore/                     # Main Python package
-│   ├── __init__.py               # Package exports + version
-│   ├── config.py                 # GovernanceMode enum, MetaQoreConfig
-│   ├── exceptions.py             # Custom exceptions (GovernanceViolation, ConflictDetectedError, etc.)
-│   ├── logger.py                 # Structured logging setup
+│   ├── api/                      # ✅ FastAPI layer
+│   │   ├── app.py                #   App factory + state wiring
+│   │   ├── middleware.py         #   Request context, governance headers
+│   │   ├── schemas.py            #   Pydantic request/response models
+│   │   ├── dependencies.py       #   Dependency injection helpers
+│   │   └── routes/               
+│   │       ├── health.py         #   Health check endpoint
+│   │       ├── projects.py       #   Projects CRUD + pagination/filters
+│   │       ├── tasks.py          #   Tasks CRUD + pagination/filters
+│   │       ├── artifacts.py      #   Artifacts CRUD + pagination/filters
+│   │       └── utils.py          #   Shared route utilities
 │   │
-│   ├── core/                     # Core governance components
-│   │   ├── models.py             # ✅ COMPLETE: 8 Pydantic models
-│   │   ├── psmp.py               # ✅ COMPLETE: PSMPEngine with conflict detection
-│   │   ├── state_manager.py      # ✅ COMPLETE: PSMP-integrated persistence
-│   │   ├── security.py           # ✅ COMPLETE: SecureGateway + policies
-│   │   └── audit.py              # ✅ COMPLETE: Compliance auditor
+│   ├── core/                     # ✅ Governance core
+│   │   ├── models.py             #   8 Pydantic models (Project, Task, Artifact, Conflict, etc.)
+│   │   ├── psmp.py               #   PSMP engine, conflict detection, blocking reports
+│   │   ├── state_manager.py      #   State persistence, PSMP integration, checkpointing
+│   │   ├── security.py           #   SecureGateway, task sensitivity, routing policies
+│   │   └── audit.py              #   ComplianceAuditor, provenance, compliance reporting
 │   │
-│   ├── hmcp/                     # Hierarchical Multi-Capability Protocol
-│   │   ├── registry.py           # Specialist registry (Week 5+)
-│   │   ├── routing.py            # Confidence-based routing (Week 5+)
-│   │   └── validation.py         # 4-stage validation gate (Week 5+)
+│   ├── storage/                  # ✅ Pluggable persistence
+│   │   ├── backend.py            #   Abstract interface
+│   │   └── backends/sqlite.py    #   SQLAlchemy-backed SQLite implementation
 │   │
-│   ├── api/                      # REST API layer
-│   │   ├── app.py                # FastAPI factory (Week 5)
-│   │   ├── middleware.py         # Governance enforcement (Week 5)
-│   │   ├── schemas.py            # Pydantic request/response (Week 5)
-│   │   └── routes/               # API endpoints (Week 5-7)
-│   │
-│   ├── streaming/                # WebSocket & webhooks
-│   │   ├── websocket_manager.py  # (Week 9)
-│   │   ├── webhook_dispatcher.py # (Week 10)
-│   │   └── events.py             # Event types (Week 9)
-│   │
-│   ├── metrics/                  # Observability
-│   │   ├── aggregator.py         # Metrics collection (Week 10)
-│   │   └── exporter.py           # Prometheus exporter (Week 10)
-│   │
-│   ├── mock_llm/                 # ✅ COMPLETE: Offline testing harness
-│   │   ├── client.py             # MockLLMClient with scenarios
-│   │   └── scenarios.py          # Pre-defined response templates
-│   │
-│   └── storage/                  # ✅ COMPLETE: Pluggable persistence
-│       ├── backend.py            # Abstract interface
-│       └── backends/
-│           ├── sqlite.py         # ✅ SQLite (default)
-│           ├── postgres.py       # PostgreSQL (Week 4)
-│           └── redis.py          # Redis cache (Week 6)
+│   ├── config.py                 # Configuration, GovernanceMode enum
+│   ├── exceptions.py             # Custom exceptions
+│   ├── logger.py                 # Structured logging
+│   └── __init__.py               # Package exports
 │
-├── tests/                        # Test suite
-│   ├── conftest.py               # Pytest fixtures
+├── tests/
 │   ├── unit/
-│   │   ├── test_psmp.py          # ⏳ Blocked by environment
-│   │   ├── test_models.py        # ⏳ Blocked by environment
-│   │   ├── test_storage_sqlite.py # ⏳ Blocked by environment
-│   │   ├── test_state_manager.py # ❌ Not started
-│   │   ├── test_security.py      # ⏳ Week 4
-│   │   └── test_audit.py         # ⏳ Week 4
-│   └── integration/              # Integration tests (Week 5+)
+│   │   ├── test_api_projects.py  # ✅ Projects routes + filters
+│   │   ├── test_api_tasks.py     # ✅ Tasks routes + filters
+│   │   ├── test_api_artifacts.py # ✅ Artifacts routes + filters
+│   │   ├── test_api_app.py       # ✅ FastAPI wiring
+│   │   └── ... (Week 1-4 tests)
+│   └── conftest.py
 │
-├── requirements.txt              # ✅ Core dependencies
-├── requirements-dev.txt          # ⚠️ Currently failing to install
-├── .gitignore                    # ✅ Python/IDE files
-├── README.md                     # Project documentation
-└── START_HERE.md                 # Quick start guide
+├── TODO_UPDATED.md               # Daily task checklist (Jan 4)
+├── DEVELOPMENT_GUIDE.md          # Development roadmap
+├── API_REFERENCE.md              # REST API documentation
+├── README.md                      # Project overview
+├── requirements.txt
+├── requirements-dev.txt
+└── .gitignore
 ```
 
 ---
 
-## 🆕 Status Snapshot (January 4, 2026)
-
-- Phase 1 (core models, PSMP, StateManager, SecureGateway, Audit) ✅ complete.
-- Phase 2 Week 5 scaffold ✅: FastAPI app factory, middleware stack, dependency providers.
-- Phase 2 Week 6 🚧: `/api/v1/projects`, `/api/v1/tasks`, `/api/v1/artifacts` routers now expose full CRUD plus pagination & filtering with shared response envelopes.
-- Regression suite now covers the new routers (`tests/unit/test_api_*.py`).
-- Source of truth for daily priorities: `metaqore/TODO_UPDATED.md` (updated Jan 4, 2026).
-
----
-
-## 🔄 How MetaQore Integrates with TerraQore Studio
-
-### Architecture Diagram
-
-```
-┌─────────────────────────────────┐
-│     TerraQore Studio            │
-│  (Multi-Agent Orchestration)    │
-│  - 12 Specialized Agents        │
-│  - 6-Stage Workflow             │
-│  - LLM Gateway (Ollama/OpenRouter)
-└────────────┬────────────────────┘
-             │ (calls via REST API)
-             │
-┌────────────▼──────────────────────┐
-│    MetaQore API Gateway            │
-│  - Authentication                  │
-│  - Rate Limiting                   │
-│  - Request Routing                 │
-└────────────┬──────────────────────┘
-             │
-┌────────────▼──────────────────────┐
-│  MetaQore Orchestration Engine     │
-│  ┌──────────────────────────────┐  │
-│  │ PSMP Core                    │  │
-│  │ - Artifact Management        │  │
-│  │ - Conflict Detection         │  │
-│  │ - Blocking Reports           │  │
-│  └──────────────────────────────┘  │
-│  ┌──────────────────────────────┐  │
-│  │ State Management             │  │
-│  │ - Project Persistence        │  │
-│  │ - Time-Travel Checkpoints    │  │
-│  │ - Dependency Tracking        │  │
-│  └──────────────────────────────┘  │
-│  ┌──────────────────────────────┐  │
-│  │ Security & Compliance        │  │
-│  │ - Governance Enforcement     │  │
-│  │ - Audit Trail Logging        │  │
-│  │ - Veto Mechanisms            │  │
-│  └──────────────────────────────┘  │
-└────────────────────────────────────┘
-             │
-┌────────────▼──────────────────────┐
-│  SQLite Database                   │
-│  - Projects, Artifacts, Tasks      │
-│  - Conflicts, Checkpoints          │
-│  - Compliance Audit Trail          │
-└────────────────────────────────────┘
-```
-
-### TerraQore Agent Workflow → MetaQore Integration
-
-1. **Agent generates code artifact** → Calls `POST /api/v1/artifacts`
-2. **MetaQore receives artifact** → Runs PSMP conflict detection
-3. **Result**:
-   - ✅ **No conflicts**: Artifact persisted, returned to agent
-   - ⚠️ **Conflicts detected**: Returns blocking report with suggestions
-   - 🔴 **Policy violated**: STRICT mode rejects, ADAPTIVE mode auto-resolves
-4. **Agent receives response** → Decides next action (retry, escalate, etc.)
-
----
-
-## 🎯 Development Workflow
+## 🚀 Quick Start
 
 ### Environment Setup
-
 ```bash
-# Initialize virtual environment
 cd metaqore
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-
-# Install dependencies
 pip install -r requirements.txt
-
-# Install dev tooling (✅ fixed after network reconnect on Jan 4)
-pip install -r requirements-dev.txt
-
-# Verify core package works
-python -c "from metaqore import MetaQoreConfig; print('✅ MetaQore imports OK')"
 ```
 
-### Development Cycle
-
-1. **Create feature branch**:
-   ```bash
-   git checkout -b feature/state-manager
-   ```
-
-2. **Implement feature** (currently: StateManager implementation):
-   ```bash
-   # Edit metaqore/core/state_manager.py
-   # Test locally with:
-   python -c "from metaqore.core.state_manager import StateManager"
-   ```
-
-3. **Write unit tests** (after environment fixed):
-   ```bash
-   pytest tests/unit/test_state_manager.py -v
-   pytest --cov=metaqore tests/
-   ```
-
-4. **Format and lint**:
-   ```bash
-   black metaqore/
-   flake8 metaqore/
-   mypy metaqore/
-   ```
-
-5. **Commit**:
-   ```bash
-   git add metaqore/core/state_manager.py tests/unit/test_state_manager.py
-   git commit -m "feat: implement StateManager with PSMP integration"
-   ```
-
-### Key Files to Understand
-
-| File | Purpose | Status | Next Step |
-|------|---------|--------|-----------|
-| **metaqore/config.py** | Governance modes, configuration | ✅ Complete | Reference in StateManager |
-| **metaqore/core/models.py** | Data models | ✅ Complete | Use in StateManager CRUD |
-| **metaqore/core/psmp.py** | Conflict detection engine | ✅ Complete | Call from StateManager |
-| **metaqore/storage/backend.py** | Abstract persistence | ✅ Complete | Inherit in StateManager |
-| **metaqore/storage/backends/sqlite.py** | SQLite implementation | ✅ Complete | Inject in StateManager |
-| **metaqore/core/state_manager.py** | **STATE PERSISTENCE** | ❌ NOT STARTED | **BUILD THIS NEXT** |
-
----
-
-## 🔧 Immediate Development Priorities
-
-### Priority 1: Debug Development Environment (URGENT)
-**Status**: Blocking all testing and linting  
-**Problem**: `pip install -r requirements-dev.txt` fails (exit code 1)  
-**Solution**:
+### Run Tests
 ```bash
-# Step 1: Check pip version
-.\.venv\Scripts\python -m pip --version
-
-# Step 2: Upgrade pip
-.\.venv\Scripts\python -m pip install --upgrade pip
-
-# Step 3: Retry install (check verbose output for conflicts)
-.\.venv\Scripts\python -m pip install -r requirements-dev.txt -v
-
-# Step 4: If still failing, list actual error
-# Look for: version conflicts, missing system dependencies, etc.
+pytest tests/unit/test_api_projects.py tests/unit/test_api_tasks.py tests/unit/test_api_artifacts.py
 ```
 
-### Priority 2: Implement StateManager (CRITICAL)
-**File**: `metaqore/core/state_manager.py`  
-**Depends On**:
-- ✅ `StorageBackend` (abstract interface ready)
-- ✅ `SQLiteBackend` (concrete implementation ready)
-- ✅ `PSMPEngine` (conflict detection ready)
-- ✅ `models.py` (all data models defined)
-
-**Key Requirements**:
-1. Wrap `StorageBackend` with PSMP validation layer
-2. For `create_artifact()`: Call `psmp_engine.check_conflicts()` before persist
-3. For `get_project()`: Load all related artifacts and tasks
-4. Raise `ConflictDetectedError` if conflicts unresolved
-5. Support checkpointing (create snapshot, restore from checkpoint)
-
-**Estimated Effort**: 2-3 days
-
-### Priority 3: Write Comprehensive Unit Tests (HIGH)
-**When**: After StateManager implemented and environment fixed  
-**Coverage**:
-- **test_psmp.py**: Conflict detection, versioning, blocking reports
-- **test_models.py**: Serialization, validation, computed fields
-- **test_storage_sqlite.py**: CRUD operations, transactions
-- **test_state_manager.py**: State persistence, PSMP integration
-
-**Target**: 80%+ coverage by end of Phase 1
-
-### Priority 4: Reconcile Documentation (MEDIUM)
-**When**: After Week 3 complete  
-**Tasks**:
-- [ ] Rewrite ARCHITECTURE.md for v2 design (not extraction plan)
-- [ ] Update API_REFERENCE.md with PSMP governance flows
-- [ ] Create MetaQore-specific architecture diagrams
-- [ ] Document governance mode enforcement at API level
-- [ ] Link to TerraQore instructions (show separation clearly)
-
----
-
-## 📚 Key Architectural Concepts
-
-### PSMP (Project State Management Protocol)
-**Purpose**: Enforce artifact governance at persistence layer  
-**How It Works**:
-1. All artifacts flow through `PSMPEngine` before storage
-2. Engine checks for conflicts (versioning, dependencies, circular refs, etc.)
-3. Returns blocking report if conflicts detected
-4. Agent can retry, override, merge, or escalate
-5. Resolution tracked in `Conflict` model with provenance
-
-**Implementation**: `metaqore/core/psmp.py` + `metaqore/core/state_manager.py`
-
-### Governance Modes
-**STRICT**: Block all conflicts immediately (production, safety-critical)  
-**ADAPTIVE**: Auto-resolve conflicts using strategies (development, fast iteration)  
-**PLAYGROUND**: Log only, never block (experiments, learning)
-
-**Configuration**: Set via `METAQORE_GOVERNANCE_MODE` env var or `config.py`
-
-### Storage Backend Pattern
-**Why Abstract?**: Different deployments need different backends
-- **SQLite** (default): File-based, single-machine, no setup
-- **PostgreSQL** (production): Horizontal scaling, enterprise features
-- **Redis** (cache): High-speed in-memory persistence
-
-**How to Add New Backend**:
-1. Create class inheriting from `StorageBackend`
-2. Implement all 8 CRUD operation groups
-3. Register in StateManager constructor
-
----
-
-## 🧪 Testing Strategy
-
-### Unit Tests (Week 1-4)
-- Test each component in isolation
-- Use mock objects for dependencies
-- Run via `pytest tests/unit/`
-
-### Integration Tests (Week 5+)
-- Test full workflows (artifact creation → PSMP validation → persistence)
-- Use real SQLite database
-- Run via `pytest tests/integration/`
-
-### Performance Tests (Week 10+)
-- Benchmark <150ms p99 latency target
-- Stress test with 1000+ concurrent requests
-- Run via `pytest tests/performance/`
-
-### Compliance Tests (Week 4)
-- Verify audit trail completeness
-- Test policy enforcement
-- Verify signature validation
-
----
-
-## 🚀 Release Schedule
-
-| Phase | Weeks | Status | MVP Deliverable |
-|-------|-------|--------|-----------------|
-| Phase 1: Core | 1-4 | 🟡 In Progress | PSMP engine + state mgmt |
-| Phase 2: API | 5-8 | ⏳ Scheduled | REST endpoints + governance |
-| Phase 3: Observability | 9-12 | ⏳ Scheduled | Streaming + metrics |
-| Phase 4: Production | 13-16 | ⏳ Scheduled | PostgreSQL + K8s |
-
-**Target MVP**: End of Phase 2 (Week 8) with TerraQore integration
-
----
-
-## 🔗 Related Projects
-
-### TerraQore Studio
-- **Location**: Root of workspace (`core_cli/`)
-- **Purpose**: Multi-agent orchestration with 12+ specialized agents
-- **Relationship**: Uses MetaQore as governance API client
-- **Instructions**: See `.github/copilot-instructions.md` (TerraQore-specific)
-
-### MetaQore (This Project)
-- **Location**: `metaqore/` folder
-- **Purpose**: Standalone governance engine
-- **Clients**: TerraQore (primary) + external agents (future)
-- **Instructions**: This file (MetaQore-specific)
-
-**Key Principle**: MetaQore doesn't know about TerraQore's agents; it only knows about artifacts and governance rules.
-
----
-
-## 📞 Common Questions
-
-### Q: When do I use MetaQore vs. TerraQore?
-**A**: 
-- Use **TerraQore** if you're building AI agent workflows (ideation → planning → code)
-- Use **MetaQore** if you need artifact governance across any system (multi-agent, multi-model, etc.)
-
-### Q: Can MetaQore run standalone?
-**A**: Yes! It's a complete REST API. Call it from any client (TerraQore, LangChain, AutoGen, custom code, etc.)
-
-### Q: What makes MetaQore's governance different?
-**A**: PSMP is mandatory—all artifacts must flow through conflict detection and can be blocked/versioned. No "governance-free" mode.
-
-### Q: How do I debug StateManager when it's ready?
-**A**: 
-```python
-from metaqore.core.state_manager import StateManager
-from metaqore.storage.backends.sqlite import SQLiteBackend
-from metaqore.core.models import Project
-
-backend = SQLiteBackend("test.db")
-mgr = StateManager(backend)
-project = mgr.create_project(Project(name="Test"))
-print(f"Created: {project.id}")
+### Run API Server (Not yet; Week 7 onwards)
+```bash
+# Coming soon: uvicorn metaqore.api.app:app --reload
 ```
 
-### Q: When should I commit?
-**A**: After each completed task (daily at minimum). Push to feature branch, don't merge to main until week completes and all tests pass.
+---
+
+## 🔗 Integration with TerraQore
+
+MetaQore is a **standalone governance engine** that TerraQore Studio calls via REST API.
+
+**Separation Principle**:
+- **TerraQore**: Generates artifacts (code, plans, tests, etc.)
+- **MetaQore**: Manages, validates, and governs artifacts
+
+**Integration Flow**:
+1. TerraQore agent calls `POST /api/v1/artifacts` with new artifact
+2. MetaQore runs PSMP conflict detection
+3. Returns result (accepted, blocked, auto-resolved)
+4. TerraQore decides next action based on response
+
+**Key**: MetaQore can serve any multi-agent system, not just TerraQore.
 
 ---
 
-## 🎓 Learning Resources
+## 📋 Daily Development
 
-**PSMP Concept**: See `ARCHITECTURE_ENHANCEMENT_MAP.md` (explains governance philosophy)  
-**Data Models**: See `metaqore/core/models.py` (well-commented)  
-**Storage Pattern**: See `metaqore/storage/backends/sqlite.py` (reference implementation)  
-**API Design**: See `API_REFERENCE.md` (needs v2 update, but shows endpoint structure)
+### Before Starting Work
+1. Check `TODO_UPDATED.md` for your task
+2. Create a feature branch: `git checkout -b feat/governance-endpoints`
+3. Verify environment: `pip install -r requirements.txt`
+
+### During Development
+- Write code + tests together
+- Run relevant tests frequently: `pytest tests/unit/test_api*.py`
+- Keep models in sync via `metaqore/core/models.py`
+- Use type hints throughout
+
+### Before Committing
+- Format: `black metaqore/ tests/`
+- Lint: `flake8 metaqore/ tests/`
+- Test: `pytest tests/unit/` (full suite if possible)
+- Commit with descriptive message: `feat(api): add governance endpoints`
 
 ---
 
-**Status**: Ready to implement StateManager. Environment debugging required first.
+## 🎯 Next Steps
 
-**Contact**: If blocked > 1 day on a task, escalate immediately.
+**Week 6 (Current)**: Core CRUD endpoints with pagination ✅ DONE  
+**Week 7**: Governance endpoints (blocking reports, compliance exports)  
+**Week 8**: Streaming hooks, WebSocket support, compliance reporting  
+**Week 9+**: Performance tuning, documentation, deployment
+
+---
+
+## 📚 Key Docs
+
+- **`TODO_UPDATED.md`**: Daily tasks and progress (this is the source of truth)
+- **`API_REFERENCE.md`**: REST endpoint documentation (needs Week 6 updates)
+- **`DEVELOPMENT_GUIDE.md`**: Architecture and patterns
+- **Root `.github/copilot-instructions.md`**: TerraQore Studio documentation (separate project)
+- **`../TerraQore_vs_MetaQore.md`**: Project separation & integration guide
+
+---
+
+**Last Updated**: January 4, 2026  
+**Current Phase**: Phase 2 Week 6 (Core CRUD + pagination live)  
+**Next Priority**: Governance endpoints + compliance reporting
