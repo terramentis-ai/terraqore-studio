@@ -1,0 +1,149 @@
+<svg viewBox="0 0 800 920" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect x="0" y="0" width="800" height="920" fill="#ffffff"/>
+  
+  <!-- CLI/API/GUI Layer with Logo -->
+  <rect x="50" y="20" width="700" height="100" rx="8" fill="#ffffff" stroke="#000000" stroke-width="2.5" filter="url(#shadow)"/>
+  
+  <!-- Logo -->
+  <image x="320" y="35" width="160" height="40" href="https://raw.githubusercontent.com/terramentis-ai/terraqore-studio/master/docs/terrabrainblk.png" preserveAspectRatio="xMidYMid meet"/>
+  
+  <text x="400" y="100" font-family="system-ui, -apple-system, sans-serif" font-size="17" font-weight="700" fill="#000000" text-anchor="middle">CLI / API / GUI Layer</text>
+  <text x="400" y="115" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="500" fill="#000000" text-anchor="middle">User Interface and Interaction</text>
+  
+  <!-- Arrow -->
+  <path d="M 400 120 L 400 150" stroke="#000000" stroke-width="2.5" fill="none" marker-end="url(#arrowhead)"/>
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+      <polygon points="0 0, 10 5, 0 10" fill="#000000"/>
+    </marker>
+  </defs>
+  
+  <!-- Orchestrator Layer -->
+  <rect x="50" y="150" width="700" height="80" rx="8" fill="#ffffff" stroke="#000000" stroke-width="2.5" filter="url(#shadow)"/>
+  <text x="400" y="180" font-family="system-ui, -apple-system, sans-serif" font-size="17" font-weight="700" fill="#000000" text-anchor="middle">Agent Orchestrator and Workflow Engine</text>
+  <text x="400" y="200" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="500" fill="#000000" text-anchor="middle">State Management • Task Sequencing • PSMP</text>
+  
+  <!-- Arrow -->
+  <path d="M 400 230 L 400 260" stroke="#000000" stroke-width="2.5" fill="none" marker-end="url(#arrowhead)"/>
+  
+  <!-- Agents Layer -->
+  <rect x="50" y="260" width="700" height="320" rx="8" fill="#ffffff" stroke="#000000" stroke-width="2.5" filter="url(#shadow)"/>
+  <text x="400" y="285" font-family="system-ui, -apple-system, sans-serif" font-size="17" font-weight="700" fill="#000000" text-anchor="middle">12 Specialized AI Agents</text>
+  
+  <!-- Agent Grid -->
+  <g id="agents">
+    <!-- Row 1 -->
+    <g transform="translate(100, 300)">
+      <rect width="140" height="50" rx="6" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+      <text x="70" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#000000" text-anchor="middle">Idea</text>
+    </g>
+    <g transform="translate(280, 300)">
+      <rect width="140" height="50" rx="6" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+      <text x="70" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#000000" text-anchor="middle">Validator</text>
+    </g>
+    <g transform="translate(460, 300)">
+      <rect width="140" height="50" rx="6" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+      <text x="70" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#000000" text-anchor="middle">Planner</text>
+    </g>
+    
+    <!-- Row 2 -->
+    <g transform="translate(100, 370)">
+      <rect width="140" height="50" rx="6" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+      <text x="70" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#000000" text-anchor="middle">Coder</text>
+    </g>
+    <g transform="translate(280, 370)">
+      <rect width="140" height="50" rx="6" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+      <text x="70" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#000000" text-anchor="middle">CodeValidator</text>
+    </g>
+    <g transform="translate(460, 370)">
+      <rect width="140" height="50" rx="6" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+      <text x="70" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#000000" text-anchor="middle">Security</text>
+    </g>
+    
+    <!-- Row 3 -->
+    <g transform="translate(100, 440)">
+      <rect width="140" height="50" rx="6" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+      <text x="70" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#000000" text-anchor="middle">Notebook</text>
+    </g>
+    <g transform="translate(280, 440)">
+      <rect width="140" height="50" rx="6" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+      <text x="70" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#000000" text-anchor="middle">Conflict</text>
+    </g>
+    <g transform="translate(460, 440)">
+      <rect width="140" height="50" rx="6" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+      <text x="70" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#000000" text-anchor="middle">Test</text>
+    </g>
+    
+    <!-- Row 4 -->
+    <g transform="translate(100, 510)">
+      <rect width="140" height="50" rx="6" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+      <text x="70" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#000000" text-anchor="middle">DataScience</text>
+    </g>
+    <g transform="translate(280, 510)">
+      <rect width="140" height="50" rx="6" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+      <text x="70" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#000000" text-anchor="middle">MLOps</text>
+    </g>
+    <g transform="translate(460, 510)">
+      <rect width="140" height="50" rx="6" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+      <text x="70" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#000000" text-anchor="middle">DevOps</text>
+      <rect x="95" y="5" width="38" height="16" rx="8" fill="#000000"/>
+      <text x="114" y="17" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">NEW</text>
+    </g>
+  </g>
+  
+  <!-- Arrow -->
+  <path d="M 400 580 L 400 610" stroke="#000000" stroke-width="2.5" fill="none" marker-end="url(#arrowhead)"/>
+  
+  <!-- LLM Layer -->
+  <rect x="50" y="610" width="700" height="120" rx="8" fill="#ffffff" stroke="#000000" stroke-width="2.5" filter="url(#shadow)"/>
+  <text x="400" y="635" font-family="system-ui, -apple-system, sans-serif" font-size="17" font-weight="700" fill="#000000" text-anchor="middle">Multi-Provider LLM Client Layer</text>
+  
+  <!-- OpenRouter Box -->
+  <rect x="120" y="655" width="220" height="60" rx="6" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+  <text x="230" y="678" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="700" fill="#000000" text-anchor="middle">OpenRouter</text>
+  <text x="230" y="695" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="500" fill="#000000" text-anchor="middle">(Primary)</text>
+  <text x="230" y="709" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="500" fill="#000000" text-anchor="middle">300+ Models</text>
+  
+  <!-- Bidirectional Arrow -->
+  <path d="M 350 685 L 450 685" stroke="#000000" stroke-width="2" fill="none" marker-end="url(#arrowhead2)" marker-start="url(#arrowhead3)"/>
+  <defs>
+    <marker id="arrowhead2" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+      <polygon points="0 0, 8 4, 0 8" fill="#000000"/>
+    </marker>
+    <marker id="arrowhead3" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+      <polygon points="8 0, 0 4, 8 8" fill="#000000"/>
+    </marker>
+  </defs>
+  
+  <!-- Ollama Box -->
+  <rect x="460" y="655" width="220" height="60" rx="6" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+  <text x="570" y="678" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="700" fill="#000000" text-anchor="middle">Ollama</text>
+  <text x="570" y="695" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="500" fill="#000000" text-anchor="middle">(Fallback)</text>
+  <text x="570" y="709" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="500" fill="#000000" text-anchor="middle">Local Models</text>
+  
+  <!-- Arrow -->
+  <path d="M 400 730 L 400 760" stroke="#000000" stroke-width="2.5" fill="none" marker-end="url(#arrowhead)"/>
+  
+  <!-- Core Services Layer -->
+  <rect x="50" y="760" width="700" height="140" rx="8" fill="#ffffff" stroke="#000000" stroke-width="2.5" filter="url(#shadow)"/>
+  <text x="400" y="785" font-family="system-ui, -apple-system, sans-serif" font-size="17" font-weight="700" fill="#000000" text-anchor="middle">Core Services and Infrastructure</text>
+  
+  <!-- Services Grid -->
+  <g font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="500" fill="#000000">
+    <text x="120" y="820">• SQLite State Management</text>
+    <text x="460" y="820">• Security Validator</text>
+    
+    <text x="120" y="850">• PSMP Conflict Detection</text>
+    <text x="460" y="850">• Research Tool (ddgs)</text>
+    
+    <text x="120" y="880">• Build Data Collector</text>
+    <text x="460" y="880">• Attribution System</text>
+  </g>
+</svg>
