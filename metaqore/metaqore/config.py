@@ -39,6 +39,21 @@ class MetaQoreConfig(BaseSettings):
         default="default_local_first",
         description="Routing policy for SecureGateway (default|enterprise|compliance)",
     )
+    api_key: Optional[str] = Field(
+        default=None,
+        description="Static API key for bearer/X-API-Key auth. When set, all /api/v1 requests require it.",
+    )
+    api_key_header: str = Field(
+        default="Authorization",
+        description="Header to inspect for API key bearer token.",
+    )
+    enable_rate_limit: bool = Field(default=True, description="Enable simple in-memory rate limiting.")
+    rate_limit_per_minute: int = Field(default=120, ge=1, description="Requests allowed per minute per client")
+    rate_limit_burst: int = Field(default=240, ge=1, description="Burst ceiling within the same window")
+    privileged_token: Optional[str] = Field(
+        default=None,
+        description="Optional shared secret to mark privileged MetaQore clients.",
+    )
 
     @field_validator("max_parallel_branches")
     @classmethod

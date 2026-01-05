@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import contextlib
 from datetime import datetime
-from typing import Iterable, List, Optional
+from typing import Dict, Iterable, List, Optional, Type
 
 from sqlalchemy import JSON, Boolean, DateTime, Integer, String, create_engine, delete, select
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
 
-from metaqore.core.models import Artifact, Checkpoint, Conflict, Project, Task
+from metaqore.core.models import Artifact, Checkpoint, Conflict, Project, SpecialistModel, Task
 from metaqore.storage.backend import StorageBackend
 
 
@@ -79,6 +79,10 @@ def _serialize(model) -> dict:
 
 class SQLiteBackend(StorageBackend):
     """SQLAlchemy-powered SQLite backend."""
+
+    ARTIFACT_MODEL_REGISTRY: Dict[str, Type[Artifact]] = {
+        "specialist_model": SpecialistModel,
+    }
 
     def __init__(self, dsn: str = "sqlite:///metaqore.db") -> None:
         self.engine = create_engine(dsn, future=True)
@@ -166,13 +170,13 @@ class SQLiteBackend(StorageBackend):
             row = session.get(ArtifactTable, artifact_id)
             if not row:
                 return None
-            return Artifact.model_validate(row.payload)
+            return self._deserialize_artifact(row.payload)
 
     def list_artifacts(self, project_id: str) -> List[Artifact]:
         with Session(self.engine) as session:
             stmt = select(ArtifactTable).where(ArtifactTable.project_id == project_id).order_by(ArtifactTable.version)
             rows = session.execute(stmt).scalars().all()
-            return [Artifact.model_validate(row.payload) for row in rows]
+            return [self._deserialize_artifact(row.payload) for row in rows]
 
     def delete_artifact(self, artifact_id: str) -> None:
         with Session(self.engine) as session:
@@ -254,9 +258,25 @@ class SQLiteBackend(StorageBackend):
                     )
             session.commit()
 
+    def get_conflict(self, conflict_id: str) -> Optional[Conflict]:
+        with Session(self.engine) as session:
+            row = session.get(ConflictTable, conflict_id)
+            if not row:
+                return None
+            return Conflict.model_validate(row.payload)
+
     def update_conflict(self, conflict: Conflict) -> Conflict:
         self.save_conflicts([conflict])
         return conflict
+
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+    @classmethod
+    def _deserialize_artifact(cls, payload: dict) -> Artifact:
+        artifact_type = payload.get("artifact_type")
+        model_cls = cls.ARTIFACT_MODEL_REGISTRY.get(artifact_type, Artifact)
+        return model_cls.model_validate(payload)
 
     def list_conflicts(self, project_id: str) -> List[Conflict]:
         with Session(self.engine) as session:

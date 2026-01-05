@@ -138,6 +138,9 @@ class StateManager:
     def save_conflicts(self, conflicts: Iterable[Conflict]) -> None:
         self._backend.save_conflicts(conflicts)
 
+    def get_conflict(self, conflict_id: str) -> Optional[Conflict]:
+        return self._backend.get_conflict(conflict_id)
+
     def update_conflict(self, conflict: Conflict) -> Conflict:
         return self._backend.update_conflict(conflict)
 

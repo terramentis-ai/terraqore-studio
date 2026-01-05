@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Literal, Optional, Sequence
 from uuid import uuid4
 
 from pydantic import BaseModel, Field, computed_field
@@ -50,6 +50,16 @@ class TaskStatus(str, Enum):
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
     FAILED = "failed"
+    BLOCKED = "blocked"
+
+
+class SpecialistLifecycle(str, Enum):
+    PROPOSED = "proposed"
+    PSMP_VALIDATING = "psmp_validating"
+    MOPD_TRAINING = "mopd_training"
+    VALIDATION_GATING = "validation_gating"
+    ACTIVE = "active"
+    DEPRECATED = "deprecated"
     BLOCKED = "blocked"
 
 
@@ -117,6 +127,31 @@ class Artifact(MetaQoreModel):
 
     def add_provenance(self, entry: "Provenance") -> None:
         self.provenance.append(entry)
+
+
+class SpecialistModel(Artifact):
+    """PSMP artifact subtype that represents an HMCP-trained specialist."""
+
+    artifact_type: Literal["specialist_model"] = "specialist_model"
+    skill_id: str
+    parent_agent: str
+    teachers: List[str] = Field(default_factory=list)
+    level_key: str
+    level_type: str
+    parameter_count: Optional[int] = None
+    confidence: float = 0.0
+    lifecycle_state: SpecialistLifecycle = SpecialistLifecycle.PROPOSED
+    task_isolation_passed: bool = False
+
+    def advance_state(self, next_state: SpecialistLifecycle) -> None:
+        """Record a lifecycle transition for the specialist."""
+
+        history = self.metadata.setdefault("lifecycle_history", [])
+        history.append({
+            "state": next_state.value,
+            "changed_at": current_utc().isoformat(),
+        })
+        self.lifecycle_state = next_state
 
 
 class Task(MetaQoreModel):
@@ -202,11 +237,13 @@ __all__ = [
     "MetaQoreModel",
     "ProjectStatus",
     "TaskStatus",
+    "SpecialistLifecycle",
     "ConflictSeverity",
     "ResolutionStrategy",
     "Conflict",
     "VetoReason",
     "Artifact",
+    "SpecialistModel",
     "Task",
     "Project",
     "Checkpoint",

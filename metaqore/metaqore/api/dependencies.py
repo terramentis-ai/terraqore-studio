@@ -8,6 +8,8 @@ from metaqore.config import MetaQoreConfig
 from metaqore.core.psmp import PSMPEngine
 from metaqore.core.security import SecureGateway
 from metaqore.core.state_manager import StateManager
+from metaqore.gateway import GatewayQueue
+from metaqore.hmcp import HMCPService
 
 
 def _ensure_app_state(request: Request) -> None:
@@ -44,9 +46,27 @@ def get_secure_gateway(request: Request) -> SecureGateway:
     return gateway
 
 
+def get_hmcp_service(request: Request) -> HMCPService:
+    _ensure_app_state(request)
+    service = getattr(request.app.state, "hmcp_service", None)
+    if service is None:
+        raise RuntimeError("HMCPService not initialized on app state")
+    return service
+
+
+def get_gateway_queue(request: Request) -> GatewayQueue:
+    _ensure_app_state(request)
+    queue = getattr(request.app.state, "gateway_queue", None)
+    if queue is None:
+        raise RuntimeError("GatewayQueue not initialized on app state")
+    return queue
+
+
 __all__ = [
     "get_config",
     "get_state_manager",
     "get_psmp_engine",
     "get_secure_gateway",
+    "get_hmcp_service",
+    "get_gateway_queue",
 ]

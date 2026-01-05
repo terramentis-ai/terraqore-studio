@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from importlib import metadata
 from typing import Optional
@@ -15,7 +17,7 @@ from metaqore.core.psmp import PSMPEngine
 from metaqore.core.security import SecureGateway, resolve_routing_policy
 from metaqore.core.state_manager import StateManager
 from metaqore.gateway import InMemoryGatewayQueue
-from metaqore.hmcp import HMCPService
+from metaqore.hmcp import ChainingOrchestrator, HMCPService
 from metaqore.logger import configure_logging, get_logger
 from metaqore.storage.backends.sqlite import SQLiteBackend
 from metaqore.streaming.hub import get_event_hub
@@ -43,6 +45,23 @@ def _create_state_layer(
     return state_manager, psmp_engine, secure_gateway
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Manage application lifecycle events."""
+    # Startup
+    try:
+        loop = asyncio.get_running_loop()
+        get_event_hub().set_loop(loop)
+        logger.info("StreamingEventHub bound to main event loop")
+    except RuntimeError:
+        logger.warning("Could not bind StreamingEventHub to event loop (no running loop)")
+
+    yield
+
+    # Shutdown
+    pass
+
+
 def create_api_app(config: Optional[MetaQoreConfig] = None) -> FastAPI:
     """Instantiate and configure the FastAPI application."""
 
@@ -57,11 +76,13 @@ def create_api_app(config: Optional[MetaQoreConfig] = None) -> FastAPI:
         docs_url="/docs",
         redoc_url="/redoc",
         openapi_url="/openapi.json",
+        lifespan=lifespan,
     )
 
     state_manager, psmp_engine, secure_gateway = _create_state_layer(config)
     gateway_queue = InMemoryGatewayQueue()
-    hmcp_service = HMCPService(gateway_queue=gateway_queue)
+    orchestrator = ChainingOrchestrator.build_default(state_manager)
+    hmcp_service = HMCPService(gateway_queue=gateway_queue, orchestrator=orchestrator)
 
     app.state.config = config
     app.state.version = version
@@ -73,7 +94,7 @@ def create_api_app(config: Optional[MetaQoreConfig] = None) -> FastAPI:
     app.state.hmcp_service = hmcp_service
     app.state.event_hub = get_event_hub()
 
-    register_middlewares(app, config)
+    register_middlewares(app, config, privileged_token=config.privileged_token)
     register_routes(app, prefix=DEFAULT_API_PREFIX)
 
     logger.info("MetaQore API initialized (mode=%s)", config.governance_mode.value)

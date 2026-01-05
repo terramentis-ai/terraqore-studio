@@ -76,6 +76,10 @@ class StorageBackend(ABC):
         """Persist new conflicts for auditing/triage."""
 
     @abstractmethod
+    def get_conflict(self, conflict_id: str) -> Optional[Conflict]:  # pragma: no cover
+        """Return conflict by ID if it exists."""
+
+    @abstractmethod
     def update_conflict(self, conflict: Conflict) -> Conflict:  # pragma: no cover
         """Update existing conflict state (e.g., resolved)."""
 

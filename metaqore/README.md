@@ -94,7 +94,9 @@ pip install -r requirements.txt
 ### Run Tests
 
 ```bash
-pytest tests/unit/test_api_projects.py tests/unit/test_api_tasks.py tests/unit/test_api_artifacts.py -v
+pytest -q
+# or filtered:
+pytest tests/unit/test_api_governance.py -v
 ```
 
 ### Start the API Server (Future)
@@ -153,7 +155,7 @@ The CLI loads `compliance_audit_<org>.jsonl`, aggregates routing/veto events, an
 - **ComplianceAuditor**: Immutable audit trail with provenance tracking
 
 ### ✅ Phase 2: Complete (API & Observability)
-- **API Foundation**: FastAPI Application Factory, CRUD Endpoints, Governance Routes
+- **API Foundation**: FastAPI Application Factory, CRUD Endpoints, Governance Routes (conflict listing, resolution, blocking report, compliance export/audit)
 - **Streaming & Observability**: WebSocket Manager, Webhook Dispatcher, Rich Events, Metrics System, Prometheus Exporter
 
 ### 🚧 Phase 3: In-Progress (HMCP Specialist Engine)
@@ -168,8 +170,9 @@ See [DEVELOPMENT_ROADMAP.md](DEVELOPMENT_ROADMAP.md) for detailed roadmap.
 ## 📚 Documentation
 
 - **[DEVELOPMENT_ROADMAP.md](DEVELOPMENT_ROADMAP.md)** — Detailed status, tasks, and roadmap
-- **[API_REFERENCE.md](API_REFERENCE.md)** — Detailed REST endpoint specs
+- **[API_REFERENCE.md](API_REFERENCE.md)** — REST specs including governance/conflict/compliance endpoints
 - **[DEVELOPMENT_GUIDE.md](DEVELOPMENT_GUIDE.md)** — Architecture, patterns, immediate priorities
+- **[TODO_UPDATED.md](TODO_UPDATED.md)** — Rolling task tracker (Jan 4 refresh)
 
 ---
 
@@ -178,9 +181,9 @@ See [DEVELOPMENT_ROADMAP.md](DEVELOPMENT_ROADMAP.md) for detailed roadmap.
 MetaQore is under active development. Contributions welcome!
 
 1. Fork the repo
-2. Create a feature branch (`git checkout -b feat/your-feature`)
+2. Create a feature branch (`git checkout -b feat/governance-refresh`)
 3. Write tests + code
-4. Ensure tests pass (`pytest tests/unit/`)
+4. Ensure tests pass (`pytest`)
 5. Format (`black metaqore/`) and lint (`flake8 metaqore/`)
 6. Push and create a Pull Request
 

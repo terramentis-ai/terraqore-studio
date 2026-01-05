@@ -9,6 +9,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 from metaqore.core.models import VetoReason
+from metaqore.streaming.events import Event, EventType
+from metaqore.streaming.hub import get_event_hub
 from metaqore.logger import get_logger
 
 logger = get_logger(__name__)
@@ -57,6 +59,7 @@ class ComplianceAuditor:
 
         event = self._build_event("routing_decision", decision)
         self._buffer_event(event)
+        self._emit_streaming_event("compliance.routing_decision", decision)
 
     def log_veto_event(self, veto: VetoReason, context: Optional[Dict[str, Any]] = None) -> None:
         """Record a veto event (policy enforcement failure)."""
@@ -66,6 +69,7 @@ class ComplianceAuditor:
             payload.update(context)
         event = self._build_event("veto", payload)
         self._buffer_event(event)
+        self._emit_streaming_event("compliance.veto", payload)
 
     def flush(self) -> None:
         """Write any buffered events to disk."""
@@ -176,6 +180,26 @@ class ComplianceAuditor:
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         self.close()
+
+    def _emit_streaming_event(self, event_type: str, payload: Dict[str, Any]) -> None:
+        """Mirror compliance events to the streaming layer."""
+
+        try:
+            # Map string event type to EventType enum if possible
+            try:
+                evt_type = EventType(event_type)
+            except ValueError:
+                # Fallback: create custom event type string
+                evt_type = event_type  # type: ignore
+            
+            event = Event(
+                event_type=evt_type,
+                changes=payload,
+                metadata={"organization": self.organization}
+            )
+            get_event_hub().emit(event)
+        except Exception:  # pragma: no cover - streaming is best-effort
+            logger.debug("Failed to emit streaming event", exc_info=True)
 
 
 def generate_compliance_report(

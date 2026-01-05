@@ -14,6 +14,8 @@ from metaqore.core.models import (
     ResolutionStrategy,
 )
 from metaqore.exceptions import ConflictDetectedError
+from metaqore.streaming.events import Event, EventType
+from metaqore.streaming.hub import get_event_hub
 from metaqore.logger import get_logger
 
 logger = get_logger(__name__)
@@ -60,6 +62,7 @@ class PSMPEngine:
             logger.warning(
                 "Artifact %s blocked by conflicts: %s", artifact.id, conflict_ids, extra={"project_id": artifact.project_id}
             )
+            self._emit_conflict_event(artifact.project_id, artifact.id, conflicts)
             raise ConflictDetectedError(
                 "Artifact declaration blocked by conflicts",
                 metadata={
@@ -170,6 +173,21 @@ class PSMPEngine:
                     )
                 )
         return conflicts
+
+    def _emit_conflict_event(self, project_id: str, artifact_id: str, conflicts: Sequence[Conflict]) -> None:
+        # Serialize conflicts to dicts before including in event changes
+        conflicts_data = [conflict.model_dump(mode='json') for conflict in conflicts]
+        event = Event(
+            event_type=EventType.CONFLICT_DETECTED,
+            resource_id=artifact_id,
+            resource_type="artifact",
+            project_id=project_id,
+            changes={
+                "artifact_id": artifact_id,
+                "conflicts": conflicts_data,
+            },
+        )
+        get_event_hub().emit(event)
 
 
 __all__ = ["PSMPEngine"]

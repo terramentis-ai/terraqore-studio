@@ -6,11 +6,13 @@ talking to external services (OpenRouter, Ollama, etc.).
 
 Optional integration: Can mimic TerraQore's LLMResponse format if TerraQore
 is available, but this is NOT required—MetaQore works completely standalone.
+"""
 
 from __future__ import annotations
 
 import hashlib
 import itertools
+import secrets
 import random
 import time
 from dataclasses import dataclass, field
@@ -34,6 +36,7 @@ class MockLLMResponse:
     usage: Dict[str, int] = field(default_factory=dict)
     success: bool = True
     error: Optional[str] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_terra_response(self):  # pragma: no cover - only used when TerraQore installed
         """Return a core_cli.core.llm_client.LLMResponse if TerraQore is available."""
@@ -60,6 +63,12 @@ class MockLLMScenario:
     static_response: Optional[str] = None
     handler: Optional[Callable[["MockPromptContext"], str]] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
+    failure_mode: Optional[str] = None
+    error_message: Optional[str] = None
+    inject_after_uses: int = 0
+    adversarial_check: Optional[Callable[[str], str]] = None
+    validation_hook: Optional[Callable[[str], bool]] = None
+    tags: List[str] = field(default_factory=list)
 
     def matches(self, prompt: str, metadata: Dict[str, Any]) -> bool:
         if not self.keywords:
@@ -99,7 +108,15 @@ class MockLLMClient:
         self.default_mode = default_mode
         self._scenarios: List[MockLLMScenario] = []
         self._counter = itertools.count(1)
-        self._rng = random.Random(seed) if deterministic else random.Random()
+        self.deterministic = deterministic
+        if deterministic:
+            if seed is None:
+                seed = 1337
+            self._rng_seed = seed
+        else:
+            self._rng_seed = secrets.randbelow(2**32 - 1)
+        self._rng = random.Random(self._rng_seed)
+        self._scenario_state: Dict[str, Dict[str, Any]] = {}
 
     # ------------------------------------------------------------------
     # Scenario configuration helpers
@@ -162,15 +179,52 @@ class MockLLMClient:
         )
 
         scenario = self._select_scenario(prompt, context.metadata)
-        content = self._render_content(scenario, context)
+        scenario_tags = scenario.tags if scenario else []
+        call_count = self._increment_scenario_usage(scenario)
+        failure_triggered = self._should_trigger_failure(scenario, call_count)
+
+        if not failure_triggered:
+            content = self._render_content(scenario, context)
+            content = self._apply_edge_case_override(scenario, content)
+            adversarial_applied = False
+            if scenario and scenario.adversarial_check:
+                content = scenario.adversarial_check(content)
+                adversarial_applied = True
+            validation_passed = self._run_validation_hook(scenario, content)
+            success = True
+            error = None
+        else:
+            content = scenario.error_message if scenario and scenario.error_message else ""
+            success = False
+            error = scenario.failure_mode or "scenario_failure"
+            adversarial_applied = False
+            validation_passed = True
+
         usage = self._estimate_usage(prompt, content)
-        self._simulate_latency()
+        self._simulate_latency(scenario_tags)
+        response_metadata = {
+            "scenario_name": scenario.name if scenario else "default",
+            "scenario_tags": scenario_tags,
+            "request_id": request_id,
+            "deterministic_seed": self._rng_seed,
+            "timestamp": context.timestamp.isoformat(),
+            "call_count": call_count,
+            "failure_mode": scenario.failure_mode if failure_triggered and scenario else None,
+            "validation_passed": validation_passed,
+            "adversarial_applied": adversarial_applied,
+        }
+        if scenario:
+            response_metadata.update(scenario.metadata)
+        response_metadata.update({"input_metadata": context.metadata})
+
         return MockLLMResponse(
             content=content,
             provider=self.provider_name,
             model=self.model,
             usage=usage,
-            success=True,
+            success=success,
+            error=error,
+            metadata=response_metadata,
         )
 
     # ------------------------------------------------------------------
@@ -253,12 +307,97 @@ class MockLLMClient:
             "total_tokens": prompt_tokens + completion_tokens,
         }
 
-    def _simulate_latency(self) -> None:
+    def _simulate_latency(self, tags: Sequence[str]) -> None:
         if self.latency_range == (0, 0):  # explicit opt-out
             return
-        low, high = self.latency_range
+        latency_range = self.latency_range
+        if tags and "high_latency" in tags:
+            latency_range = (2.0, 10.0)
+        low, high = latency_range
         delay = self._rng.uniform(low, high)
         time.sleep(delay)
 
+    def _increment_scenario_usage(self, scenario: Optional[MockLLMScenario]) -> Optional[int]:
+        if not scenario:
+            return None
+        state = self._scenario_state.setdefault(scenario.name, {"call_count": 0})
+        state["call_count"] += 1
+        return state["call_count"]
 
-__all__ = ["MockLLMClient", "MockLLMResponse", "MockLLMScenario", "MockPromptContext"]
+    def _should_trigger_failure(self, scenario: Optional[MockLLMScenario], call_count: Optional[int]) -> bool:
+        if not scenario or not scenario.failure_mode:
+            return False
+        if scenario.inject_after_uses > 0:
+            return call_count == scenario.inject_after_uses
+        return True
+
+    def _run_validation_hook(self, scenario: Optional[MockLLMScenario], content: str) -> bool:
+        if scenario and scenario.validation_hook:
+            try:
+                return bool(scenario.validation_hook(content))
+            except Exception:
+                return False
+        return True
+
+    def _apply_edge_case_override(self, scenario: Optional[MockLLMScenario], content: str) -> str:
+        if not scenario:
+            return content
+        edge_case_type = scenario.metadata.get("edge_case_type") if scenario.metadata else None
+        if edge_case_type:
+            return self._generate_edge_case(str(edge_case_type))
+        return content
+
+    def _generate_edge_case(self, response_type: str) -> str:
+        response_type = response_type.lower()
+        if response_type == "long_text":
+            return "long_text:" + ("A" * 5000)
+        if response_type == "empty":
+            return ""
+        if response_type == "malformed_json":
+            return '{"incomplete": true, "data"'
+        if response_type == "unicode_noise":
+            return "⚠️" * 200 + " random noise"
+        return f"edge_case::{response_type}"
+
+
+@dataclass
+class StatefulConversationHandler:
+    """Stateful handler that simulates HMCP-style multi-turn behavior."""
+
+    name: str
+    memory_limit: int = 5
+    decay: float = 0.02
+    initial_confidence: float = 0.95
+
+    def __post_init__(self) -> None:
+        self.memory: List[str] = []
+        self.call_count: int = 0
+        self.confidence: float = self.initial_confidence
+
+    def __call__(self, context: MockPromptContext) -> str:
+        self.call_count += 1
+        snippet = context.prompt.strip()[:160]
+        if snippet:
+            self.memory.append(snippet)
+            if len(self.memory) > self.memory_limit:
+                self.memory.pop(0)
+        self.confidence = max(0.05, self.confidence - self.decay)
+        memory_lines = "\n".join(f"- {item}" for item in self.memory) if self.memory else "- (empty)"
+        return dedent(
+            f"""
+            ### Stateful Conversation ({self.name})
+            call_count: {self.call_count}
+            confidence: {self.confidence:.2f}
+            memory:
+            {memory_lines}
+            """.strip()
+        )
+
+
+__all__ = [
+    "MockLLMClient",
+    "MockLLMResponse",
+    "MockLLMScenario",
+    "MockPromptContext",
+    "StatefulConversationHandler",
+]

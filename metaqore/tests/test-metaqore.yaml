@@ -1,0 +1,71 @@
+name: MetaQore Test Suite
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    # Service containers for dependencies like Ollama
+    services:
+      ollama:
+        image: ollama/ollama:latest
+        options: --runtime=nvidia --gpus all  # Remove `--gpus all` if no GPU in runner
+        ports:
+          - 11434:11434
+        # Pre-pull a test model to speed up the run
+        env:
+          OLLAMA_HOST: 0.0.0.0
+
+    steps:
+      # STEP 1: Check out the code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # STEP 2: Set up Python
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # STEP 3: Install MetaQore dependencies
+      - name: Install dependencies
+        working-directory: metaqore
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      # STEP 4: Start Ollama and pull a test model (using a background script)
+      - name: Initialize Ollama with a test model
+        run: |
+          # Wait for Ollama service to be fully ready
+          sleep 10
+          # Pull a small, fast model for CI (e.g., TinyLlama)
+          curl -X POST http://localhost:11434/api/pull -d '{"name": "tinyllama"}'
+        continue-on-error: true  # Continue even if pull fails (network issue)
+
+      # STEP 5: Run the MetaQore test suite
+      - name: Run comprehensive test phases
+        working-directory: metaqore
+        env:
+          OLLAMA_BASE_URL: "http://localhost:11434"
+          TEST_MODEL_UNIT: "tinyllama"
+        run: |
+          python tests/metaqore_testsuite.py --phase 1 --llm-mode mock
+          python tests/metaqore_testsuite.py --phase 2 --llm-mode mock
+          # Phase 3 (performance) might be skipped in CI due to resource limits
+          # echo "Skipping Phase 3 (Performance) in CI environment."
+
+      # STEP 6: (Optional) Upload test results or logs as an artifact
+      - name: Upload test logs
+        if: always()  # Upload logs even if the job fails
+        uses: actions/upload-artifact@v4
+        with:
+          name: metaqore-test-logs
+          path: |
+            **/*.log
+            test-results/
