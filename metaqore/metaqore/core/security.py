@@ -5,8 +5,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
-from dataclasses import dataclass
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, List, Optional, Type
 
 from metaqore.core.models import ConflictSeverity, VetoReason
 from metaqore.core.audit import ComplianceAuditor
@@ -54,36 +53,43 @@ class RoutingPolicy(ABC):
         return None
 
 
+LOCAL_PROVIDERS: tuple[str, ...] = ("hmcp_gateway", "ollama")
+LOCAL_AND_CLOUD_PROVIDERS: tuple[str, ...] = LOCAL_PROVIDERS + ("openrouter",)
+
+
 class DefaultRoutingPolicy(RoutingPolicy):
     """Local-first routing with cloud fallback for non-sensitive work."""
 
     name = "default_local_first"
+    default_priority = LOCAL_AND_CLOUD_PROVIDERS
 
     def get_allowed_providers(self, sensitivity: TaskSensitivity) -> List[str]:
         if sensitivity in (TaskSensitivity.CRITICAL, TaskSensitivity.SENSITIVE):
-            return ["ollama"]
-        return ["ollama", "openrouter"]
+            return list(LOCAL_PROVIDERS)
+        return list(LOCAL_AND_CLOUD_PROVIDERS)
 
 
 class EnterpriseRoutingPolicy(RoutingPolicy):
     """Enterprise data-residency policy that locks all internal work to local providers."""
 
     name = "enterprise_residency"
+    default_priority = LOCAL_AND_CLOUD_PROVIDERS
 
     def get_allowed_providers(self, sensitivity: TaskSensitivity) -> List[str]:
         if sensitivity == TaskSensitivity.PUBLIC:
-            return ["ollama", "openrouter"]
-        return ["ollama"]
+            return list(LOCAL_AND_CLOUD_PROVIDERS)
+        return list(LOCAL_PROVIDERS)
 
 
 class CompliancePolicy(RoutingPolicy):
     """Strict compliance policy that forces all work through local providers."""
 
     name = "compliance_local_only"
+    default_priority = LOCAL_PROVIDERS
 
     def get_allowed_providers(self, sensitivity: TaskSensitivity) -> List[str]:
         _ = sensitivity  # sensitivity does not impact selection for this policy
-        return ["ollama"]
+        return list(LOCAL_PROVIDERS)
 
 
 class SecureGateway:
@@ -307,6 +313,46 @@ class SecureGateway:
         self.auditor.log_veto_event(self._last_veto, context)
 
 
+POLICY_REGISTRY = {
+    DefaultRoutingPolicy.name: DefaultRoutingPolicy,
+    EnterpriseRoutingPolicy.name: EnterpriseRoutingPolicy,
+    CompliancePolicy.name: CompliancePolicy,
+}
+
+POLICY_ALIASES = {
+    "default": DefaultRoutingPolicy.name,
+    "local_first": DefaultRoutingPolicy.name,
+    "default_local_first": DefaultRoutingPolicy.name,
+    "enterprise": EnterpriseRoutingPolicy.name,
+    "residency": EnterpriseRoutingPolicy.name,
+    "enterprise_residency": EnterpriseRoutingPolicy.name,
+    "compliance": CompliancePolicy.name,
+    "local_only": CompliancePolicy.name,
+    "compliance_local_only": CompliancePolicy.name,
+}
+
+
+def _normalize_policy_key(value: str) -> str:
+    return value.strip().lower().replace("-", "_")
+
+
+def resolve_routing_policy(policy: Optional[str | RoutingPolicy]) -> RoutingPolicy:
+    """Return a RoutingPolicy instance given a canonical name or alias."""
+
+    if isinstance(policy, RoutingPolicy):
+        return policy
+    if policy is None:
+        return DefaultRoutingPolicy()
+
+    normalized = _normalize_policy_key(policy)
+    canonical = POLICY_ALIASES.get(normalized, normalized)
+    policy_cls = POLICY_REGISTRY.get(canonical)
+    if policy_cls is None:
+        known = ", ".join(sorted(POLICY_REGISTRY.keys()))
+        raise ValueError(f"Unknown secure gateway policy '{policy}'. Known policies: {known}")
+    return policy_cls()
+
+
 __all__ = [
     "TaskSensitivity",
     "ProviderStatus",
@@ -315,4 +361,6 @@ __all__ = [
     "EnterpriseRoutingPolicy",
     "CompliancePolicy",
     "SecureGateway",
+    "resolve_routing_policy",
+    "POLICY_REGISTRY",
 ]

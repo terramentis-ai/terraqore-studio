@@ -35,6 +35,10 @@ class MetaQoreConfig(BaseSettings):
     max_conversation_participants: int = Field(default=6, ge=1, le=32)
     storage_backend: str = Field(default="sqlite", description="sqlite | postgres | redis")
     storage_dsn: str = Field(default="sqlite:///metaqore.db")
+    secure_gateway_policy: str = Field(
+        default="default_local_first",
+        description="Routing policy for SecureGateway (default|enterprise|compliance)",
+    )
 
     @field_validator("max_parallel_branches")
     @classmethod
@@ -43,6 +47,14 @@ class MetaQoreConfig(BaseSettings):
         if governance_mode == GovernanceMode.STRICT and value > 1:
             raise ValueError("STRICT mode allows max_parallel_branches <= 1")
         return value
+
+    @field_validator("secure_gateway_policy")
+    @classmethod
+    def _validate_secure_gateway_policy(cls, value: str) -> str:
+        from metaqore.core.security import resolve_routing_policy
+
+        policy = resolve_routing_policy(value)
+        return policy.name
 
     @classmethod
     def from_yaml(cls, path: str | Path, *, overrides: Optional[Dict[str, Any]] = None) -> "MetaQoreConfig":

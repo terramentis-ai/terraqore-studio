@@ -18,6 +18,13 @@ def test_create_api_app_populates_state_dependencies() -> None:
     assert app.state.secure_gateway is not None
 
 
+def test_create_api_app_respects_secure_gateway_policy() -> None:
+    config = MetaQoreConfig(secure_gateway_policy="enterprise", max_parallel_branches=1)
+    app = create_api_app(config)
+
+    assert app.state.secure_gateway.policy.name == "enterprise_residency"
+
+
 def test_health_endpoint_returns_success_payload() -> None:
     app = create_api_app()
     client = TestClient(app)
