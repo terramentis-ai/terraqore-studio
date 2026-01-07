@@ -1,3 +1,0 @@
-"""
-MetaQore Test Suite
-"""
