@@ -7,7 +7,7 @@
 MetaQore is a standalone, cloud-native API service that serves as the foundational infrastructure layer for multi-agent AI systems. It enforces mandatory governance, security, and compliance protocols, transforming experimental agent scripts into production-ready enterprise applications.
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![Tests Passing](https://img.shields.io/badge/tests-passing-brightgreen.svg)](#testing)
 
 ---
@@ -109,7 +109,87 @@ uvicorn metaqore.api.app:app --reload
 
 ---
 
-## 🔐 Security Tooling
+## � System Specifications for Full Stack Deployment
+
+### Minimum Specifications (Dev/Testing)
+- **CPU**: 4+ cores (Intel i5/Ryzen 5 or equivalent)
+- **RAM**: 16 GB
+- **Storage**: 32 GB SSD (models + database)
+- **Python**: 3.11+ (required for llama-cpp-python wheels)
+- **GPU**: Optional (CPU inference supported via llama.cpp)
+- **Network**: Localhost development
+
+### Recommended Specifications (Production)
+- **CPU**: 16+ cores (Intel Xeon/Ryzen 7000 or equivalent)
+- **RAM**: 64-128 GB (for multi-model concurrent inference + state caching)
+- **Storage**: 512 GB+ SSD (model cache, artifact storage, audit logs)
+- **GPU**: NVIDIA RTX 4090/H100 or equivalent for 3-5 concurrent model inferences
+- **Python**: 3.11 LTS
+- **Network**: Gigabit Ethernet minimum; 10G recommended for distributed deployments
+
+### Capabilities (Fully Assembled System)
+
+Once all components are integrated, the system supports:
+
+1. **12+ Specialized AI Agents** operating concurrently
+   - IdeaAgent (creative ideation)
+   - PlannerAgent (project architecture)
+   - CoderAgent (code generation with 4-file output)
+   - CodeValidationAgent (quality scoring 0-10)
+   - SecurityVulnerabilityAgent (CRITICAL sensitivity routing)
+   - TestCritiqueAgent (automated test generation)
+   - DataScienceAgent (ML architecture design)
+   - MLOpsAgent (deployment & monitoring)
+   - DevOpsAgent (infrastructure automation)
+   - ConflictResolverAgent (dependency resolution)
+   - NotebookAgent (Jupyter generation)
+   - IdeaValidatorAgent (feasibility assessment)
+
+2. **6-Stage Orchestration Pipeline**
+   - Ideation → Validation → Planning → Code Generation → Validation → Security Scan
+   - Auto-iteration on quality gates (min score 6/10 for code)
+   - Mandatory PSMP conflict detection at each stage
+
+3. **Multi-Provider LLM Gateway**
+   - Offline-first routing (llama.cpp via MetaQore native)
+   - Cloud fallback (OpenRouter with 300+ models including Groq, Anthropic, Claude)
+   - Intelligent provider selection based on task sensitivity
+   - KV-cache optimization for repeated contexts
+
+4. **Security-First Architecture**
+   - TaskSensitivity classification (PUBLIC/INTERNAL/SENSITIVE/CRITICAL)
+   - Policy-based routing (DefaultRoutingPolicy, EnterprisePolicy, CompliancePolicy)
+   - Prompt injection detection via SecurityValidator
+   - Immutable compliance audit trail (JSONL format)
+
+5. **Enterprise Governance (PSMP)**
+   - Project state machine (INITIALIZED → PLANNING → IN_PROGRESS → COMPLETED/FAILED)
+   - Artifact versioning and conflict detection
+   - Dependency resolution with semantic conflict solving
+   - Blocking reports on policy violations
+
+6. **Real-Time Collaboration**
+   - WebSocket streaming for agent progress updates
+   - Live conflict notifications
+   - Status aggregation dashboard
+   - Concurrent project management (50+ projects)
+
+7. **Performance Targets**
+   - Full ideation cycle: 30-45 seconds
+   - Full planning cycle: 20-30 seconds
+   - Code generation: 45-120 seconds (depending on complexity)
+   - Security scan: 15-30 seconds
+   - End-to-end workflow: 3-5 minutes for medium complexity project
+
+8. **Scalability**
+   - 12+ agents with 10+ concurrent projects
+   - 100+ artifacts per project
+   - 1000+ state transitions logged per workflow
+   - Sub-second response times for health checks and basic queries
+
+---
+
+## �🔐 Security Tooling
 
 ### Configure SecureGateway Routing
 
